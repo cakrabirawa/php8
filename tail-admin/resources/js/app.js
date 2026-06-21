@@ -1,3 +1,8 @@
+import Alpine from 'alpinejs';
+
+window.Alpine = Alpine;
+Alpine.start();
+
 document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
@@ -18,27 +23,31 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sidebarClose) sidebarClose.addEventListener('click', toggleMobileSidebar);
     if (overlay) overlay.addEventListener('click', toggleMobileSidebar);
 
+    // 2. TOGGLE SHOW/HIDE SIDEBAR DESKTOP (Didaftarkan ke Global Window Scope)
+    window.toggleDesktopSidebar = function (e) {
+        if (e) e.preventDefault();
 
-    // 2. TOGGLE SHOW/HIDE SIDEBAR DESKTOP
-    if (desktopToggle && sidebar) {
-        desktopToggle.addEventListener('click', (e) => {
-            e.preventDefault();
+        const targetSidebar = document.getElementById('sidebar');
+        const btnToggle = e ? e.currentTarget : document.querySelector('[onclick*="toggleDesktopSidebar"]');
 
-            sidebar.classList.toggle('md:-ml-64');
+        if (targetSidebar) {
+            // Memaksa manipulasi kelas lebar v4
+            targetSidebar.classList.toggle('md:w-0');
 
-            if (sidebar.classList.contains('md:-ml-64')) {
-                desktopToggle.setAttribute('title', 'Tampilkan Sidebar');
-            } else {
-                desktopToggle.setAttribute('title', 'Sembunyikan Sidebar');
+            if (btnToggle) {
+                if (targetSidebar.classList.contains('md:w-0')) {
+                    btnToggle.setAttribute('title', 'Tampilkan Sidebar');
+                } else {
+                    btnToggle.setAttribute('title', 'Sembunyikan Sidebar');
+                }
             }
 
-            // PERBAIKAN: Disesuaikan menjadi 550ms mengikuti durasi efek bounce sidebar
-            setTimeout(() => {
-                initSidebarTooltips();
-            }, 550);
-        });
-    }
-
+            // Hitung ulang keakuratan tooltip text setelah animasi pulsa/bounce selesai
+            if (typeof initSidebarTooltips === 'function') {
+                setTimeout(initSidebarTooltips, 550);
+            }
+        }
+    };
 
     // 3. Multilevel Accordion Dropdown Trigger
     document.querySelectorAll('.submenu-toggle').forEach(button => {
@@ -53,8 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-
-    // --- 4. FETCH ENGINE DENGAN HISTORY API & SKELETON LOADING ---
+    // 4. FETCH ENGINE DENGAN HISTORY API & SKELETON LOADING
     async function loadPage(pageName, shouldPushState = true) {
         if (!pageName) return;
 
@@ -73,11 +81,11 @@ document.addEventListener('DOMContentLoaded', () => {
             updateActiveMenu(pageName);
 
             if (shouldPushState) {
-                const targetUrl = pageName === 'dashboard' ? '/' : `/${pageName}`;
+                const targetUrl = pageName === 'dashboard' ? '/dashboard' : `/${pageName}`;
                 history.pushState({ page: pageName }, '', targetUrl);
             }
 
-            // Tutup otomatis drawer mobile setelah klik menu
+            // Tutup otomatis drawer mobile jika klik link di layar kecil
             if (sidebar && !sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
                 toggleMobileSidebar();
             }
@@ -113,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 5. AUTOMATIC TOOLTIP FOR OVERFLOW TEXT ---
+    // 5. AUTOMATIC TOOLTIP FOR OVERFLOW TEXT
     function initSidebarTooltips() {
         const textElements = document.querySelectorAll('.truncate-text');
         textElements.forEach(el => {
@@ -126,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const currentPath = window.location.pathname.replace('/', '');
-    const initialPage = currentPath === '' ? 'dashboard' : currentPath;
+    const initialPage = currentPath === '' || currentPath === 'dashboard' ? 'dashboard' : currentPath;
     history.replaceState({ page: initialPage }, '', window.location.pathname);
     updateActiveMenu(initialPage);
     initSidebarTooltips();
@@ -139,7 +147,6 @@ function getSkeletonHTML() {
             <div class="h-4 bg-gray-200 rounded-md w-1/2 mb-8"></div>
             <div class="space-y-3">
                 <div class="grid grid-cols-3 gap-4"><div class="h-4 bg-gray-200 rounded-md col-span-2"></div><div class="h-4 bg-gray-200 rounded-md col-span-1"></div></div>
-                <div class="h-4 bg-gray-200 rounded-md w-3/4"></div>
             </div>
             <div class="mt-8 h-32 bg-gray-100 rounded-xl w-full"></div>
         </div>
