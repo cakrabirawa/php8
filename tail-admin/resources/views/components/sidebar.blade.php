@@ -1,6 +1,6 @@
 <!-- LEVEL 1: Dashboard -->
-<a href="#" data-page="dashboard"
-    class="nav-link flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors bg-slate-800 text-white min-w-0">
+<a href="#" id="nav-link-dashboard" data-page="dashboard" @click.prevent="window.loadPage('dashboard')"
+    class="nav-link flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors text-slate-400 min-w-0">
     <svg class="w-5 h-5 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
@@ -28,8 +28,8 @@
 
     <div x-show="open" x-transition class="space-y-1 mt-1">
         <!-- LEVEL 2: Products List -->
-        <a href="#" data-page="products"
-            class="nav-link flex items-center pl-8 pr-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors min-w-0">
+        <a href="#" id="nav-link-products" data-page="products" @click.prevent="window.loadPage('products')"
+            class="nav-link flex items-center pl-8 pr-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors min-w-0 text-slate-400">
             <svg class="w-5 h-5 mr-3 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
@@ -40,7 +40,7 @@
         <!-- LEVEL 2: Order Management Accordion -->
         <div x-data="{ childOpen: false }">
             <button @click="childOpen = !childOpen"
-                class="w-full flex items-center justify-between pl-8 pr-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors focus:outline-hidden min-w-0 text-left cursor-pointer">
+                class="w-full flex items-center justify-between pl-8 pr-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors focus:outline-hidden min-w-0 text-left cursor-pointer text-slate-400">
                 <div class="flex items-center min-w-0 mr-2">
                     <svg class="w-5 h-5 mr-3 shrink-0 text-slate-400" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -59,8 +59,9 @@
 
             <div x-show="childOpen" x-transition class="space-y-1 mt-1 text-slate-400">
                 <!-- LEVEL 3: Active Orders -->
-                <a href="#" data-page="active-orders"
-                    class="nav-link flex items-center pl-12 pr-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors min-w-0">
+                <a href="#" id="nav-link-active-orders" data-page="active-orders"
+                    @click.prevent="window.loadPage('active-orders')"
+                    class="nav-link flex items-center pl-12 pr-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors min-w-0 text-slate-400">
                     <svg class="w-5 h-5 mr-3 shrink-0 text-slate-500" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -92,8 +93,9 @@
     </button>
     <div x-show="adminOpen" x-transition class="space-y-1 mt-1">
         <!-- LEVEL 2: Create User -->
-        <a href="#" data-page="admin-create-user"
-            class="nav-link flex items-center pl-8 pr-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors min-w-0">
+        <a href="#" id="nav-link-admin-create-user" data-page="admin-create-user"
+            @click.prevent="window.loadPage('admin-create-user')"
+            class="nav-link flex items-center pl-8 pr-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors min-w-0 text-slate-400">
             <svg class="w-5 h-5 mr-3 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM2 20a6 6 0 0112 0v1H2v-1z"></path>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Laravel Dashboard Sidebar</title>
+    <title>Laravel Dashboard Sidebar SPA</title>
 
     <!-- Google Fonts: Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,6 +14,11 @@
         rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
 </head>
 <!-- STATE MANAGEMENT VIA ALPINEJS -->
 
@@ -40,18 +45,18 @@
         <div @click="mobileSidebar = false" :class="mobileSidebar ? '' : 'hidden'"
             class="fixed inset-0 bg-black/50 z-40 md:hidden"></div>
 
-        <!-- SIDEBAR UTAMA (Lebar dikontrol dinamis oleh Alpine.js) -->
+        <!-- SIDEBAR UTAMA (Fixed position agar stabil) -->
         <aside id="sidebar" :class="{
-                   'w-64 md:w-64': sidebarOpen,
-                   'w-64 md:w-0': !sidebarOpen,
+                   'w-64 md:w-64 translate-x-0': sidebarOpen,
+                   'w-64 md:w-0 -translate-x-full md:translate-x-0': !sidebarOpen,
                    'translate-x-0': mobileSidebar,
-                   '-translate-x-full md:translate-x-0': !mobileSidebar
+                   '-translate-x-full md:translate-x-0': !sidebarOpen ? (!mobileSidebar ? '-translate-x-full' : 'translate-x-0') : (mobileSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0')
                }"
             class="fixed inset-y-0 left-0 bg-slate-900 text-slate-300 transition-[width,transform] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] z-50 flex flex-col h-full shadow-lg shrink-0 overflow-hidden">
 
-            <!-- Sidebar Header Brand + TOMBOL TOGGLE DESKTOP BARU -->
+            <!-- Sidebar Header Brand -->
             <div
-                class="h-16 flex items-center justify-between px-4 bg-slate-950 text-white font-bold text-xl border-b border-slate-800 shrink-0 w-64">
+                class="h-16 flex items-center justify-between px-6 bg-slate-950 text-white font-bold text-xl border-b border-slate-800 shrink-0 w-64">
                 <div class="flex items-center space-x-2">
                     <svg class="w-6 h-6 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -61,18 +66,17 @@
                     <span>BrandAdmin</span>
                 </div>
 
-                <!-- Tombol Action (Desktop: Sembunyikan | Mobile: Tutup) -->
                 <div>
-                    <!-- Muncul di Desktop -->
+                    <!-- Tombol Hamburger Standar Desktop Inside Sidebar -->
                     <button @click="sidebarOpen = !sidebarOpen"
-                        class="hidden md:block text-slate-400 hover:text-white focus:outline-hidden cursor-pointer p-1 rounded-md hover:bg-slate-800"
+                        class="hidden md:block text-slate-400 hover:text-white focus:outline-hidden cursor-pointer p-1.5 rounded-lg hover:bg-slate-800"
                         title="Sembunyikan Sidebar">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 6h16M4 12h12M4 18h16"></path>
+                                d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
-                    <!-- Muncul di Mobile -->
+                    <!-- Tombol Tutup Mobile screen -->
                     <button @click="mobileSidebar = false"
                         class="md:hidden text-slate-400 hover:text-white focus:outline-hidden">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,26 +93,31 @@
             </div>
         </aside>
 
-        <!-- Area Kanan: Topbar Utama + Content Area -->
-        <div class="flex-1 flex flex-col min-w-0 h-full relative z-10 w-full">
+        <!-- ================= PERBAIKAN KRITIS: MENAMBAHKAN PADDING KIRI DINAMIS (md:pl-64) ================= -->
+        <!-- Saat sidebarOpen TRUE, berikan md:pl-64 agar konten bergeser ke kanan. Saat FALSE, kembali ke md:pl-0 -->
+        <div :class="sidebarOpen ? 'md:pl-64' : 'md:pl-0'"
+            class="flex-1 flex flex-col min-w-0 h-full relative z-10 w-full transition-[padding] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
 
-            <!-- Topbar Desktop (Tetap Menyediakan Tombol Cadangan Jika Sidebar Tertutup) -->
+            <!-- HEADER PUTIH UTAMA DESKTOP -->
             <header
                 class="hidden md:flex h-16 bg-white border-b border-gray-200 items-center px-6 justify-between shrink-0 relative z-20">
                 <div class="flex items-center">
-                    <!-- Tombol ini otomatis muncul ke permukaan HANYA JIKA sidebar sedang dalam kondisi tertutup (w-0) -->
+                    <!-- Tombol Cadangan yang otomatis muncul ke permukaan HANYA JIKA sidebar sedang tertutup -->
                     <button x-show="!sidebarOpen" x-cloak @click="sidebarOpen = true"
-                        class="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-hidden cursor-pointer flex items-center justify-center mr-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="text-gray-500 hover:text-slate-800 p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-hidden cursor-pointer flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
-                    <span class="text-sm font-semibold text-gray-500 tracking-wide uppercase">System Panel</span>
                 </div>
 
+                <!-- Sisi Kanan Header: Akun User -->
                 <div class="flex items-center space-x-4">
-                    <span class="text-sm font-medium text-gray-600">{{ Auth::user()->name }}</span>
+                    <span
+                        class="text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg">
+                        {{ Auth::user()->name }}
+                    </span>
                 </div>
             </header>
 
