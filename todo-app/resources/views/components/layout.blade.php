@@ -20,10 +20,23 @@
             Alpine.store('spa', {
                 isLoading: false,
 
+                // Tambahkan init untuk mendengarkan tombol back/forward browser secara global
+                init() {
+                    window.addEventListener('popstate', async () => {
+                        // Jalankan fetch konten secara otomatis saat tombol back/forward ditekan
+                        await this.fetchContent(window.location.pathname, document.title, false);
+                    });
+                },
+
                 async loadPage(url, title) {
+                    // Jika mengklik halaman yang sama, abaikan
                     if (window.location.pathname === url) return;
+                    // Panggil fungsi utama dengan parameter pushHistory = true
+                    await this.fetchContent(url, title, true);
+                },
+
+                async fetchContent(url, title, pushHistory = true) {
                     this.isLoading = true;
-                    
                     try {
                         const response = await fetch(url, {
                             headers: { 'X-Injected-Page': 'true' }
@@ -32,14 +45,16 @@
                         
                         const html = await response.text();
                         
-                        // SUNTIK HTML LANGSUNG KE KONTAINER TENGAH
+                        // SUNTIK HTML KE KONTAINER TENGAH
                         const container = document.getElementById('spa-target-content');
                         if (container) {
                             container.innerHTML = html;
                         }
                         
-                        // UPDATE URL & TAB BROWSER
-                        window.history.pushState({}, '', url);
+                        // ATUR HISTORY & TITLE TAB BROWSER
+                        if (pushHistory) {
+                            window.history.pushState({}, '', url);
+                        }
                         document.getElementById('tab-title').innerText = title;
                     } catch (error) {
                         console.error(error);
