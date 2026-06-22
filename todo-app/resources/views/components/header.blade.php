@@ -126,7 +126,7 @@
         <!-- Bagian Kanan Mobile: Menu Utama Profil -->
         <div class="relative inline-block text-left" x-data="{ mobileProfileOpen: false }">
             <button @click.stop="mobileProfileOpen = !mobileProfileOpen" class="flex items-center gap-2 cursor-pointer py-1">
-                <img src="https://unsplash.com" alt="Avatar" class="w-8 h-8 rounded-full object-cover shrink-0">
+                <img src="https://lh3.googleusercontent.com/-R3xQh1mrXRU/AAAAAAAAAAI/AAAAAAAAAAA/ALKGfknsYIHV4WUq3SbSRxl9DpMnUE95kg/photo.jpg?sz=46" alt="Avatar" class="w-8 h-8 rounded-full object-cover shrink-0">
                 <span class="text-sm font-semibold dark:text-white">Musharof</span>
                 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform" :class="mobileProfileOpen ? 'rotate-180' : ''"></i>
             </button>
