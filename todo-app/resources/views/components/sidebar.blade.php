@@ -36,8 +36,11 @@
     ];
 @endphp
 
-<aside class="w-64 bg-[#1c2434] text-[#8a99ad] flex flex-col h-full overflow-y-auto shrink-0 border-r border-[#2e3a47] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-
+<aside 
+    class="fixed inset-y-0 left-0 z-50 w-64 bg-[#1c2434] text-[#8a99ad] flex flex-col h-full overflow-y-auto border-r border-[#2e3a47] transition-transform duration-300 transform md:translate-x-0 md:static md:flex shrink-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+    :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+    @click.outside="sidebarOpen = false"
+>
     <!-- Logo / Brand Header di Sidebar -->
     <div class="p-6 flex items-center justify-between">
         <a href="#" class="flex items-center gap-3">
