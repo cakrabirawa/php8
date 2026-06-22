@@ -1,0 +1,2 @@
+1. composer create-project laravel/laravel tailadmin-ticket
+2. cd tailadmin-ticket
