@@ -35,6 +35,12 @@
                     ]
                 ],
             ]
+        ],
+        [
+            'title' => 'ADMIN',
+            'items' => [
+                    ['name' => 'User List', 'url' => '/users', 'icon' => 'fa-solid fa-horse', 'hasSub' => false],
+            ],
         ]
     ];
 @endphp

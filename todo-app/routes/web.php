@@ -1,14 +1,10 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\TicketController;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes - Sistem Navigasi Dinamis SPA (Single Page Application)
-|--------------------------------------------------------------------------
-*/
+use App\Http\Controllers\UserController;
 
 function getSpaView(Request $request, $viewName, $pageTitle)
 {
@@ -20,23 +16,26 @@ function getSpaView(Request $request, $viewName, $pageTitle)
         'pageTitle' => $pageTitle
     ]);
 }
-
-// ==========================================
-// 1. GRUP ROUTE MENU UTAMA
-// ==========================================
-
 Route::get('/', [TicketController::class, 'listView']);
-
+Route::get('/ticket-list', [TicketController::class, 'listView']);
+Route::get('/ticket-reply', [TicketController::class, 'replyView']);
+Route::post('/ticket-reply/{id}', [TicketController::class, 'storeReply']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/calendar', function (Request $request) {
     return getSpaView($request, 'calendar', 'Calendar - TailAdmin');
 });
-
-// ==========================================
-// 2. GRUP ROUTE SUPPORT TICKET (Diubah Menggunakan Controller)
-// ==========================================
-
-Route::get('/ticket-list', [TicketController::class, 'listView']);
-
-Route::get('/ticket-reply', [TicketController::class, 'replyView']);
-
-Route::post('/ticket-reply/{id}', [TicketController::class, 'storeReply']);
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+});
+Route::middleware('auth')->group(function () {
+    Route::get('/', function () {
+        return view('welcome', [
+            'pageView' => 'pages.analytics',
+            'pageTitle' => 'Analytics - TailAdmin'
+        ]);
+    });
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+});

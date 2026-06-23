@@ -6,8 +6,17 @@ use App\Models\Ticket;
 use App\Models\TicketReply;
 use Illuminate\Http\Request;
 
-class TicketController extends Controller
+class TicketController
 {
+    public function analitycalView(Request $request)
+    {
+        if ($request->is('/')) {
+            if ($request->header('X-Injected-Page')) {
+                return view('pages.analytics');
+            }
+            return view('welcome', ['pageView' => 'pages.analytics', 'pageTitle' => 'Analytics - TailAdmin']);
+        }
+    }
     // Method untuk menampilkan Halaman Daftar Tiket
     public function listView(Request $request)
     {
