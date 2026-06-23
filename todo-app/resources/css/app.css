@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* 1. MENGAKTIFKAN DETEKSI SELECTOR CLASS DARK MODE DI TAILWIND V4 */
+@variant dark (&:where(.dark, .dark *));
+
+/* 2. KONFIGURASI FONT BAWAAN POPPINS (EKSISTING) */
+@theme {
+    --font-sans: "Poppins", sans-serif;
+}
+
+/* 3. DIRECTIVE PATH SCANNING BLADE TEMPLATE (EKSISTING) */
 @source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
 @source "../../storage/framework/views/*.php";
 @source "../**/*.blade.php";

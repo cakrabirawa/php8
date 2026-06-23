@@ -21,7 +21,7 @@
                 <!-- Ticket Info Header -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4 gap-2">
                     <div>
-                        <h3 class="font-bold text-lg text-slate-800">Ticket #346520 - Sidebar not responsive on mobile</h3>
+                        <h3 class="font-bold text-lg text-slate-800">Ticket #346520 - Sidebar not responsive on mobile 1</h3>
                         <p class="text-xs text-gray-400 mt-0.5">Mon, 3:20 PM (2 days ago)</p>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-500 self-end sm:self-auto">
