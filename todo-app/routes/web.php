@@ -24,6 +24,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/calendar', function (Request $request) {
     return getSpaView($request, 'calendar', 'Calendar - TailAdmin');
 });
+Route::get('/analytics', function (Request $request) {
+    return getSpaView($request, 'pages.analytics', 'Calendar - TailAdmin');
+});
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
@@ -37,5 +40,6 @@ Route::middleware('auth')->group(function () {
     });
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
-    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });

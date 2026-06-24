@@ -17,6 +17,7 @@ class TicketController
             return view('welcome', ['pageView' => 'pages.analytics', 'pageTitle' => 'Analytics - TailAdmin']);
         }
     }
+
     // Method untuk menampilkan Halaman Daftar Tiket
     public function listView(Request $request)
     {
@@ -46,25 +47,32 @@ class TicketController
     // Method untuk menampilkan Detail Chat Tiket dengan Paging AJAX (Diperbarui)
     public function replyView(Request $request)
     {
-        // Definisikan fungsi JavaScript yang akan disuntikkan ke view.
-        // Ini akan menangani pembaruan dinamis (AJAX) untuk daftar chat.
-        // DIPINDAHKAN KE ATAS agar tersedia untuk semua jenis request (initial load & AJAX).
+        // Definisikan skrip JavaScript yang akan disuntikkan ke view untuk menangani paginasi AJAX.
         $jsFunction = <<<JS
         <script>
+            // Pastikan fungsi ini didefinisikan di scope global (window)
+            // dan hanya didefinisikan sekali untuk menghindari masalah.
             if (typeof window.loadChatPage !== 'function') {
                 window.loadChatPage = function(url) {
+                    // URL yang diterima dari Alpine/@click sudah berisi parameter yang benar.
                     fetch(url, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                             'X-Injected-Page': 'true'
                         }
                     })
-                    .then(response => response.text())
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok.');
+                        return response.text();
+                    })
                     .then(html => {
-                        // Ganti isi dari container chat dengan konten baru dari AJAX
+                        // Respons AJAX (dari 'pages.partials.chat-list-fragment') akan menggantikan
+                        // seluruh isi dari container chat, termasuk daftar chat dan link paginasi yang baru.
                         const chatContainer = document.getElementById('chat-list-container');
                         if (chatContainer) {
                             chatContainer.innerHTML = html;
+                        } else {
+                            console.error('Error: Container with ID "chat-list-container" not found.');
                         }
                     })
                     .catch(error => console.error('Error loading chat page:', error));
@@ -96,9 +104,10 @@ class TicketController
 
         return view('welcome', [
             'pageView' => 'pages.ticket-reply',
-            'pageTitle' => 'Ticket Reply - TailAdmin' . $jsFunction, // Suntikkan JS ke pageTitle
+            'pageTitle' => 'Ticket Reply - TailAdmin',
             'ticket' => $ticket,
-            'replies' => $replies
+            'replies' => $replies,
+            'jsFunction' => $jsFunction // Pass JS function as a separate variable
         ]);
     }
 

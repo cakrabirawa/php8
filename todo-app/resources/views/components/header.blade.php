@@ -147,7 +147,12 @@
                         <li><a href="#" class="flex items-center gap-3 py-2 px-3 rounded-md hover:bg-[#333a48] hover:text-white text-gray-600 dark:text-gray-300 transition group"><i class="fa-regular fa-circle-question w-5 text-center text-gray-400 group-hover:text-white transition"></i> Support</a></li>
                     </ul>
                     <div class="border-t border-gray-100 dark:border-slate-700 my-2"></div>
-                    <a href="#" class="flex items-center gap-3 py-2 px-3 rounded-md hover:bg-[#333a48] hover:text-white text-sm text-slate-600 dark:text-slate-300 hover:text-rose-500 transition group"><i class="fa-solid fa-arrow-right-from-bracket w-5 text-center text-gray-400 group-hover:text-white transition"></i> Sign out</a>
+                    <form action="{{ url('/logout') }}" method="POST" class="w-full">
+                        @csrf
+                        <button type="submit" class="flex items-center gap-3 py-2 px-3 rounded-md hover:bg-[#333a48] hover:text-white text-sm text-slate-600 dark:text-slate-300 hover:text-rose-500 transition group w-full text-left">
+                            <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center text-gray-400 group-hover:text-white transition"></i> Keluar
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

@@ -9,7 +9,7 @@
                     'badge' => null, 
                     'hasSub' => true, 
                     'subs' => [
-                        ['name' => 'Analytics', 'url' => '/']
+                        ['name' => 'Analytics', 'url' => '/analytics', 'icon' => 'fa-solid fa-retweet']
                     ]
                 ],
                 [
@@ -30,8 +30,8 @@
                     'badge' => null, 
                     'hasSub' => true, 
                     'subs' => [
-                        ['name' => 'Ticket List', 'url' => '/ticket-list'],
-                        ['name' => 'Ticket Reply', 'url' => '/ticket-reply']
+                        ['name' => 'Ticket List', 'url' => '/ticket-list', 'icon' => 'fa-solid fa-list-ul'],
+                        ['name' => 'Ticket Reply', 'url' => '/ticket-reply', 'icon' => 'fa-solid fa-pen-to-square']
                     ]
                 ],
             ]
@@ -114,6 +114,9 @@
                                                @click="$store.spa.loadPage('{{ $sub['url'] }}', '{{ $sub['name'] }} - TailAdmin'); currentPath = '{{ $sub['url'] }}'; if(window.innerWidth < 768) sidebarOpen = false;"
                                                class="flex items-center w-full px-4 py-2 rounded-md transition min-w-0"
                                                :class="currentPath === '{{ $sub['url'] }}' ? 'bg-[#333a48] text-blue-500 font-medium' : 'text-[#8a99ad] hover:text-white'">
+                                                @if(isset($sub['icon']) && $sub['icon'])
+                                                    <i class="{{ $sub['icon'] }} text-xs mr-3 shrink-0"></i>
+                                                @endif
                                                 <span class="truncate">{{ $sub['name'] }}</span>
                                             </a>
                                         </li>
@@ -137,6 +140,24 @@
                 </ul>
             </div>
         @endforeach
+
+        {{-- SIGN OUT MENU --}}
+        <div>
+            <span class="text-[11px] font-bold uppercase tracking-widest text-[#64748b] block mb-3.5">AKUN</span>
+            <ul class="space-y-1.5">
+                <li>
+                    <form action="{{ url('/logout') }}" method="POST" class="w-full">
+                        @csrf
+                        <button type="submit" 
+                                title="Sign Out"
+                                class="flex items-center gap-3 p-2.5 rounded-md text-sm transition w-full text-left hover:bg-[#333a48] hover:text-white">
+                            <i class="fa-solid fa-right-from-bracket text-base w-5 text-center shrink-0"></i>
+                            <span class="truncate">Keluar</span>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
 
     </nav>
 </aside>
