@@ -89,6 +89,30 @@
             // Gunakan fungsi SPA yang sudah ada untuk memuat konten halaman berikutnya
             $store.spa.fetchContent(url.pathname + url.search, 'User Management - TailAdmin', false);
         }
+    },
+    async deleteUser(userId) {
+        if (!confirm('Yakin hapus pengguna ini?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`{{ url('users') }}/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                this.message = result.message;
+                $store.spa.fetchContent('/users', 'User Management - TailAdmin', false); // Refresh list
+            } 
+        } catch (error) {
+            console.error('Gagal menghapus user:', error);
+        }
     }
 }">
     <h2 class="text-xl font-bold mb-4" x-text="isEditing ? 'Edit User' : 'Tambah User'">User Management</h2>
@@ -172,6 +196,7 @@
                         @csrf @method('DELETE')
                         <button type="submit" class="text-red-600 hover:underline">Hapus</button>
                     </form>
+                    <button @click="deleteUser({{ $user->id }})" class="text-red-600 hover:underline">Hapus</button>
                 </td>
             </tr>
             @empty
