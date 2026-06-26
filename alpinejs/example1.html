@@ -53,5 +53,15 @@
         Email yang Anda masukkan tidak valid.
       </p>
     </div>
+    <div x-data="{ items: [], baru: '' }">
+      <input type="text" x-model="baru" placeholder="Masukkan item" />
+      <button type="button" @click="items.push(baru); baru = ''">Tambah</button>
+
+      <ul>
+        <template x-for="(item, i) in items" :key="i">
+          <li x-text="item"></li>
+        </template>
+      </ul>
+    </div>
   </body>
 </html>
