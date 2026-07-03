@@ -1,0 +1,11 @@
+<h3><?= l('new_group'); ?></h3>
+<form action="<?= Request::requestUri(); ?>" method="post" class="overlay">
+	<?= show_errors($group->errors); ?>
+	<div class="content">
+		<?= View::render('admin/groups/_form'); ?>
+	</div>
+	<div class="actions">
+		<input type="submit" value="<?= l('create'); ?>" />
+		<input type="button" value="<?= l('cancel'); ?>" onclick="close_overlay();" />
+	</div>
+</form>

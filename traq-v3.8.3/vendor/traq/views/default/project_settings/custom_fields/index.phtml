@@ -1,0 +1,32 @@
+<div class="content">
+	<h2 class="page-title"><?= l('project_settings') ?></h2>
+</div>
+<?= View::render('project_settings/_nav') ?>
+<div class="content">
+	<?= HTML::link(l('new_field'), "{$project->slug}/settings/custom_fields/new", ['class' => 'btn-success', 'data-overlay' => true, 'icon' => 'fas fa-fw fa-plus']) ?>
+</div>
+<div>
+	<table class="list">
+		<thead>
+			<tr>
+				<th class="name"><?= l('name'); ?></th>
+				<th class="type"><?= l('type'); ?></th>
+				<th class="actions text-right"><?= l('actions'); ?></th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php foreach ($custom_fields as $field) { ?>
+				<tr>
+					<td><?= HTML::link($field->name, "{$project->slug}/settings/custom_fields/{$field->id}/edit", ['data-overlay' => true]) ?></td>
+					<td><?= l($field->type) ?></td>
+					<td>
+						<div class="btn-group justify-end">
+							<?= HTML::link(l('edit'), "{$project->slug}/settings/custom_fields/{$field->id}/edit", ['class' => 'btn-warning btn-sm', 'data-overlay' => true, 'icon' => 'fas fa-fw fa-pencil', 'sr-only' => true]) ?>
+							<?= HTML::link(l('delete'), "{$project->slug}/settings/custom_fields/{$field->id}/delete", ['class' => 'btn-danger btn-sm', 'data-confirm' => l('confirm.delete_x', $field->name), 'icon' => 'fas fa-fw fa-trash', 'sr-only' => true]) ?>
+						</div>
+					</td>
+				</tr>
+			<?php } ?>
+		</tbody>
+	</table>
+</div>

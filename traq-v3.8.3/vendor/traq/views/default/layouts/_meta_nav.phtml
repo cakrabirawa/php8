@@ -1,0 +1,46 @@
+<div id="meta-nav">
+	<div class="container">
+		<ul>
+			<?php if (settings('site_name') !== '') : ?>
+				<li>
+					<a href="<?= settings('site_url') ?>"><?= settings('site_name') ?></a>
+				</li>
+			<?php endif; ?>
+			<?php if (Request::seg(0)) : ?>
+				<li>
+					<a href="<?= Request::base() ?>"><?= settings('title') ?></a>
+				</li>
+			<?php endif; ?>
+			<?= View::render('layouts/_project_switcher') ?>
+		</ul>
+
+		<ul id="user-nav">
+			<?php FishHook::run('template:layouts/_meta_nav/user_nav'); ?>
+			<?php if (LOGGEDIN) : ?>
+				<li class="<?= iif(active_nav(current_user()->href()), 'active') ?>">
+					<a href="<?= Request::base(current_user()->href()) ?>"><?= l('profile') ?></a>
+				</li>
+				<li class="<?= iif(active_nav('/usercp'), 'active') ?>">
+					<a href="<?= Request::base('/usercp') ?>"><?= l('usercp') ?></a>
+				</li>
+				<li>
+					<a href="<?= Request::base('/logout') ?>"><?= l('logout') ?></a>
+				</li>
+				<?php if (currentUser()->group->is_admin) : ?>
+					<li class="<?= iif(active_nav('/admin(.*)'), 'active') ?>">
+						<a href="<?= Request::base('/admin') ?>"><?= l('admincp') ?></a>
+					</li>
+				<?php endif; ?>
+			<?php else : ?>
+				<li class="<?= iif(active_nav('/login'), 'active') ?>">
+					<a href="<?= Request::base('/login') ?>"><?= l('login') ?></a>
+				</li>
+				<?php if (settings('allow_registration')) : ?>
+					<li class="<?= iif(active_nav('/register'), 'active') ?>">
+						<a href="<?= Request::base('/register') ?>"><?= l('register') ?></a>
+					</li>
+				<?php endif; ?>
+			<?php endif; ?>
+		</ul>
+	</div>
+</div>

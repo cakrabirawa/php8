@@ -1,0 +1,14 @@
+<div class="content">
+	<h3><?= l('edit_status'); ?></h3>
+	<form action="<?= Request::requestUri(); ?>" method="post">
+		<?= show_errors($status->errors); ?>
+		<div class="panel">
+			<div class="panel-content">
+				<?= View::render('admin/statuses/_form'); ?>
+			</div>
+		</div>
+		<div class="actions">
+			<input type="submit" value="<?= l('save'); ?>" />
+		</div>
+	</form>
+</div>
