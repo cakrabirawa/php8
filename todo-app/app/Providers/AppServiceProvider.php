@@ -3,8 +3,11 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+<<<<<<< HEAD
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Schema;
+=======
+>>>>>>> 7a30939db2bc84ce8be9732e460d94b3990ff5ef
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+<<<<<<< HEAD
         /**
          * Library Macro untuk Pencarian Dinamis Semua Field SQL
          * @param string|null $keyword Kata kunci pencarian
@@ -48,5 +52,8 @@ class AppServiceProvider extends ServiceProvider
                 }
             });
         });
+=======
+        //
+>>>>>>> 7a30939db2bc84ce8be9732e460d94b3990ff5ef
     }
 }

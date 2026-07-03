@@ -1,0 +1,173 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use App\Models\Store;
+
+class StoreSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $stores = [
+        // ================= REGION A =================
+        ['id'=>10175,'region_id'=>1,'name'=>'Gramedia Bogor Botani Dept'],
+        ['id'=>10145,'region_id'=>1,'name'=>'Gramedia Bogor Pajajaran Dept'],
+        ['id'=>10473,'region_id'=>1,'name'=>'Gramedia Cibinong City Mall Dept'],
+        ['id'=>10179,'region_id'=>1,'name'=>'Gramedia Cijantung Dept'],
+        ['id'=>10483,'region_id'=>1,'name'=>'Gramedia Cileungsi Dept'],
+        ['id'=>10428,'region_id'=>1,'name'=>'Gramedia Citra Grand Cibubur Dept'],
+        ['id'=>10150,'region_id'=>1,'name'=>'Gramedia Depok Dept'],
+        ['id'=>10222,'region_id'=>1,'name'=>'Gramedia Depok The Park Sawangan Dept'],
+        ['id'=>10159,'region_id'=>1,'name'=>'Gramedia Jayapura Dept'],
+        ['id'=>10182,'region_id'=>1,'name'=>'Gramedia Kendari Lippo Dept'],
+        ['id'=>10130,'region_id'=>1,'name'=>'Gramedia Kupang Dept'],
+        ['id'=>10154,'region_id'=>1,'name'=>'Gramedia Living World Cibubur Dept'],
+        ['id'=>10188,'region_id'=>1,'name'=>'Gramedia Maumere Dept'],
+        ['id'=>10495,'region_id'=>1,'name'=>'Gramedia Palu Dept'],
+        ['id'=>10454,'region_id'=>1,'name'=>'Gramedia Pejaten Dept'],
+        ['id'=>10445,'region_id'=>1,'name'=>'Gramedia Pondok Gede Dept'],
+        ['id'=>10497,'region_id'=>1,'name'=>'Gramedia Sorong Dept'],
+        ['id'=>10499,'region_id'=>1,'name'=>'Gramedia Sukabumi Dept'],
+
+        // ================= REGION B =================
+        ['id'=>10452,'region_id'=>2,'name'=>'Gramedia Central Park Dept'],
+        ['id'=>10100,'region_id'=>2,'name'=>'Gramedia Gajah Mada Dept'],
+        ['id'=>10169,'region_id'=>2,'name'=>'Gramedia Grand Indonesia Dept'],
+        ['id'=>10225,'region_id'=>2,'name'=>'Gramedia Makassar Nipah Park Dept'],
+        ['id'=>10152,'region_id'=>2,'name'=>'Gramedia Makassar Panakkukang Dept'],
+        ['id'=>10140,'region_id'=>2,'name'=>'Gramedia Makassar Pettarani Dept'],
+        ['id'=>10144,'region_id'=>2,'name'=>'Gramedia Makassar Ratu Indah Dept'],
+        ['id'=>10155,'region_id'=>2,'name'=>'Gramedia Mal Artha Gading Dept'],
+        ['id'=>10119,'region_id'=>2,'name'=>'Gramedia Mal Ciputra Dept'],
+        ['id'=>10112,'region_id'=>2,'name'=>'Gramedia Mal Kelapa Gading Dept'],
+        ['id'=>10474,'region_id'=>2,'name'=>'Gramedia Maluku City Mall Dept'],
+        ['id'=>10108,'region_id'=>2,'name'=>'Gramedia Matraman Dept'],
+        ['id'=>10101,'region_id'=>2,'name'=>'Gramedia Pintu Air Dept'],
+        ['id'=>10187,'region_id'=>2,'name'=>'Gramedia Pluit Emporium Dept'],
+        ['id'=>10459,'region_id'=>2,'name'=>'Gramedia Ternate Dept'],
+
+        // ================= REGION C =================
+        ['id'=>10494,'region_id'=>3,'name'=>'Gramedia Banjarbaru QMall Dept'],
+        ['id'=>10166,'region_id'=>3,'name'=>'Gramedia Banjarmasin Duta Mall Dept'],
+        ['id'=>10137,'region_id'=>3,'name'=>'Gramedia Banjarmasin Veteran Dept'],
+        ['id'=>90101,'region_id'=>3,'name'=>'Gramedia Cilacap Dept'],
+        ['id'=>10475,'region_id'=>3,'name'=>'Gramedia Cirebon Cipto Dept'],
+        ['id'=>10142,'region_id'=>3,'name'=>'Gramedia Cirebon Dept'],
+        ['id'=>10436,'region_id'=>3,'name'=>'Gramedia Madiun Dept'],
+        ['id'=>10223,'region_id'=>3,'name'=>'Gramedia Palangka Raya Duta Mall Dept'],
+        ['id'=>17128,'region_id'=>3,'name'=>'Gramedia Purbalingga Dept'],
+        ['id'=>17121,'region_id'=>3,'name'=>'Gramedia Purwokerto Gelora Indah Dept'],
+        ['id'=>10167,'region_id'=>3,'name'=>'Gramedia Purwokerto Rita Mall Dept'],
+        ['id'=>10151,'region_id'=>3,'name'=>'Gramedia Semarang Majapahit Dept'],
+        ['id'=>10106,'region_id'=>3,'name'=>'Gramedia Semarang Pandanaran Dept'],
+        ['id'=>10110,'region_id'=>3,'name'=>'Gramedia Semarang Setiabudi Dept'],
+        ['id'=>10153,'region_id'=>3,'name'=>'Gramedia Solo Slamet Riyadi Dept'],
+        ['id'=>10173,'region_id'=>3,'name'=>'Gramedia Solo Square Dept'],
+        ['id'=>10479,'region_id'=>3,'name'=>'Gramedia Tegal Rita Mall Dept'],
+        ['id'=>10486,'region_id'=>3,'name'=>'Gramedia Yogyakarta City Mall Dept'],
+        ['id'=>10127,'region_id'=>3,'name'=>'Gramedia Yogyakarta Malioboro Mall Dept'],
+        ['id'=>10138,'region_id'=>3,'name'=>'Gramedia Yogyakarta Pakuwon Dept'],
+        ['id'=>10105,'region_id'=>3,'name'=>'Gramedia Yogyakarta Sudirman Dept'],
+
+        // ================= REGION D =================
+        ['id'=>10478,'region_id'=>4,'name'=>'Gramedia AEON Mall Dept'],
+        ['id'=>10165,'region_id'=>4,'name'=>'Gramedia Batam City Square Dept'],
+        ['id'=>10489,'region_id'=>4,'name'=>'Gramedia BSD City Dept'],
+        ['id'=>10390,'region_id'=>4,'name'=>'Gramedia Cikupa Dept'],
+        ['id'=>10163,'region_id'=>4,'name'=>'Gramedia Cilegon Dept'],
+        ['id'=>10146,'region_id'=>4,'name'=>'Gramedia Daan Mogot Dept'],
+        ['id'=>10221,'region_id'=>4,'name'=>'Gramedia Dumai Citimall Dept'],
+        ['id'=>10178,'region_id'=>4,'name'=>'Gramedia Gading Serpong Dept'],
+        ['id'=>10498,'region_id'=>4,'name'=>'Gramedia Grand Batam Dept'],
+        ['id'=>10117,'region_id'=>4,'name'=>'Gramedia Karawaci Dept'],
+        ['id'=>10469,'region_id'=>4,'name'=>'Gramedia Lampung Boemi Kedaton Dept'],
+        ['id'=>10125,'region_id'=>4,'name'=>'Gramedia Lampung Dept'],
+        ['id'=>10114,'region_id'=>4,'name'=>'Gramedia Padang Dept'],
+        ['id'=>17110,'region_id'=>4,'name'=>'Gramedia Pamulang Siliwangi Dept'],
+        ['id'=>10126,'region_id'=>4,'name'=>'Gramedia Pekanbaru Jend Sudirman Dept'],
+        ['id'=>10442,'region_id'=>4,'name'=>'Gramedia Pekanbaru Mal SKA Dept'],
+        ['id'=>10171,'region_id'=>4,'name'=>'Gramedia Pekanbaru Mall Dept'],
+        ['id'=>10134,'region_id'=>4,'name'=>'Gramedia Puri Indah Dept'],
+        ['id'=>10407,'region_id'=>4,'name'=>'Gramedia Puri Lippo Mall Dept'],
+        ['id'=>17124,'region_id'=>4,'name'=>'Gramedia Serang Dept'],
+
+        // ================= REGION E =================
+        ['id'=>10116,'region_id'=>5,'name'=>'Gramedia Balikpapan Dept'],
+        ['id'=>10164,'region_id'=>5,'name'=>'Gramedia Balikpapan MT Haryono Dept'],
+        ['id'=>10210,'region_id'=>5,'name'=>'Gramedia Bangka Dept'],
+        ['id'=>10496,'region_id'=>5,'name'=>'Gramedia Bengkulu Meranti Dept'],
+        ['id'=>10161,'region_id'=>5,'name'=>'Gramedia Bintaro Emerald Dept'],
+        ['id'=>10124,'region_id'=>5,'name'=>'Gramedia Bintaro Plaza Dept'],
+        ['id'=>10180,'region_id'=>5,'name'=>'Gramedia Gandaria City Dept'],
+        ['id'=>10168,'region_id'=>5,'name'=>'Gramedia Jambi Dept'],
+        ['id'=>10477,'region_id'=>5,'name'=>'Gramedia Melawai Dept'],
+        ['id'=>10113,'region_id'=>5,'name'=>'Gramedia Palembang Atmo Dept'],
+        ['id'=>10488,'region_id'=>5,'name'=>'Gramedia Palembang Burlian Dept'],
+        ['id'=>17122,'region_id'=>5,'name'=>'Gramedia Pangkalan Bun Dept'],
+        ['id'=>10115,'region_id'=>5,'name'=>'Gramedia Pondok Indah Mall Dept'],
+        ['id'=>10149,'region_id'=>5,'name'=>'Gramedia Pontianak Dept'],
+        ['id'=>10121,'region_id'=>5,'name'=>'Gramedia Pontianak GAIA Dept'],
+        ['id'=>10481,'region_id'=>5,'name'=>'Gramedia Samarinda Big Mall Dept'],
+        ['id'=>10148,'region_id'=>5,'name'=>'Gramedia Samarinda Dept'],
+        ['id'=>10176,'region_id'=>5,'name'=>'Gramedia Tarakan Dept'],
+
+        // ================= REGION F =================
+        ['id'=>10239,'region_id'=>6,'name'=>'Gramedia Aceh Dept'],
+        ['id'=>10172,'region_id'=>6,'name'=>'Gramedia Bandung Buah Batu Dept'],
+        ['id'=>10242,'region_id'=>6,'name'=>'Gramedia Bandung Festival Citylink Dept'],
+        ['id'=>10104,'region_id'=>6,'name'=>'Gramedia Bandung Merdeka Dept'],
+        ['id'=>10128,'region_id'=>6,'name'=>'Gramedia Bandung Paris Van Java Dept'],
+        ['id'=>10174,'region_id'=>6,'name'=>'Gramedia Bandung Summarecon Dept'],
+        ['id'=>10129,'region_id'=>6,'name'=>'Gramedia Bandung Trans Studio Mall Dept'],
+        ['id'=>10490,'region_id'=>6,'name'=>'Gramedia Bandung WR Supratman Dept'],
+        ['id'=>10132,'region_id'=>6,'name'=>'Gramedia Bekasi LW Grand Wisata Dept'],
+        ['id'=>10123,'region_id'=>6,'name'=>'Gramedia Bekasi MM Dept'],
+        ['id'=>10226,'region_id'=>6,'name'=>'Gramedia Bekasi Summarecon Mall Dept'],
+        ['id'=>10435,'region_id'=>6,'name'=>'Gramedia CBD Karawang Dept'],
+        ['id'=>17120,'region_id'=>6,'name'=>'Gramedia Cikarang Pollux Dept'],
+        ['id'=>17126,'region_id'=>6,'name'=>'Gramedia Cimahi Dept'],
+        ['id'=>90103,'region_id'=>6,'name'=>'Gramedia Garut Dept'],
+        ['id'=>10492,'region_id'=>6,'name'=>'Gramedia Grand Bekasi Dept'],
+        ['id'=>10372,'region_id'=>6,'name'=>'Gramedia Harapan Indah Dept'],
+        ['id'=>17123,'region_id'=>6,'name'=>'Gramedia Indramayu Gatot Subroto Dept'],
+        ['id'=>10133,'region_id'=>6,'name'=>'Gramedia Karawang Resinda Park Dept'],
+        ['id'=>10109,'region_id'=>6,'name'=>'Gramedia Medan Gama Dept'],
+        ['id'=>10482,'region_id'=>6,'name'=>'Gramedia Medan Manhattan Dept'],
+        ['id'=>10156,'region_id'=>6,'name'=>'Gramedia Medan Sun Plaza Dept'],
+        ['id'=>90104,'region_id'=>6,'name'=>'Gramedia Purwakarta Dept'],
+        ['id'=>17101,'region_id'=>6,'name'=>'Gramedia Subang Otto Iskandardinata Dept'],
+        ['id'=>10181,'region_id'=>6,'name'=>'Gramedia Tasikmalaya Dept'],
+
+        // ================= REGION G =================
+        ['id'=>10120,'region_id'=>7,'name'=>'Gramedia Bali Duta Plaza Dept'],
+        ['id'=>10103,'region_id'=>7,'name'=>'Gramedia Bali Galeria Mall Dept'],
+        ['id'=>10250,'region_id'=>7,'name'=>'Gramedia Bali Gatot Subroto Dept'],
+        ['id'=>10184,'region_id'=>7,'name'=>'Gramedia Bali Teuku Umar Dept'],
+        ['id'=>17127,'region_id'=>7,'name'=>'Gramedia Bojonegoro Dept'],
+        ['id'=>10404,'region_id'=>7,'name'=>'Gramedia Gorontalo Dept'],
+        ['id'=>10118,'region_id'=>7,'name'=>'Gramedia Jember Dept'],
+        ['id'=>10438,'region_id'=>7,'name'=>'Gramedia Kediri Dept'],
+        ['id'=>10147,'region_id'=>7,'name'=>'Gramedia Malang Basuki Rahmad Dept'],
+        ['id'=>10185,'region_id'=>7,'name'=>'Gramedia Malang Olympic Garden Dept'],
+        ['id'=>17125,'region_id'=>7,'name'=>'Gramedia Malang Tlogomas Dept'],
+        ['id'=>10141,'region_id'=>7,'name'=>'Gramedia Manado Samratulangi Dept'],
+        ['id'=>10484,'region_id'=>7,'name'=>'Gramedia Manado Town Square Dept'],
+        ['id'=>10458,'region_id'=>7,'name'=>'Gramedia Mataram Dept'],
+        ['id'=>10220,'region_id'=>7,'name'=>'Gramedia Sidoarjo Pahlawan Dept'],
+        ['id'=>10183,'region_id'=>7,'name'=>'Gramedia Surabaya Expo Dept'],
+        ['id'=>10441,'region_id'=>7,'name'=>'Gramedia Surabaya Mal Pakuwon Dept'],
+        ['id'=>10111,'region_id'=>7,'name'=>'Gramedia Surabaya Manyar Dept'],
+        ['id'=>10102,'region_id'=>7,'name'=>'Gramedia Surabaya Royal Plaza Dept'],
+        ['id'=>10139,'region_id'=>7,'name'=>'Gramedia Surabaya Tunjungan Plaza Dept'],
+    ];
+
+        foreach ($stores as $store) {
+            Store::create([
+                'id' => $store['id'],
+                'region_id' => $store['region_id'],
+                'name' => trim(str_replace(['Dept', 'Store'], '', $store['name'])),
+            ]);
+        }
+    }
+}
