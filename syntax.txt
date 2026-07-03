@@ -1,2 +1,69 @@
-1. composer create-project laravel/laravel tailadmin-ticket
-2. cd tailadmin-ticket
+# 🚀 Laravel PHP Artisan Cheat Sheet
+
+`php artisan` adalah command-line interface bawaan Laravel yang mendasari otomatisasi berbagai tugas pengembangan (development).
+
+---
+
+## ⚙️ Core & Environment
+php artisan list - Menampilkan daftar semua perintah yang tersedia.
+php artisan help [command] - Menampilkan detail bantuan untuk perintah tertentu.
+php artisan about - Menampilkan status aplikasi dan informasi server.
+php artisan serve - Menjalankan server development lokal.
+php artisan tinker - Membuka REPL interaktif untuk berinteraksi dengan aplikasi.
+php artisan key:generate - Membuat kunci enkripsi aplikasi (`APP_KEY`).
+php artisan env - Menampilkan lingkungan (environment) aktif saat ini.
+
+---
+
+## 🛠️ Scaffolding (`make`)
+php artisan make:model [Name] - Membuat file Eloquent model baru.
+php artisan make:model [Name] -mfsc - Membuat model sekaligus dengan migration, factory, seeder, dan controller.
+php artisan make:controller [Name]Controller - Membuat file controller standar.
+php artisan make:controller [Name]Controller --resource - Membuat resource controller untuk fungsi CRUD.
+php artisan make:migration [name] - Membuat file database migration baru.
+php artisan make:seeder [Name]Seeder - Membuat file database seeder.
+php artisan make:factory [Name]Factory - Membuat file database factory.
+php artisan make:middleware [Name] - Membuat class HTTP middleware baru.
+php artisan make:request [Name]Request - Membuat class form request untuk validasi.
+php artisan make:resource [Name]Resource - Membuat API resource transformer.
+php artisan make:policy [Name]Policy - Membuat class otorisasi (policy).
+php artisan make:command [Name] - Membuat perintah Artisan buatan sendiri (custom).
+
+---
+
+## 🗄️ Database & Migrations
+php artisan migrate - Menjalankan semua proses database migration yang belum berjalan.
+php artisan migrate:status - Menampilkan status dari setiap file migration.
+php artisan migrate:rollback - Membatalkan (rollback) batch migration terakhir.
+php artisan migrate:rollback --step=[N] - Membatalkan migration berdasarkan jumlah langkah (N) tertentu.
+php artisan migrate:fresh - Menghapus semua tabel dan menjalankan ulang semua migration dari awal.
+php artisan migrate:fresh --seed - Menghapus semua tabel, menjalankan ulang migration, dan langsung mengisi data seeder.
+php artisan db:seed - Menjalankan seeder utama (`DatabaseSeeder`).
+php artisan db:seed --class=[Name]Seeder - Menjalankan class seeder spesifik.
+php artisan db:wipe - Menghapus seluruh tabel, view, dan type di database tanpa menjalankan migration.
+
+---
+
+## 🌐 Routing
+php artisan route:list - Menampilkan daftar lengkap rute (routes) terdaftar.
+php artisan route:list --path=[prefix] - Menyaring daftar rute berdasarkan prefix URL tertentu.
+php artisan route:cache - Membuat cache file rute untuk meningkatkan performa produksi.
+php artisan route:clear - Menghapus file cache rute.
+
+---
+
+## ⚡ Optimization & Cache
+php artisan optimize - Membuat cache untuk konfigurasi dan rute demi performa production.
+php artisan optimize:clear - Menghapus seluruh file cache yang dibuat oleh perintah optimize.
+php artisan cache:clear - Mengosongkan data cache aplikasi.
+php artisan config:cache - Menggabungkan semua file konfigurasi menjadi satu file cache cepat.
+php artisan config:clear - Menghapus file cache konfigurasi.
+php artisan view:cache - Mengompilasi seluruh template Blade untuk produksi.
+php artisan view:clear - Menghapus file kompilasi template Blade.
+
+---
+
+## 🛑 Maintenance Mode
+php artisan down - Mengubah status aplikasi menjadi mode perbaikan (maintenance mode).
+php artisan down --secret="[token]" - Masuk ke mode perbaikan namun mengizinkan akses lewat URL bypass `://domain.com[token]`.
+php artisan up - Mengembalikan aplikasi menjadi aktif kembali (online).
