@@ -1,0 +1,31 @@
+<div class="form-group-row">
+	<label><?= l('name'); ?></label>
+	<?= Form::text('name', array('value' => $milestone->name)); ?>
+</div>
+<div class="form-group-row">
+	<label><?= l('slug'); ?></label>
+	<div class="input-group input-group-with-hint">
+		<?= Form::text('slug', array('value' => $milestone->slug)); ?>
+		<abbr class="input-group-hint" title="<?= l('help.slug'); ?>">?</abbr>
+	</div>
+</div>
+<div class="form-group-row">
+	<label><?= l('codename'); ?></label>
+	<?= Form::text('codename', array('value' => $milestone->codename)); ?>
+</div>
+<div class="form-group-row">
+	<label><?= l('due'); ?></label>
+	<?= Form::date('due', array('value' => $milestone->due > 0 ? (new DateTime($milestone->due))->format('Y-m-d') : '')); ?>
+</div>
+<div class="form-group-row">
+	<?= Form::label(l('status'), 'status'); ?>
+	<?= Form::select('status', traq\models\Milestone::status_select_options(), array('value' => $milestone->_is_new() ? 1 : $milestone->status)); ?>
+</div>
+<div class="form-group-row items-start">
+	<label><?= l('description'); ?></label>
+	<textarea name="info" x-data x-mde><?= $milestone->info ?></textarea>
+</div>
+<div class="form-group-row">
+	<label><?= l('display_order'); ?></label>
+	<?= Form::text('displayorder', array('value' => $milestone->displayorder)); ?>
+</div>

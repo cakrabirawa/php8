@@ -1,0 +1,11 @@
+<h3><?= l('new_component'); ?></h3>
+<form action="<?= Request::requestUri(); ?>" method="post" class="overlay_thin">
+	<?= show_errors($component->errors); ?>
+	<div class="content">
+		<?= View::render('project_settings/components/_form'); ?>
+	</div>
+	<div class="actions">
+		<input type="submit" value="<?= l('create'); ?>" />
+		<input type="button" value="<?= l('cancel'); ?>" onclick="close_overlay();" />
+	</div>
+</form>

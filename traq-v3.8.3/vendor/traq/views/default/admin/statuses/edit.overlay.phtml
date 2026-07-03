@@ -1,0 +1,11 @@
+<h3><?= l('edit_status'); ?></h3>
+<form action="<?= Request::requestUri(); ?>" method="post" class="overlay">
+	<?= show_errors($status->errors); ?>
+	<div class="content">
+		<?= View::render('admin/statuses/_form'); ?>
+	</div>
+	<div class="actions">
+		<input type="submit" value="<?= l('save'); ?>" />
+		<input type="button" value="<?= l('cancel'); ?>" onclick="close_overlay();" />
+	</div>
+</form>

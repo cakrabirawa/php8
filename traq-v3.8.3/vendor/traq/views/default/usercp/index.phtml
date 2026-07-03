@@ -1,0 +1,57 @@
+<div class="usercp content">
+	<h2 class="page-title"><?= l('usercp') ?></h2>
+</div>
+<?= View::render('usercp/_nav') ?>
+<form action="<?= Request::requestUri(); ?>" method="post">
+	<div class="usercp content">
+		<?= show_errors($user->errors) ?>
+
+		<div class="lg:flex">
+			<fieldset id="info" class="panel panel-content flex-grow lg:mr-1">
+				<legend><?= l('information') ?></legend>
+				<div>
+					<div class="form-group-row">
+						<?= Form::label(l('name'), 'name') ?>
+						<?= Form::text('name', array('value' => $user->name)) ?>
+					</div>
+					<div class="form-group-row">
+						<?= Form::label(l('email'), 'email') ?>
+						<?= Form::text('email', array('value' => $user->email)) ?>
+					</div>
+					<div class="form-group-row">
+						<?= Form::label(l('api_key'), 'api_key') ?>
+						<div class="input-group property">
+							<?php if ($user->api_key != null) : ?>
+								<?= Form::text('user_api_key', array('value' => $user->api_key, 'readonly' => true)) ?>
+							<?php endif; ?>
+							<a href="<?= Request::base('usercp/create_api_key') ?>" class="btn-primary">
+								<?= l($user->api_key !== null ? 'renew' : 'create') ?>
+							</a>
+						</div>
+					</div>
+					<?php FishHook::run('template:users/usercp/info'); ?>
+				</div>
+			</fieldset>
+
+			<fieldset id=" options" class="panel panel-content flex-grow lg:ml-1">
+				<legend><?= l('options') ?></legend>
+				<div>
+					<div class="form-group-row">
+						<?= Form::label(l('watch_my_new_tickets'), 'watch_my_new_tickets') ?>
+						<?= Form::checkbox('watch_created_tickets', 1, ['checked' => $user->option('watch_created_tickets') ? true : false]) ?>
+					</div>
+					<div class="form-group-row">
+						<label><?= l('language') ?></label>
+						<?= Form::select('locale', locale_select_options(), ['value' => ($user->locale != '') ? $user->locale : settings('locale')]) ?>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+
+		<?php FishHook::run('template:users/usercp'); ?>
+
+		<div class="actions">
+			<?= Form::submit(l('save')) ?>
+		</div>
+	</div>
+</form>

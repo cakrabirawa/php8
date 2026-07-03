@@ -1,0 +1,11 @@
+<h3><?= l('new_type'); ?></h3>
+<form action="<?= Request::requestUri(); ?>" method="post">
+	<?= show_errors($type->errors); ?>
+	<div class="content">
+		<?= View::render('admin/types/_form'); ?>
+	</div>
+	<div class="actions">
+		<input type="submit" value="<?= l('create'); ?>" />
+		<input type="button" value="<?= l('cancel'); ?>" onclick="close_overlay();" />
+	</div>
+</form>

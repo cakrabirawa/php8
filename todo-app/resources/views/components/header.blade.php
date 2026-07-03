@@ -14,10 +14,40 @@
                 </svg>
             </button>
 
-            <!-- INPUT PENCARIAN -->
-            <div class="hidden md:flex items-center gap-3 w-full border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-1.5 bg-white dark:bg-[#1a222c] focus-within:border-blue-500 transition">
+            <!-- INPUT PENCARIAN LIVE SEARCH -->
+            <div 
+                class="hidden md:flex items-center gap-3 w-full border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-1.5 bg-white dark:bg-[#1a222c] focus-within:border-blue-500 transition"
+                x-data="{ 
+                    searchTimeout: null,
+                    doSearch(e) {
+                        clearTimeout(this.searchTimeout);
+                        const keyword = e.target.value.trim();
+                        
+                        this.searchTimeout = setTimeout(() => {
+                            if (window.location.pathname !== '/ticket-list') {
+                                $store.spa.loadPage('/ticket-list?search=' + encodeURIComponent(keyword), 'Ticket List - TailAdmin');
+                                return;
+                            }
+                            
+                            fetch('/ticket-list?search_only=true&search=' + encodeURIComponent(keyword), {
+                                headers: { 'X-Injected-Page': 'true' }
+                            })
+                            .then(res => res.text())
+                            .then(html => {
+                                const tbody = document.getElementById('ticket-table-body');
+                                if (tbody) tbody.innerHTML = html;
+                            });
+                        }, 300);
+                    }
+                }"
+            >
                 <i class="fa-solid fa-magnifying-glass text-gray-400 shrink-0 text-sm"></i>
-                <input type="text" placeholder="Search or type command..." class="w-full bg-transparent border-none text-sm outline-none text-gray-600 dark:text-gray-300">
+                <input 
+                    type="text" 
+                    @input="doSearch"
+                    placeholder="Ketik untuk mencari tiket..." 
+                    class="w-full bg-transparent border-none text-sm outline-none text-gray-600 dark:text-gray-300 focus:ring-0"
+                >
             </div>
         </div>
 
@@ -29,30 +59,71 @@
             <span class="text-[#1c2434] dark:text-white font-bold text-lg tracking-wide">TailAdmin</span>
         </div>
         <!-- Kanan: Actions & Profile Dropdown (Tampilan Desktop) -->
-        <div class="hidden md:flex items-center gap-5 shrink-0" x-data="{ profileOpen: false }">
-            <!-- Dark Mode Toggle -->
-            <button @click.stop="darkMode = !darkMode" class="text-gray-500 hover:text-gray-700 dark:text-[#aebbc8] dark:hover:text-white text-lg cursor-pointer transition">
+        <div class="hidden md:flex items-center gap-5 shrink-0" x-data="{ profileOpen: false, notificationOpen: false }">
+            
+            <!-- PERBAIKAN: Tombol Dark Mode Desktop yang diaktifkan fungsinya -->
+            <button 
+                @click="darkMode = !darkMode" 
+                class="text-gray-500 hover:text-gray-700 dark:text-[#aebbc8] dark:hover:text-white text-lg cursor-pointer transition p-1"
+                type="button"
+            >
                 <i class="fa-regular transition-all duration-200" :class="darkMode ? 'fa-sun text-amber-500' : 'fa-moon'"></i>
             </button>
             
-            <!-- Notification Toggle -->
-            <button class="text-gray-500 hover:text-gray-700 dark:text-[#aebbc8] dark:hover:text-white text-lg relative">
-                <i class="fa-regular fa-bell"></i>
-                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
+            <!-- INTERAKTIF DROPDOWN NOTIFIKASI -->
+            <div class="relative">
+                <button 
+                    @click.stop="notificationOpen = !notificationOpen; profileOpen = false" 
+                    class="text-gray-500 hover:text-gray-700 dark:text-[#aebbc8] dark:hover:text-white text-lg relative cursor-pointer block py-2"
+                >
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="absolute top-2 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+
+                <!-- BOKS NOTIFIKASI MELAYANG -->
+                <div 
+                    x-show="notificationOpen" 
+                    @click.outside="notificationOpen = false"
+                    x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 transform scale-95 translate-y-2"
+                    x-transition:enter-end="opacity-100 transform scale-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-75"
+                    x-transition:leave-start="opacity-100 transform scale-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 transform scale-95 translate-y-2"
+                    class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-[#24303f] border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl z-50 origin-top-right overflow-hidden"
+                    style="display: none;"
+                >
+                    <div class="px-4 py-3 border-b border-gray-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-[#1a222c]/50">
+                        <span class="font-bold text-sm text-slate-800 dark:text-white">Notifikasi</span>
+                        <span class="text-[10px] bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400 font-bold px-2 py-0.5 rounded-full">3 Baru</span>
+                    </div>
+                    <div class="divide-y divide-gray-100 dark:divide-slate-700 max-h-64 overflow-y-auto text-left">
+                        <a href="javascript:void(0)" @click="notificationOpen = false; $store.spa.loadPage('/ticket-reply', 'Ticket Reply - TailAdmin')" class="flex gap-3 px-4 py-3 hover:bg-[#333a48] hover:text-white dark:hover:bg-[#333a48] transition group">
+                            <div class="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0"></div>
+                            <div class="leading-snug">
+                                <p class="text-xs text-slate-700 dark:text-slate-300 group-hover:text-white">John Doe mengirim pesan baru pada tiket <span class="font-mono font-bold text-blue-500 group-hover:text-blue-300">#346520</span></p>
+                                <span class="text-[10px] text-gray-400 block mt-1 group-hover:text-gray-300">2 menit yang lalu</span>
+                            </div>
+                        </a>
+                        <a href="javascript:void(0)" @click="notificationOpen = false; $store.spa.loadPage('/ticket-list', 'Ticket List - TailAdmin')" class="flex gap-3 px-4 py-3 hover:bg-[#333a48] hover:text-white dark:hover:bg-[#333a48] transition group">
+                            <div class="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0"></div>
+                            <div class="leading-snug">
+                                <p class="text-xs text-slate-700 dark:text-slate-300 group-hover:text-white">Siti Aminah membuat tiket kategori <span class="font-semibold">Feature Request</span></p>
+                                <span class="text-[10px] text-gray-400 block mt-1 group-hover:text-gray-300">3 jam yang lalu</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
             
             <!-- PROFIL CONTAINER UTAMA -->
             <div class="relative block text-left">
-                <button 
-                    @click.stop="profileOpen = !profileOpen" 
-                    class="flex items-center gap-3 border-l border-gray-200 dark:border-slate-700 pl-5 cursor-pointer group py-2"
-                >
-                    <img src="https://unsplash.com" alt="Avatar" class="w-9 h-9 rounded-full object-cover shrink-0">
+                <button @click.stop="profileOpen = !profileOpen; notificationOpen = false" class="flex items-center gap-3 border-l border-gray-200 dark:border-slate-700 pl-5 cursor-pointer group py-2">
+                    <img src="https://lh3.googleusercontent.com/-R3xQh1mrXRU/AAAAAAAAAAI/AAAAAAAAAAA/ALKGfknsYIHV4WUq3SbSRxl9DpMnUE95kg/photo.jpg?sz=46" alt="Avatar" class="w-9 h-9 rounded-full object-cover shrink-0">
                     <span class="text-sm font-semibold dark:text-white group-hover:text-blue-500 transition">Musharof</span>
                     <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-200" :class="profileOpen ? 'rotate-180 text-blue-500' : ''"></i>
                 </button>
 
-                <!-- DROPDOWN KOTAK DESKTOP -->
                 <div 
                     x-show="profileOpen" 
                     @click.outside="profileOpen = false"
@@ -62,35 +133,26 @@
                     x-transition:leave="transition ease-in duration-75"
                     x-transition:leave-start="opacity-100 transform scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 transform scale-95 translate-y-2"
-                    class="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-[#24303f] border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl py-5 px-6 z-50 origin-top-right text-left"
+                    class="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-[#24303f] border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl py-4 px-4 z-50 origin-top-right text-left"
                     style="display: none;"
                 >
-                    <div class="mb-4">
+                    <div class="px-2 py-2 mb-2">
                         <h4 class="font-bold text-base text-slate-800 dark:text-white leading-tight">Musharof Chowdhury</h4>
                         <p class="text-xs text-gray-400 mt-0.5">randomuser@pimjo.com</p>
                     </div>
-                    <div class="border-t border-gray-100 dark:border-slate-700 my-3"></div>
+                    <div class="border-t border-gray-100 dark:border-slate-700 my-2"></div>
                     <ul class="space-y-1 text-sm text-slate-600 dark:text-slate-300">
-                        <li>
-                            <a href="#" class="flex items-center gap-3 py-2 px-1 hover:text-blue-500 dark:hover:text-white transition">
-                                <i class="fa-regular fa-user w-5 text-center text-gray-400"></i> Edit profile
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="flex items-center gap-3 py-2 px-1 hover:text-blue-500 dark:hover:text-white transition">
-                                <i class="fa-solid fa-gear w-5 text-center text-gray-400"></i> Account settings
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="flex items-center gap-3 py-2 px-1 hover:text-blue-500 dark:hover:text-white transition">
-                                <i class="fa-regular fa-circle-question w-5 text-center text-gray-400"></i> Support
-                            </a>
-                        </li>
+                        <li><a href="#" class="flex items-center gap-3 py-2 px-3 rounded-md hover:bg-[#333a48] hover:text-white text-gray-600 dark:text-gray-300 transition group"><i class="fa-regular fa-user w-5 text-center text-gray-400 group-hover:text-white transition"></i> Edit profile</a></li>
+                        <li><a href="#" class="flex items-center gap-3 py-2 px-3 rounded-md hover:bg-[#333a48] hover:text-white text-gray-600 dark:text-gray-300 transition group"><i class="fa-solid fa-gear w-5 text-center text-gray-400 group-hover:text-white transition"></i> Account settings</a></li>
+                        <li><a href="#" class="flex items-center gap-3 py-2 px-3 rounded-md hover:bg-[#333a48] hover:text-white text-gray-600 dark:text-gray-300 transition group"><i class="fa-regular fa-circle-question w-5 text-center text-gray-400 group-hover:text-white transition"></i> Support</a></li>
                     </ul>
-                    <div class="border-t border-gray-100 dark:border-slate-700 my-3"></div>
-                    <a href="#" class="flex items-center gap-3 py-2 px-1 text-sm text-slate-600 dark:text-slate-300 hover:text-rose-500 transition">
-                        <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center text-gray-400"></i> Sign out
-                    </a>
+                    <div class="border-t border-gray-100 dark:border-slate-700 my-2"></div>
+                    <form action="{{ url('/logout') }}" method="POST" class="w-full">
+                        @csrf
+                        <button type="submit" class="flex items-center gap-3 py-2 px-3 rounded-md hover:bg-[#333a48] hover:text-white text-sm text-slate-600 dark:text-slate-300 hover:text-rose-500 transition group w-full text-left">
+                            <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center text-gray-400 group-hover:text-white transition"></i> Keluar
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -112,7 +174,6 @@
         x-collapse
         x-cloak
     >
-        <!-- Grup Ikon Kiri Mobile: Dark Mode & Bell Bulat -->
         <div class="flex items-center gap-4">
             <button @click="darkMode = !darkMode" class="w-10 h-10 bg-white dark:bg-[#24303f] border border-gray-200 dark:border-slate-700 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 cursor-pointer shadow-xs">
                 <i class="fa-regular" :class="darkMode ? 'fa-sun text-amber-500' : 'fa-moon'"></i>
@@ -131,17 +192,9 @@
                 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform" :class="mobileProfileOpen ? 'rotate-180' : ''"></i>
             </button>
 
-            <!-- PERBAIKAN: Mengubah posisi dari 'bottom-12' menjadi 'top-full mt-2' agar lurus ke bawah di mobile -->
-            <div 
-                x-show="mobileProfileOpen" 
-                @click.outside="mobileProfileOpen = false"
-                x-transition:enter="transition ease-out duration-100"
-                x-transition:enter-start="opacity-0 transform scale-95 translate-y-1"
-                x-transition:enter-end="opacity-100 transform scale-100 translate-y-0"
-                class="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-[#24303f] border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl py-4 px-5 z-50 text-left"
-                style="display: none;"
-            >
-                <div class="mb-2">
+            <!-- Dropdown Menu Versi Mobile -->
+            <div x-show="mobileProfileOpen" @click.outside="mobileProfileOpen = false" class="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-[#24303f] border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl py-3 px-3 z-40 text-left" style="display: none;">
+                <div class="px-2 py-1 mb-1">
                     <h4 class="font-bold text-sm text-slate-800 dark:text-white">Musharof Chowdhury</h4>
                     <p class="text-[11px] text-gray-400">randomuser@pimjo.com</p>
                 </div>

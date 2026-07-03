@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -313,5 +314,10 @@
         </div>
 
     </div>
+=======
+<x-layout :page-title="$pageTitle ?? 'TailAdmin'">
+    {{-- This will dynamically include the view specified by the controller --}}
+    @include($pageView)
+>>>>>>> 11266874e457e8aa5c7ba122a9776c5d5ff5d8ee
 </x-layout>
 >>>>>>> 7a30939db2bc84ce8be9732e460d94b3990ff5ef
