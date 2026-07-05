@@ -1,0 +1,34 @@
+# Aktifkan mesin rewrite URL
+RewriteEngine On
+
+# Atur direktori dasar jika proyek berada di dalam subfolder
+# Sesuaikan '/anak-kreatif/' jika nama folder Anda berbeda
+RewriteBase /anak-kreatif/
+
+# =================================================
+# ATURAN UNTUK URL SEO-FRIENDLY (DETAIL & FILTER)
+# =================================================
+
+# Aturan untuk detail buku: /toko/123-judul-buku -> /detail-buku.php?id=123
+RewriteRule ^toko/([0-9]+)-.*$ detail-buku.php?id=$1 [L,QSA]
+
+# Aturan untuk detail kelas: /kelas/456-nama-kelas -> /detail-kelas.php?id=456
+RewriteRule ^kelas/([0-9]+)-.*$ detail-kelas.php?id=$1 [L,QSA]
+
+# Aturan untuk filter klasifikasi: /toko/klasifikasi/slug -> /toko.php?klas=slug
+RewriteRule ^toko/klasifikasi/([^/]+)/?$ toko.php?klas=$1 [L,QSA]
+
+# =================================================
+# ATURAN UNTUK MENGHILANGKAN EKSTENSI .PHP
+# =================================================
+
+# 1. Alihkan (redirect) URL yang diakses langsung dengan .php ke URL tanpa .php
+# Contoh: /anak-kreatif/admin/buku.php -> /anak-kreatif/admin/buku
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.php [NC]
+RewriteRule ^ %1 [R=301,L]
+
+# 2. Secara internal, arahkan URL tanpa .php ke file .php yang sesuai
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*?)/?$ $1.php [L]
