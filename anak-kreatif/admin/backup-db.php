@@ -66,6 +66,7 @@ foreach ($tables as $table) {
   write_line($handle, "\n-- --------------------------------------------------------\n");
   write_line($handle, "-- Table structure for table `{$table}`");
   write_line($handle, "--\n");
+  write_line($handle, "DROP TABLE IF EXISTS `{$table}`;");
   write_line($handle, $row_create[1] . ";\n");
 
   // Get table data

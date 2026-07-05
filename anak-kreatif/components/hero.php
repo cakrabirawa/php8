@@ -1,14 +1,14 @@
 <!-- Komponen Hero Section (Bagian Paling Atas) -->
-<section id="hero" class="relative text-center px-6 overflow-hidden">
+<section id="hero" class="relative text-center px-6 overflow-hidden min-h-[50vh] md:min-h-[75vh] flex items-center justify-center">
   <!-- Latar Belakang Slider Otomatis -->
   <div id="slider-bg-wrapper" class="absolute inset-0">
     <!-- Gambar-gambar slider akan dimasukkan di sini oleh JavaScript -->
   </div>
   <!-- Overlay Gelap untuk Kontras Teks -->
-  <div class="absolute inset-0 bg-black/60"></div>
+  <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-black/30"></div>
 
   <!-- Konten Teks di Atas Latar Belakang -->
-  <div class="relative z-10 max-w-3xl mx-auto pt-32 pb-20 md:pt-48 md:pb-32">
+  <div class="relative z-10 max-w-3xl mx-auto">
     <h1
       class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r mb-4 leading-tight"
       style="--tw-gradient-from: <?= HERO_GRADIENT_START ?>; --tw-gradient-to: <?= HERO_GRADIENT_END ?>; background-image: linear-gradient(to right, var(--tw-gradient-from), var(--tw-gradient-to));">

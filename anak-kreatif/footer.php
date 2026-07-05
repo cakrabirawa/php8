@@ -23,9 +23,10 @@
 
         const handleScroll = () => {
           // Efek Header
-          const isScrolled = window.scrollY > -1; // Sedikit buffer untuk transisi yang lebih baik
+          const isScrolled = window.scrollY > 1; // Sedikit buffer untuk transisi yang lebih baik
           const logoLink = header.querySelector('a[title]');
 
+          console.log(window.scrollY)
           if (isScrolled) {
             console.log("a")
             // Saat di-scroll ke bawah: tambahkan background, shadow, dan ubah warna teks menjadi gelap.
@@ -39,7 +40,7 @@
               logoLink.classList.add('text-cerita', 'dark:text-zinc-100');
             }
           } else {
-            console.log("b")
+            console.log("bbbbbbbbbbbbbb")
             // Saat di paling atas: hapus background dan kembalikan warna teks ke putih.
             header.classList.remove('bg-black/100', 'dark:bg-zinc-900/90', 'backdrop-blur-lg', 'shadow-sm', 'border-gray-100', 'dark:border-zinc-800');
             if (desktopMenu) {
@@ -63,6 +64,19 @@
 
         // Panggil handleScroll sekali saat halaman dimuat untuk mengatur state awal
         handleScroll();
+
+        // Saat di-scroll ke bawah: tambahkan background, shadow, dan ubah warna teks menjadi gelap.
+        header.classList.add('bg-transparent/100', 'dark:bg-zinc-900/90', 'backdrop-blur-lg', 'shadow-sm', 'border-gray-100', 'dark:border-zinc-800');
+        if (desktopMenu) {
+          // desktopMenu.classList.remove('text-white');
+          desktopMenu.classList.add('text-tulisan', 'dark:text-zinc-100');
+        }
+        if (logoLink) {
+          // logoLink.classList.remove('text-white');
+          logoLink.classList.add('text-cerita', 'dark:text-zinc-100');
+        }
+
+
       });
     </script>
 
