@@ -74,6 +74,7 @@ if ($conf_query) {
   }
 }
 define('ADMIN_PAGING', isset($sys_config['admin_paging']) ? (int)$sys_config['admin_paging'] : 5);
+define('ASSET_PAGING', isset($sys_config['asset_paging']) ? (int)$sys_config['asset_paging'] : 18);
 define('SITE_TITLE', isset($sys_config['site_title']) && !empty(trim($sys_config['site_title'])) ? $sys_config['site_title'] : 'AnakKreatif');
 define('ADMIN_THEME', isset($sys_config['admin_theme']) ? $sys_config['admin_theme'] : 'light'); // 'light' or 'dark'
 define('HOME_VIDEO_LIMIT', isset($sys_config['home_video_limit']) ? (int)$sys_config['home_video_limit'] : 2);

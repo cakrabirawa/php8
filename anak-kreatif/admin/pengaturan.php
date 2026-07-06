@@ -29,6 +29,12 @@ if (!isset($_SESSION['login_admin'])) {
       </div>
 
       <div>
+        <label class="block font-semibold mb-1 text-gray-700 dark:text-zinc-200">Aset per Halaman (File Manager)</label>
+        <p class="text-[10px] text-gray-400 mb-3 dark:text-zinc-400">Jumlah aset (gambar, video, dll.) yang ditampilkan per halaman di File Manager.</p>
+        <input type="number" name="asset_paging" value="<?= defined('ASSET_PAGING') ? ASSET_PAGING : 18; ?>" min="6" max="60" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-gray-300 outline-none font-bold text-gray-800 dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-100">
+      </div>
+
+      <div>
         <label class="block font-semibold mb-1 text-gray-700 dark:text-zinc-200">Judul Global Website</label>
         <p class="text-[10px] text-gray-400 mb-3 dark:text-zinc-400">Judul ini akan muncul di pojok kiri atas halaman utama dan panel admin.</p>
         <input type="text" name="site_title" value="<?= htmlspecialchars(SITE_TITLE); ?>" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-gray-300 outline-none font-bold text-gray-800 dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-100">

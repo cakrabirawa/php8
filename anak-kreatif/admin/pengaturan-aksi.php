@@ -16,6 +16,7 @@ function send_json_response($status, $message)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   validate_csrf_token();
   $admin_paging = (int)$_POST['admin_paging'];
+  $asset_paging = (int)$_POST['asset_paging'];
   $site_title = trim($_POST['site_title']);
   $home_video_limit = (int)$_POST['home_video_limit'];
   $footer_text = trim($_POST['footer_text']);
@@ -29,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $admin_theme = in_array($_POST['admin_theme'], ['light', 'dark']) ? $_POST['admin_theme'] : 'light';
 
   if ($admin_paging < 1) $admin_paging = 5;
+  if ($asset_paging < 6) $asset_paging = 18;
   if (empty($site_title)) $site_title = 'AnakKreatif';
   if ($home_video_limit < 1) $home_video_limit = 2;
   if (empty($footer_text)) $footer_text = '© ' . date('Y') . ' AnakKreatif. All rights reserved.';
@@ -42,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   $settings_to_save = [
     'admin_paging' => $admin_paging,
+    'asset_paging' => $asset_paging,
     'site_title'   => $site_title,
     'home_video_limit' => $home_video_limit,
     'footer_text'  => $footer_text,
