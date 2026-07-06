@@ -23,11 +23,9 @@ if (!is_dir($upload_dir)) {
 if (isset($_POST['action']) && $_POST['action'] === 'delete') {
     $id = (int)($_POST['id'] ?? 0);
     if ($id > 0) {
-        $stmt = mysqli_prepare($conn, "SELECT unique_filename FROM assets WHERE id = ?");
-        mysqli_stmt_bind_param($stmt, 'i', $id);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-        $asset = mysqli_fetch_assoc($result);
+        $stmt = $conn->prepare("SELECT unique_filename FROM assets WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+        $asset = $stmt->fetch();
 
         if ($asset) {
             // Hapus file fisik
@@ -37,9 +35,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete') {
             }
 
             // Hapus record dari database
-            $delete_stmt = mysqli_prepare($conn, "DELETE FROM assets WHERE id = ?");
-            mysqli_stmt_bind_param($delete_stmt, 'i', $id);
-            if (mysqli_stmt_execute($delete_stmt)) {
+            $delete_stmt = $conn->prepare("DELETE FROM assets WHERE id = :id");
+            if ($delete_stmt->execute([':id' => $id])) {
                 echo json_encode(['status' => 'success', 'message' => 'File berhasil dihapus.']);
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Gagal menghapus data dari database.']);
@@ -93,9 +90,8 @@ if (isset($_FILES['chunk'])) {
         $filesize = filesize($target_file);
         $filetype = mime_content_type($target_file);
 
-        $stmt = mysqli_prepare($conn, "INSERT INTO assets (unique_filename, original_filename, filesize, filetype) VALUES (?, ?, ?, ?)");
-        mysqli_stmt_bind_param($stmt, 'ssis', $unique_filename, $original_filename, $filesize, $filetype);
-        mysqli_stmt_execute($stmt);
+        $stmt = $conn->prepare("INSERT INTO assets (unique_filename, original_filename, filesize, filetype) VALUES (:unique_filename, :original_filename, :filesize, :filetype)");
+        $stmt->execute([':unique_filename' => $unique_filename, ':original_filename' => $original_filename, ':filesize' => $filesize, ':filetype' => $filetype]);
 
         echo json_encode(['status' => 'success', 'message' => 'File berhasil diunggah.']);
     } else {

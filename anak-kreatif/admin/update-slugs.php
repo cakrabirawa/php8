@@ -11,18 +11,17 @@ if (!isset($_SESSION['login_admin'])) {
  * Fungsi untuk memperbarui slug tabel agar sama dengan ID-nya.
  * Menggunakan satu query UPDATE massal untuk efisiensi.
  *
- * @param mysqli $db_connection Koneksi database.
+ * @param PDO $db_connection Koneksi database.
  * @param string $table_name Nama tabel yang akan diupdate.
  * @return int Jumlah baris yang berhasil diperbarui.
  */
-function update_slugs_for_table(mysqli $db_connection, string $table_name): int
+function update_slugs_for_table(PDO $db_connection, string $table_name): int
 {
-  // Menggunakan prepared statement untuk keamanan dan efisiensi.
-  // Query ini akan mengupdate semua baris, mengatur 'slug' menjadi nilai dari 'id'.
-  $query = "UPDATE " . mysqli_real_escape_string($db_connection, $table_name) . " SET slug = id";
-  $result = mysqli_query($db_connection, $query);
+  // PDO handles table names safely in the query itself, no need for real_escape_string
+  $query = "UPDATE `$table_name` SET slug = id";
+  $stmt = $db_connection->query($query);
 
-  return $result ? mysqli_affected_rows($db_connection) : 0;
+  return $stmt ? $stmt->rowCount() : 0;
 }
 
 // 1. Jalankan proses untuk tabel 'kategori_produk'

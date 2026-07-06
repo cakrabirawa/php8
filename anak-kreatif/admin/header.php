@@ -5,10 +5,10 @@ require_once '../config/database.php';
 $current_admin_avatar = null;
 if (isset($_SESSION['username_admin'])) {
   $username = $_SESSION['username_admin'];
-  $stmt_user = mysqli_prepare($conn, "SELECT avatar FROM users_admin WHERE username = ?");
-  mysqli_stmt_bind_param($stmt_user, 's', $username);
-  mysqli_stmt_execute($stmt_user);
-  $current_admin_avatar = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_user))['avatar'] ?? null;
+  $stmt_user = $conn->prepare("SELECT avatar FROM users_admin WHERE username = :username");
+  $stmt_user->execute([':username' => $username]);
+  $user_data = $stmt_user->fetch();
+  $current_admin_avatar = $user_data['avatar'] ?? null;
 }
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>

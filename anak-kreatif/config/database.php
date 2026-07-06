@@ -3,13 +3,22 @@
 // Memuat konfigurasi database dari file terpisah untuk keamanan dan kemudahan pengelolaan.
 require_once __DIR__ . '/db_config.php';
 
-// Membuat objek koneksi database menggunakan konstanta dari db_config.php
-$conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+// ==========================================
+// KONEKSI DATABASE DENGAN PDO (PHP Data Objects)
+// ==========================================
+$dsn = DB_DRIVER . ":host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+$options = [
+  PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // Melempar exception saat error
+  PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,       // Mengambil data sebagai array asosiatif
+  PDO::ATTR_EMULATE_PREPARES   => false,                  // Menggunakan prepared statements asli dari database
+];
 
-if (!$conn) {
-  die("Koneksi database gagal: " . mysqli_connect_error());
+try {
+  $conn = new PDO($dsn, DB_USER, DB_PASS, $options);
+} catch (\PDOException $e) {
+  // Untuk produksi, catat error ini ke log, jangan tampilkan ke pengguna secara langsung.
+  die("Koneksi database gagal: " . $e->getMessage());
 }
-mysqli_set_charset($conn, "utf8mb4");
 /**
  * Fungsi pembentuk string Slug (Unique ID / Random Char)
  */
@@ -67,9 +76,9 @@ if (!defined('ADMIN_URL')) {
 */
 
 $sys_config = [];
-$conf_query = mysqli_query($conn, "SELECT key_name, setting_value FROM pengaturan");
-if ($conf_query) {
-  while ($c = mysqli_fetch_assoc($conf_query)) {
+$stmt = $conn->query("SELECT key_name, setting_value FROM pengaturan");
+if ($stmt) {
+  while ($c = $stmt->fetch()) {
     $sys_config[$c['key_name']] = $c['setting_value'];
   }
 }
@@ -183,14 +192,14 @@ function get_flag_icon(?string $country_code): string
  * Mencatat kunjungan ke halaman tertentu.
  * Mencegah pencatatan ganda dari IP yang sama dalam interval waktu singkat.
  * @param mysqli $conn Objek koneksi database.
+ * @param PDO $conn Objek koneksi database.
  * @param string $page Nama halaman yang dikunjungi (e.g., 'beranda').
  */
-function track_page_visit(mysqli $conn, string $page): void
+function track_page_visit(PDO $conn, string $page): void
 {
   $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
   $country_code = get_country_from_ip($ip_address);
 
-  $stmt = mysqli_prepare($conn, "INSERT INTO access_logs (page, ip_address, country_code) VALUES (?, ?, ?)");
-  mysqli_stmt_bind_param($stmt, 'sss', $page, $ip_address, $country_code);
-  mysqli_stmt_execute($stmt);
+  $stmt = $conn->prepare("INSERT INTO access_logs (page, ip_address, country_code) VALUES (:page, :ip, :country)");
+  $stmt->execute([':page' => $page, ':ip' => $ip_address, ':country' => $country_code]);
 }

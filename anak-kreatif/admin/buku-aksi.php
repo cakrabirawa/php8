@@ -31,25 +31,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Validasi: pastikan kategori_id merujuk ke kategori aktif; jika tidak, set ke null
     if (!is_null($kategori_id)) {
-      $stmt_cek_kat = mysqli_prepare($conn, "SELECT id FROM kategori_produk WHERE id = ? AND is_active = 1 LIMIT 1");
-      mysqli_stmt_bind_param($stmt_cek_kat, 'i', $kategori_id);
-      mysqli_stmt_execute($stmt_cek_kat);
-      mysqli_stmt_store_result($stmt_cek_kat);
-      if (mysqli_stmt_num_rows($stmt_cek_kat) === 0) {
+      $stmt_cek_kat = $conn->prepare("SELECT id FROM kategori_produk WHERE id = :id AND is_active = 1 LIMIT 1");
+      $stmt_cek_kat->execute([':id' => $kategori_id]);
+      if ($stmt_cek_kat->fetchColumn() === false) {
         $kategori_id = null;
       }
-      mysqli_stmt_close($stmt_cek_kat);
     }
     // Validasi klasifikasi
     if (!is_null($klasifikasi_id)) {
-      $stmt_cek_klas = mysqli_prepare($conn, "SELECT id FROM klasifikasi_produk WHERE id = ? AND is_active = 1 LIMIT 1");
-      mysqli_stmt_bind_param($stmt_cek_klas, 'i', $klasifikasi_id);
-      mysqli_stmt_execute($stmt_cek_klas);
-      mysqli_stmt_store_result($stmt_cek_klas);
-      if (mysqli_stmt_num_rows($stmt_cek_klas) === 0) {
+      $stmt_cek_klas = $conn->prepare("SELECT id FROM klasifikasi_produk WHERE id = :id AND is_active = 1 LIMIT 1");
+      $stmt_cek_klas->execute([':id' => $klasifikasi_id]);
+      if ($stmt_cek_klas->fetchColumn() === false) {
         $klasifikasi_id = null;
       }
-      mysqli_stmt_close($stmt_cek_klas);
     }
 
     $gambar_final = isset($_POST['gambar_lama']) ? $_POST['gambar_lama'] : "";
@@ -64,20 +58,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($id > 0) {
       // UPDATE
-      $stmt = mysqli_prepare($conn, "UPDATE produk_buku SET judul=?, penulis=?, harga=?, stok=?, deskripsi=?, gambar=?, kategori_id=?, klasifikasi_id=? WHERE id=?");
-      if ($stmt) {
-        mysqli_stmt_bind_param($stmt, 'ssiissssi', $judul, $penulis, $harga, $stok, $deskripsi, $gambar_final, $kategori_id, $klasifikasi_id, $id);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
-      }
+      $sql = "UPDATE produk_buku SET judul=:judul, penulis=:penulis, harga=:harga, stok=:stok, deskripsi=:deskripsi, gambar=:gambar, kategori_id=:kategori_id, klasifikasi_id=:klasifikasi_id WHERE id=:id";
+      $stmt = $conn->prepare($sql);
+      $stmt->execute([
+        ':judul' => $judul,
+        ':penulis' => $penulis,
+        ':harga' => $harga,
+        ':stok' => $stok,
+        ':deskripsi' => $deskripsi,
+        ':gambar' => $gambar_final,
+        ':kategori_id' => $kategori_id,
+        ':klasifikasi_id' => $klasifikasi_id,
+        ':id' => $id
+      ]);
     } else {
       // INSERT
-      $stmt = mysqli_prepare($conn, "INSERT INTO produk_buku (judul, penulis, harga, stok, deskripsi, gambar, kategori_id, klasifikasi_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-      if ($stmt) {
-        mysqli_stmt_bind_param($stmt, 'ssiissss', $judul, $penulis, $harga, $stok, $deskripsi, $gambar_final, $kategori_id, $klasifikasi_id);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
-      }
+      $sql = "INSERT INTO produk_buku (judul, penulis, harga, stok, deskripsi, gambar, kategori_id, klasifikasi_id) 
+              VALUES (:judul, :penulis, :harga, :stok, :deskripsi, :gambar, :kategori_id, :klasifikasi_id)";
+      $stmt = $conn->prepare($sql);
+      $stmt->execute([
+        ':judul' => $judul,
+        ':penulis' => $penulis,
+        ':harga' => $harga,
+        ':stok' => $stok,
+        ':deskripsi' => $deskripsi,
+        ':gambar' => $gambar_final,
+        ':kategori_id' => $kategori_id,
+        ':klasifikasi_id' => $klasifikasi_id
+      ]);
     }
     send_json_response('success', 'Data buku berhasil disimpan.');
   }
@@ -85,37 +93,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // PROSES HAPUS BUKU (AJAX)
   elseif (isset($_POST['hapus'])) {
     $id = (int)$_POST['hapus'];
-    $stmt_select = mysqli_prepare($conn, "SELECT gambar FROM produk_buku WHERE id=?");
-    mysqli_stmt_bind_param($stmt_select, 'i', $id);
-    mysqli_stmt_execute($stmt_select);
-    $res = mysqli_stmt_get_result($stmt_select);
-    if ($res && $row = mysqli_fetch_assoc($res)) {
+    $stmt_select = $conn->prepare("SELECT gambar FROM produk_buku WHERE id=:id");
+    $stmt_select->execute([':id' => $id]);
+    $row = $stmt_select->fetch();
+    if ($row) {
       if (!empty($row['gambar']) && !filter_var($row['gambar'], FILTER_VALIDATE_URL)) {
         @unlink('../uploads/' . $row['gambar']);
       }
     }
-    $stmt_delete = mysqli_prepare($conn, "DELETE FROM produk_buku WHERE id=?");
-    mysqli_stmt_bind_param($stmt_delete, 'i', $id);
-    mysqli_stmt_execute($stmt_delete);
+    $stmt_delete = $conn->prepare("DELETE FROM produk_buku WHERE id=:id");
+    $stmt_delete->execute([':id' => $id]);
     send_json_response('success', 'Buku berhasil dihapus.');
   }
 
   // PROSES DUPLIKAT DATA BUKU (AJAX)
   elseif (isset($_POST['duplikat'])) {
     $id = (int)$_POST['duplikat'];
-    $stmt_cari = mysqli_prepare($conn, "SELECT * FROM produk_buku WHERE id = ?");
-    mysqli_stmt_bind_param($stmt_cari, 'i', $id);
-    mysqli_stmt_execute($stmt_cari);
-    $cari_buku = mysqli_stmt_get_result($stmt_cari);
-    if ($cari_buku && mysqli_num_rows($cari_buku) === 1) {
-      $buku = mysqli_fetch_assoc($cari_buku);
+    $stmt_cari = $conn->prepare("SELECT * FROM produk_buku WHERE id = :id");
+    $stmt_cari->execute([':id' => $id]);
+    $buku = $stmt_cari->fetch();
+    if ($buku) {
 
       $judul     = $buku['judul'] . ' (Salinan)';
       // ... (sisa logika duplikat)
-      $stmt_insert = mysqli_prepare($conn, "INSERT INTO produk_buku (judul, penulis, harga, stok, deskripsi, gambar, kategori_id, klasifikasi_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-      mysqli_stmt_bind_param($stmt_insert, 'ssiissss', $judul, $buku['penulis'], $buku['harga'], $buku['stok'], $buku['deskripsi'], $buku['gambar'], $buku['kategori_id'], $buku['klasifikasi_id']);
-      mysqli_stmt_execute($stmt_insert);
-      mysqli_stmt_close($stmt_insert);
+      $sql = "INSERT INTO produk_buku (judul, penulis, harga, stok, deskripsi, gambar, kategori_id, klasifikasi_id) VALUES (:judul, :penulis, :harga, :stok, :deskripsi, :gambar, :kategori_id, :klasifikasi_id)";
+      $stmt_insert = $conn->prepare($sql);
+      $stmt_insert->execute([
+        ':judul' => $judul,
+        ':penulis' => $buku['penulis'],
+        ':harga' => $buku['harga'],
+        ':stok' => $buku['stok'],
+        ':deskripsi' => $buku['deskripsi'],
+        ':gambar' => $buku['gambar'],
+        ':kategori_id' => $buku['kategori_id'],
+        ':klasifikasi_id' => $buku['klasifikasi_id']
+      ]);
     }
     send_json_response('success', 'Buku berhasil diduplikasi.');
   } else {

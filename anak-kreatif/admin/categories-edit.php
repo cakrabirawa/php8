@@ -11,12 +11,13 @@ if ($id <= 0) {
   exit;
 }
 
-$res = mysqli_query($conn, "SELECT * FROM kategori_produk WHERE id=$id");
-if (mysqli_num_rows($res) === 0) {
+$stmt = $conn->prepare("SELECT * FROM kategori_produk WHERE id = :id");
+$stmt->execute([':id' => $id]);
+$cat = $stmt->fetch();
+if (!$cat) {
   header('Location: ' . ADMIN_URL . 'categories');
   exit;
 }
-$cat = mysqli_fetch_assoc($res);
 ?>
 <?php include 'header.php'; ?>
 

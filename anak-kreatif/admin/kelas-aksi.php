@@ -37,37 +37,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $gambar_final = $gambar_url;
     }
 
-    $stmt = null;
     if ($action_type === 'update' && $id > 0) {
-      $stmt = mysqli_prepare($conn, "UPDATE kelas_menulis SET nama_kelas=?, mentor=?, harga_kelas=?, kuota=?, jadwal=?, deskripsi_kelas=?, gambar=? WHERE id=?");
-      if ($stmt) mysqli_stmt_bind_param($stmt, 'ssiisssi', $nama_kelas, $mentor, $harga_kelas, $kuota, $jadwal, $deskripsi_kelas, $gambar_final, $id);
+      $sql = "UPDATE kelas_menulis SET nama_kelas=:nama_kelas, mentor=:mentor, harga_kelas=:harga_kelas, kuota=:kuota, jadwal=:jadwal, deskripsi_kelas=:deskripsi_kelas, gambar=:gambar WHERE id=:id";
+      $stmt = $conn->prepare($sql);
+      $stmt->execute([
+        ':nama_kelas' => $nama_kelas,
+        ':mentor' => $mentor,
+        ':harga_kelas' => $harga_kelas,
+        ':kuota' => $kuota,
+        ':jadwal' => $jadwal,
+        ':deskripsi_kelas' => $deskripsi_kelas,
+        ':gambar' => $gambar_final,
+        ':id' => $id
+      ]);
     } elseif ($action_type === 'insert') {
-      $stmt = mysqli_prepare($conn, "INSERT INTO kelas_menulis (nama_kelas, mentor, harga_kelas, kuota, jadwal, deskripsi_kelas, gambar) VALUES (?, ?, ?, ?, ?, ?, ?)");
-      if ($stmt) mysqli_stmt_bind_param($stmt, 'ssiisss', $nama_kelas, $mentor, $harga_kelas, $kuota, $jadwal, $deskripsi_kelas, $gambar_final);
+      $sql = "INSERT INTO kelas_menulis (nama_kelas, mentor, harga_kelas, kuota, jadwal, deskripsi_kelas, gambar) VALUES (:nama_kelas, :mentor, :harga_kelas, :kuota, :jadwal, :deskripsi_kelas, :gambar)";
+      $stmt = $conn->prepare($sql);
+      $stmt->execute([
+        ':nama_kelas' => $nama_kelas,
+        ':mentor' => $mentor,
+        ':harga_kelas' => $harga_kelas,
+        ':kuota' => $kuota,
+        ':jadwal' => $jadwal,
+        ':deskripsi_kelas' => $deskripsi_kelas,
+        ':gambar' => $gambar_final
+      ]);
     }
 
-    if ($stmt && mysqli_stmt_execute($stmt)) {
-      send_json_response('success', 'Data kelas berhasil disimpan.');
-    } else {
-      send_json_response('error', 'Terjadi kesalahan pada database.');
-    }
+    send_json_response('success', 'Data kelas berhasil disimpan.');
   }
 
   // Aksi Hapus
   if (isset($_POST['hapus'])) {
     $id = (int)$_POST['hapus'];
-    $stmt_select = mysqli_prepare($conn, "SELECT gambar FROM kelas_menulis WHERE id=?");
-    mysqli_stmt_bind_param($stmt_select, 'i', $id);
-    mysqli_stmt_execute($stmt_select);
-    $res = mysqli_stmt_get_result($stmt_select);
-    if ($res && $row = mysqli_fetch_assoc($res)) {
+    $stmt_select = $conn->prepare("SELECT gambar FROM kelas_menulis WHERE id=:id");
+    $stmt_select->execute([':id' => $id]);
+    $row = $stmt_select->fetch();
+    if ($row) {
       if (!empty($row['gambar']) && !filter_var($row['gambar'], FILTER_VALIDATE_URL)) {
         @unlink('../uploads/' . $row['gambar']);
       }
     }
-    $stmt_delete = mysqli_prepare($conn, "DELETE FROM kelas_menulis WHERE id=?");
-    mysqli_stmt_bind_param($stmt_delete, 'i', $id);
-    mysqli_stmt_execute($stmt_delete);
+    $stmt_delete = $conn->prepare("DELETE FROM kelas_menulis WHERE id=:id");
+    $stmt_delete->execute([':id' => $id]);
     header("Location: " . ADMIN_URL . "kelas");
     exit;
   }
@@ -75,20 +87,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Aksi Duplikat
   if (isset($_POST['duplikat'])) {
     $id = (int)$_POST['duplikat'];
-    $stmt_cari = mysqli_prepare($conn, "SELECT * FROM kelas_menulis WHERE id = ?");
-    mysqli_stmt_bind_param($stmt_cari, 'i', $id);
-    mysqli_stmt_execute($stmt_cari);
-    $cari_kelas = mysqli_stmt_get_result($stmt_cari);
+    $stmt_cari = $conn->prepare("SELECT * FROM kelas_menulis WHERE id = :id");
+    $stmt_cari->execute([':id' => $id]);
+    $kelas = $stmt_cari->fetch();
 
-    if ($cari_kelas && mysqli_num_rows($cari_kelas) === 1) {
-      $kelas = mysqli_fetch_assoc($cari_kelas);
+    if ($kelas) {
       // ... (logika duplikat yang sudah ada)
       $nama_kelas = $kelas['nama_kelas'] . ' (Salinan)';
       // ... (sisa logika)
-      $stmt_insert = mysqli_prepare($conn, "INSERT INTO kelas_menulis (nama_kelas, mentor, harga_kelas, kuota, jadwal, deskripsi_kelas, gambar) VALUES (?, ?, ?, ?, ?, ?, ?)");
-      mysqli_stmt_bind_param($stmt_insert, 'ssiisss', $nama_kelas, $kelas['mentor'], $kelas['harga_kelas'], $kelas['kuota'], $kelas['jadwal'], $kelas['deskripsi_kelas'], $kelas['gambar']);
-      mysqli_stmt_execute($stmt_insert);
-      mysqli_stmt_close($stmt_insert);
+      $sql = "INSERT INTO kelas_menulis (nama_kelas, mentor, harga_kelas, kuota, jadwal, deskripsi_kelas, gambar) VALUES (:nama_kelas, :mentor, :harga_kelas, :kuota, :jadwal, :deskripsi_kelas, :gambar)";
+      $stmt_insert = $conn->prepare($sql);
+      $stmt_insert->execute([
+        ':nama_kelas' => $nama_kelas,
+        ':mentor' => $kelas['mentor'],
+        ':harga_kelas' => $kelas['harga_kelas'],
+        ':kuota' => $kelas['kuota'],
+        ':jadwal' => $kelas['jadwal'],
+        ':deskripsi_kelas' => $kelas['deskripsi_kelas'],
+        ':gambar' => $kelas['gambar']
+      ]);
     }
     header("Location: " . ADMIN_URL . "kelas");
     exit;

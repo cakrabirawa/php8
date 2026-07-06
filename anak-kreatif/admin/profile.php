@@ -14,11 +14,9 @@ if ($id === 0) {
     exit;
 }
 
-$stmt = mysqli_prepare($conn, "SELECT * FROM users_admin WHERE id = ?");
-mysqli_stmt_bind_param($stmt, 'i', $id);
-mysqli_stmt_execute($stmt);
-$res = mysqli_stmt_get_result($stmt);
-$user = mysqli_fetch_assoc($res);
+$stmt = $conn->prepare("SELECT * FROM users_admin WHERE id = :id");
+$stmt->execute([':id' => $id]);
+$user = $stmt->fetch();
 
 if (!$user) {
     // Jika data user tidak ditemukan, paksa logout untuk sinkronisasi

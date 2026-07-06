@@ -84,11 +84,9 @@
               }
               $klas_list = [];
               if (isset($conn)) {
-                $kres = mysqli_query($conn, "SELECT nama, slug FROM klasifikasi_produk WHERE is_active=1 ORDER BY id");
-                if ($kres) {
-                  while ($kr = mysqli_fetch_assoc($kres)) {
-                    $klas_list[] = $kr;
-                  }
+                $stmt = $conn->query("SELECT nama, slug FROM klasifikasi_produk WHERE is_active=1 ORDER BY id");
+                if ($stmt) {
+                  $klas_list = $stmt->fetchAll();
                 }
               }
               foreach ($klas_list as $kl) : ?>

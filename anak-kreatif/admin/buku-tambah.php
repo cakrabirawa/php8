@@ -6,22 +6,10 @@ if (!isset($_SESSION['login_admin'])) {
 }
 
 // Ambil daftar kategori aktif untuk dropdown
-$kategori_res = mysqli_query($conn, "SELECT id, nama FROM kategori_produk WHERE is_active = 1 ORDER BY nama");
-$kategori_list = [];
-if ($kategori_res) {
-  while ($k = mysqli_fetch_assoc($kategori_res)) {
-    $kategori_list[(int)$k['id']] = $k['nama'];
-  }
-}
+$kategori_stmt = $conn->query("SELECT id, nama FROM kategori_produk WHERE is_active = 1 ORDER BY nama");
 
 // Ambil daftar klasifikasi produk untuk dropdown
-$klasifikasi_res = mysqli_query($conn, "SELECT id, nama FROM klasifikasi_produk WHERE is_active = 1 ORDER BY id");
-$klasifikasi_list = [];
-if ($klasifikasi_res) {
-  while ($kl = mysqli_fetch_assoc($klasifikasi_res)) {
-    $klasifikasi_list[(int)$kl['id']] = $kl['nama'];
-  }
-}
+$klasifikasi_stmt = $conn->query("SELECT id, nama FROM klasifikasi_produk WHERE is_active = 1 ORDER BY id");
 ?>
 <?php include 'header.php'; ?>
 
@@ -33,6 +21,7 @@ if ($klasifikasi_res) {
   <div class="bg-white p-8 rounded-2xl shadow-sm border w-full dark:bg-zinc-900 dark:border-zinc-700">
     <form action="<?= ADMIN_URL ?>buku-aksi" method="POST" enctype="multipart/form-data" class="space-y-4 text-sm ajax-form" data-redirect-url="<?= ADMIN_URL ?>buku">
       <?= csrf_token_input(); ?>
+      <input type="hidden" name="action_type" value="insert">
       <div><label class="block font-medium mb-1 dark:text-zinc-200">Judul Buku</label>
         <input type="text" name="judul" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-orange-300 outline-none dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-100">
       </div>
@@ -63,19 +52,17 @@ if ($klasifikasi_res) {
         <label class="block font-medium mb-1 dark:text-zinc-200">Kategori</label>
         <select name="kategori_id" class="w-full p-2.5 border rounded-lg mb-2 focus:ring-2 focus:ring-orange-300 outline-none dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-100">
           <option value="">-- Tidak ada --</option>
-          <?php if (!empty($kategori_list)) : foreach ($kategori_list as $kid => $knama) : ?>
-              <option value="<?= $kid; ?>"><?= htmlspecialchars($knama); ?></option>
-          <?php endforeach;
-          endif; ?>
+          <?php foreach ($kategori_stmt as $kat) : ?>
+            <option value="<?= $kat['id']; ?>"><?= htmlspecialchars($kat['nama']); ?></option>
+          <?php endforeach; ?>
         </select>
 
         <label class="block font-medium mb-1 dark:text-zinc-200">Klasifikasi</label>
         <select name="klasifikasi_id" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-orange-300 outline-none dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-100">
           <option value="">-- Tidak ada --</option>
-          <?php if (!empty($klasifikasi_list)) : foreach ($klasifikasi_list as $klid => $klnama) : ?>
-              <option value="<?= $klid; ?>"><?= htmlspecialchars($klnama); ?></option>
-          <?php endforeach;
-          endif; ?>
+          <?php foreach ($klasifikasi_stmt as $klas) : ?>
+            <option value="<?= $klas['id']; ?>"><?= htmlspecialchars($klas['nama']); ?></option>
+          <?php endforeach; ?>
         </select>
       </div>
       <div class="flex gap-3 pt-4">

@@ -11,12 +11,8 @@ $hal_b = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 if ($hal_b < 1) $hal_b = 1;
 $offset_b = ($hal_b - 1) * $limit_b;
 
-$stmt_total = mysqli_prepare($conn, "SELECT COUNT(*) AS total FROM produk_buku");
-mysqli_stmt_execute($stmt_total);
-$total_b_res = mysqli_stmt_get_result($stmt_total);
-$total_buku = mysqli_fetch_assoc($total_b_res)['total'] ?? 0;
-mysqli_stmt_close($stmt_total);
-
+$stmt_total = $conn->query("SELECT COUNT(*) AS total FROM produk_buku");
+$total_buku = $stmt_total->fetchColumn() ?? 0;
 $total_hal_b = ceil($total_buku / $limit_b);
 
 $query = "
@@ -25,12 +21,12 @@ $query = "
     LEFT JOIN kategori_produk kp ON pb.kategori_id = kp.id
     LEFT JOIN klasifikasi_produk kls ON pb.klasifikasi_id = kls.id
     ORDER BY pb.id DESC
-    LIMIT ? OFFSET ?
+    LIMIT :limit OFFSET :offset
 ";
-$stmt_buku = mysqli_prepare($conn, $query);
-mysqli_stmt_bind_param($stmt_buku, 'ii', $limit_b, $offset_b);
-mysqli_stmt_execute($stmt_buku);
-$buku_res = mysqli_stmt_get_result($stmt_buku);
+$stmt_buku = $conn->prepare($query);
+$stmt_buku->bindValue(':limit', $limit_b, PDO::PARAM_INT);
+$stmt_buku->bindValue(':offset', $offset_b, PDO::PARAM_INT);
+$stmt_buku->execute();
 ?>
 <?php include 'header.php'; ?>
 
@@ -61,7 +57,7 @@ $buku_res = mysqli_stmt_get_result($stmt_buku);
           </tr>
         </thead>
         <tbody id="table-buku-body">
-          <?php if (mysqli_num_rows($buku_res) > 0) : while ($r = mysqli_fetch_assoc($buku_res)): ?>
+          <?php if ($stmt_buku->rowCount() > 0) : foreach ($stmt_buku as $r): ?>
               <tr class="border-b hover:bg-gray-50 dark:border-zinc-700 dark:hover:bg-zinc-800">
                 <td class="p-2 font-medium"><?= htmlspecialchars($r['judul']); ?></td>
                 <td class="p-2 text-sm text-gray-600 dark:text-zinc-400"><?= htmlspecialchars($r['kategori_nama'] ?? '-'); ?></td>
@@ -80,7 +76,7 @@ $buku_res = mysqli_stmt_get_result($stmt_buku);
                   </form>
                 </td>
               </tr>
-            <?php endwhile;
+            <?php endforeach;
           else: ?>
             <tr>
               <td colspan="6" id="no-results-buku" class="text-center text-gray-400 py-10">Belum ada data buku di dalam katalog.</td>

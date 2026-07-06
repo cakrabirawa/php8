@@ -14,8 +14,8 @@ $stats_query = "
         (SELECT COUNT(*) FROM kategori_produk) AS total_kategori,
         (SELECT COUNT(*) FROM videos) AS total_video
 ";
-$stats_res = mysqli_query($conn, $stats_query);
-$stats = $stats_res ? mysqli_fetch_assoc($stats_res) : ['total_buku' => 0, 'total_kelas' => 0, 'total_kategori' => 0, 'total_video' => 0];
+$stmt_stats = $conn->query($stats_query);
+$stats = $stmt_stats ? $stmt_stats->fetch() : ['total_buku' => 0, 'total_kelas' => 0, 'total_kategori' => 0, 'total_video' => 0];
 
 // Ambil statistik pengunjung
 $visitor_stats_query = "
@@ -24,12 +24,12 @@ $visitor_stats_query = "
         (SELECT COUNT(*) FROM access_logs WHERE YEAR(access_timestamp) = YEAR(CURDATE()) AND MONTH(access_timestamp) = MONTH(CURDATE())) AS this_month,
         (SELECT COUNT(*) FROM access_logs WHERE YEAR(access_timestamp) = YEAR(CURDATE())) AS this_year
 ";
-$visitor_stats_res = mysqli_query($conn, $visitor_stats_query);
-$visitor_stats = $visitor_stats_res ? mysqli_fetch_assoc($visitor_stats_res) : ['today' => 0, 'this_month' => 0, 'this_year' => 0];
+$stmt_visitor = $conn->query($visitor_stats_query);
+$visitor_stats = $stmt_visitor ? $stmt_visitor->fetch() : ['today' => 0, 'this_month' => 0, 'this_year' => 0];
 
 // Ambil 5 negara teratas
 $top_countries_query = "SELECT country_code, COUNT(*) as visits FROM access_logs WHERE country_code IS NOT NULL GROUP BY country_code ORDER BY visits DESC LIMIT 5";
-$top_countries_res = mysqli_query($conn, $top_countries_query);
+$top_countries_stmt = $conn->query($top_countries_query);
 
 // Data untuk grafik pengunjung 7 hari terakhir
 $chart_labels = [];
@@ -50,10 +50,10 @@ $chart_query = "
     WHERE access_timestamp >= CURDATE() - INTERVAL 6 DAY
     GROUP BY visit_date
 ";
-$chart_res = mysqli_query($conn, $chart_query);
-if ($chart_res) {
+$chart_stmt = $conn->query($chart_query);
+if ($chart_stmt) {
   // Use a while loop to iterate over the results
-  while ($row = mysqli_fetch_assoc($chart_res)) {
+  while ($row = $chart_stmt->fetch()) {
     if (isset($date_range[$row['visit_date']])) $date_range[$row['visit_date']] = (int)$row['visit_count'];
   }
 }
@@ -121,7 +121,7 @@ $chart_data = array_values($date_range);
     <div class="bg-white p-6 rounded-xl shadow-sm border dark:bg-zinc-900 dark:border-zinc-700">
       <h3 class="text-lg font-bold text-gray-700 dark:text-zinc-200 mb-4">🌍 Negara Pengunjung Teratas</h3>
       <ul class="space-y-2 text-sm">
-        <?php if ($top_countries_res && mysqli_num_rows($top_countries_res) > 0): while ($country = mysqli_fetch_assoc($top_countries_res)): ?>
+        <?php if ($top_countries_stmt && $top_countries_stmt->rowCount() > 0): foreach ($top_countries_stmt as $country): ?>
             <li class="flex justify-between items-center font-medium">
               <span class="flex items-center gap-2 text-gray-600 dark:text-zinc-300">
                 <?= get_flag_icon($country['country_code']); ?>
@@ -129,7 +129,7 @@ $chart_data = array_values($date_range);
               </span>
               <span class="font-bold text-gray-800 dark:text-zinc-100"><?= number_format($country['visits']); ?> Kunjungan</span>
             </li>
-          <?php endwhile;
+          <?php endforeach;
         else: ?>
           <p class="text-gray-400 text-center py-2">Belum ada data pengunjung.</p>
         <?php endif; ?>

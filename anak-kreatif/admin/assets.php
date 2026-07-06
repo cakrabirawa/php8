@@ -15,20 +15,19 @@ $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 if ($page < 1) $page = 1;
 $offset = ($page - 1) * $limit;
 
-$total_assets_res = mysqli_query($conn, "SELECT COUNT(*) as total FROM assets");
-$total_assets = mysqli_fetch_assoc($total_assets_res)['total'] ?? 0;
+$stmt_total = $conn->query("SELECT COUNT(*) as total FROM assets");
+$total_assets = $stmt_total->fetchColumn() ?? 0;
 $total_pages = ceil($total_assets / $limit);
 
 
 // Ambil semua aset dari database
 $assets = [];
-$query = "SELECT id, unique_filename, original_filename, filesize, filetype, uploaded_at FROM assets ORDER BY uploaded_at DESC LIMIT $limit OFFSET $offset";
-$result = mysqli_query($conn, $query);
-if ($result) {
-    while ($row = mysqli_fetch_assoc($result)) {
-        $assets[] = $row;
-    }
-}
+$query = "SELECT id, unique_filename, original_filename, filesize, filetype, uploaded_at FROM assets ORDER BY uploaded_at DESC LIMIT :limit OFFSET :offset";
+$stmt_assets = $conn->prepare($query);
+$stmt_assets->bindValue(':limit', $limit, PDO::PARAM_INT);
+$stmt_assets->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt_assets->execute();
+$assets = $stmt_assets->fetchAll();
 
 /**
  * Fungsi untuk mendapatkan path pratinjau atau ikon berdasarkan tipe file.
@@ -136,7 +135,7 @@ include 'header.php';
         </div>
 
         <div id="asset-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <?php if (!empty($assets)) : foreach ($assets as $asset) : ?>
+            <?php if ($assets) : foreach ($assets as $asset) : ?>
                     <div class="asset-card group relative border dark:border-zinc-700 rounded-lg overflow-hidden aspect-square flex items-center justify-center bg-gray-50 dark:bg-zinc-800" data-filename="<?= strtolower(htmlspecialchars($asset['original_filename'])); ?>" data-asset-info='<?= json_encode($asset); ?>'>
                         <?php if (str_starts_with($asset['filetype'], 'image/')) : ?>
                             <img src="<?= get_asset_preview($asset); ?>" alt="<?= htmlspecialchars($asset['original_filename']); ?>" class="max-w-full max-h-full object-contain">

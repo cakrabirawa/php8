@@ -36,20 +36,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $gambar_final = $gambar_url;
     }
 
-    $stmt = null;
     if ($action_type === 'update' && $id > 0) {
-      $stmt = mysqli_prepare($conn, "UPDATE sliders SET judul_slider=?, gambar=?, is_active=? WHERE id=?");
-      if ($stmt) mysqli_stmt_bind_param($stmt, 'ssii', $judul_slider, $gambar_final, $is_active, $id);
+      $sql = "UPDATE sliders SET judul_slider=:judul, gambar=:gambar, is_active=:is_active WHERE id=:id";
+      $stmt = $conn->prepare($sql);
+      $stmt->execute([':judul' => $judul_slider, ':gambar' => $gambar_final, ':is_active' => $is_active, ':id' => $id]);
     } elseif ($action_type === 'insert' && !empty($gambar_final)) {
-      $stmt = mysqli_prepare($conn, "INSERT INTO sliders (judul_slider, gambar, is_active) VALUES (?, ?, ?)");
-      if ($stmt) mysqli_stmt_bind_param($stmt, 'ssi', $judul_slider, $gambar_final, $is_active);
-    }
-
-    if ($stmt && mysqli_stmt_execute($stmt)) {
-      send_json_response('success', 'Data slider berhasil disimpan.');
+      $sql = "INSERT INTO sliders (judul_slider, gambar, is_active) VALUES (:judul, :gambar, :is_active)";
+      $stmt = $conn->prepare($sql);
+      $stmt->execute([':judul' => $judul_slider, ':gambar' => $gambar_final, ':is_active' => $is_active]);
     } else {
       send_json_response('error', 'Gagal memproses data slider! Pastikan gambar terisi.');
     }
+
+    send_json_response('success', 'Data slider berhasil disimpan.');
   }
 
   // Aksi Toggle Status
@@ -58,27 +57,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status_sekarang = (int)$_POST['status'];
     $status_baru = ($status_sekarang === 1) ? 0 : 1;
 
-    $stmt = mysqli_prepare($conn, "UPDATE sliders SET is_active = ? WHERE id = ?");
-    mysqli_stmt_bind_param($stmt, 'ii', $status_baru, $id);
-    mysqli_stmt_execute($stmt);
+    $stmt = $conn->prepare("UPDATE sliders SET is_active = :status WHERE id = :id");
+    $stmt->execute([':status' => $status_baru, ':id' => $id]);
     send_json_response('success', 'Status slider berhasil diubah.');
   }
 
   // Aksi Hapus
   if (isset($_POST['hapus'])) {
     $id = (int)$_POST['hapus'];
-    $stmt_select = mysqli_prepare($conn, "SELECT gambar FROM sliders WHERE id=?");
-    mysqli_stmt_bind_param($stmt_select, 'i', $id);
-    mysqli_stmt_execute($stmt_select);
-    $res = mysqli_stmt_get_result($stmt_select);
-    if ($res && $row = mysqli_fetch_assoc($res)) {
+    $stmt_select = $conn->prepare("SELECT gambar FROM sliders WHERE id=:id");
+    $stmt_select->execute([':id' => $id]);
+    $row = $stmt_select->fetch();
+    if ($row) {
       if (!empty($row['gambar']) && !filter_var($row['gambar'], FILTER_VALIDATE_URL)) {
         $path_file = '../uploads/' . $row['gambar'];
         if (file_exists($path_file)) @unlink($path_file);
       }
-      $stmt_delete = mysqli_prepare($conn, "DELETE FROM sliders WHERE id=?");
-      mysqli_stmt_bind_param($stmt_delete, 'i', $id);
-      mysqli_stmt_execute($stmt_delete);
+      $stmt_delete = $conn->prepare("DELETE FROM sliders WHERE id=:id");
+      $stmt_delete->execute([':id' => $id]);
     }
     header("Location: " . ADMIN_URL . "sliders");
     exit;
