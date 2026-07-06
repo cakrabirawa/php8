@@ -65,7 +65,7 @@ $users_res = mysqli_stmt_get_result($stmt_users);
 
                   <!-- LOGIKA DINAMIS: Tombol Hapus hanya muncul jika username baris ini bukan milik admin yang sedang login -->
                   <?php if ($r['username'] !== ($_SESSION['username_admin'] ?? '')) : ?>
-                    <form action="<?= ADMIN_URL ?>users-aksi" method="POST" class="inline" onsubmit="return confirm('Hapus pengguna ini?')">
+                    <form action="<?= ADMIN_URL ?>users-aksi" method="POST" class="inline ajax-form" data-action="reload" onsubmit="return confirm('Hapus pengguna ini?')">
                       <input type="hidden" name="hapus" value="<?= $r['id'] ?>"><input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                       <button type="submit" class="text-red-600 hover:underline bg-transparent border-none p-0 font-bold cursor-pointer">Hapus</button>
                     </form>

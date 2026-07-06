@@ -60,7 +60,7 @@ $v_res = mysqli_stmt_get_result($stmt_videos);
                 <td class="p-2 font-medium max-w-[240px] truncate"><?= htmlspecialchars($r['judul_video']); ?></td>
                 <td class="p-2 uppercase text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold <?= $r['tipe_sumber'] === 'youtube' ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600' ?>"><?= $r['tipe_sumber']; ?></span></td>
                 <td class="p-2 text-center">
-                  <form action="<?= ADMIN_URL ?>videos-aksi" method="POST" class="inline ajax-form" data-redirect-url="<?= ADMIN_URL ?>videos?p=<?= $hal ?>">
+                  <form action="<?= ADMIN_URL ?>videos-aksi" method="POST" class="inline ajax-form" data-action="reload">
                     <?= csrf_token_input(); ?>
                     <input type="hidden" name="toggle_status" value="<?= $r['id']; ?>">
                     <input type="hidden" name="status" value="<?= $r['is_active'] ?? 1; ?>">
@@ -69,7 +69,7 @@ $v_res = mysqli_stmt_get_result($stmt_videos);
                 </td>
                 <td class="p-2 text-center font-bold space-x-2 whitespace-nowrap">
                   <a href="<?= ADMIN_URL ?>videos-edit?id=<?= $r['id']; ?>" class="text-blue-600 hover:underline spa-trigger">Edit</a>
-                  <form action="<?= ADMIN_URL ?>videos-aksi" method="POST" class="inline" onsubmit="return confirm('Hapus video ini?')">
+                  <form action="<?= ADMIN_URL ?>videos-aksi" method="POST" class="inline ajax-form" data-action="reload" onsubmit="return confirm('Hapus video ini?')">
                     <input type="hidden" name="hapus" value="<?= $r['id'] ?>"><input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <button type="submit" class="text-red-600 hover:underline bg-transparent border-none p-0 font-bold cursor-pointer">Hapus</button>
                   </form>

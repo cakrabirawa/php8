@@ -80,7 +80,7 @@ if ($klasifikasi_res) {
       </div>
       <div class="flex gap-3 pt-4">
         <button type="submit" class="flex-grow bg-orange-500 text-white font-bold py-2.5 rounded-lg hover:bg-orange-600 transition">Simpan Buku</button>
-        <a href="<?= ADMIN_URL ?>buku" class="bg-gray-200 text-gray-700 font-bold py-2.5 px-5 rounded-lg hover:bg-gray-300 transition dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">Batal</a>
+        <a href="<?= ADMIN_URL ?>buku" class="spa-trigger bg-gray-200 text-gray-700 font-bold py-2.5 px-5 rounded-lg hover:bg-gray-300 transition dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">Batal</a>
       </div>
     </form>
   </div>

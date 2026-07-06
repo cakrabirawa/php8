@@ -24,6 +24,8 @@ RewriteRule ^toko/klasifikasi/([^/]+)/?$ toko.php?klas=$1 [L,QSA]
 
 # 1. Alihkan (redirect) URL yang diakses langsung dengan .php ke URL tanpa .php
 # Contoh: /anak-kreatif/admin/buku.php -> /anak-kreatif/admin/buku
+# Tambahkan kondisi untuk MENGECUALIKAN permintaan AJAX
+RewriteCond %{HTTP:X-Requested-With} !XMLHttpRequest
 RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.php [NC]
 RewriteRule ^ %1 [R=301,L]
 
@@ -32,3 +34,11 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^(.*?)/?$ $1.php [L]
+# ==================================================
+# PENGATURAN UNGGAH FILE PHP VIA HTACCESS
+# ==================================================
+# Tingkatkan batas unggahan file menjadi 100MB
+php_value upload_max_filesize 100M
+php_value post_max_size 100M
+php_value max_execution_time 300
+php_value max_input_time 300

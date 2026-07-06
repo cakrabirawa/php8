@@ -52,16 +52,15 @@ $res = mysqli_query($conn, "SELECT * FROM sliders ORDER BY id DESC LIMIT $batas 
                 <p class="font-bold truncate mb-2 text-gray-700"><?= !empty($r['judul_slider']) ? htmlspecialchars($r['judul_slider']) : 'Tanpa Judul'; ?></p>
                 <div class="flex justify-between items-center">
                   <!-- TOMBOL TOGGLE STATUS CEPAT (via POST) -->
-                  <form action="<?= ADMIN_URL ?>sliders-aksi" method="POST" class="inline ajax-form" data-redirect-url="<?= ADMIN_URL ?>sliders?p=<?= $halaman ?>">
+                  <form action="<?= ADMIN_URL ?>sliders-aksi" method="POST" class="inline ajax-form" data-action="reload">
                     <?= csrf_token_input(); ?>
                     <input type="hidden" name="toggle_status" value="<?= $r['id']; ?>">
                     <input type="hidden" name="status" value="<?= $r['is_active']; ?>">
-                    <input type="hidden" name="p" value="<?= $halaman; ?>">
                     <button type="submit" class="font-bold text-[10px] bg-transparent border-none cursor-pointer p-0 <?= $status_aktif ? 'text-amber-600 hover:text-amber-700' : 'text-emerald-600 hover:text-emerald-700' ?>"><?= $status_aktif ? 'Sembunyikan' : 'Tampilkan' ?></button>
                   </form>
                   <div class="flex gap-1.5 font-bold text-[10px]">
                     <a href="<?= ADMIN_URL ?>sliders-edit?id=<?= $r['id']; ?>" class="bg-blue-50 text-blue-600 px-2.5 py-1 rounded hover:bg-blue-100 spa-trigger">Ubah</a>
-                    <form action="<?= ADMIN_URL ?>sliders-aksi" method="POST" class="inline" onsubmit="return confirm('Hapus gambar background ini?')">
+                    <form action="<?= ADMIN_URL ?>sliders-aksi" method="POST" class="inline ajax-form" data-action="reload" onsubmit="return confirm('Hapus gambar background ini?')">
                       <input type="hidden" name="hapus" value="<?= $r['id'] ?>"><input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                       <button type="submit" class="bg-red-50 text-red-600 px-2.5 py-1 rounded hover:bg-red-100 font-bold text-[10px] cursor-pointer">Hapus</button>
                     </form>

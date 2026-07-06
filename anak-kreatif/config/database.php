@@ -33,8 +33,11 @@ if (empty($_SESSION['csrf_token'])) {
 function validate_csrf_token()
 {
   if (!isset($_REQUEST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_REQUEST['csrf_token'])) {
-    // Jika token tidak valid, hentikan eksekusi dan tampilkan pesan error
-    die('Error: Invalid CSRF token. Permintaan diblokir untuk keamanan.');
+    // Kirim respons JSON yang benar, bukan die() dengan HTML.
+    header('Content-Type: application/json');
+    http_response_code(403); // Forbidden
+    echo json_encode(['status' => 'error', 'message' => 'Sesi tidak valid atau telah kedaluwarsa. Silakan muat ulang halaman.']);
+    exit;
   }
 }
 

@@ -22,6 +22,23 @@ $slider = mysqli_fetch_assoc($res);
     <p class="text-gray-500 mt-1 dark:text-zinc-400">Mengubah gambar transisi pada beranda.</p>
   </div>
 
+  <!-- Image Preview Section -->
+  <div class="mb-6 bg-gray-200 dark:bg-zinc-800 rounded-xl overflow-hidden aspect-video relative shadow-lg border dark:border-zinc-700">
+    <?php
+    $img_src = '';
+    if (!empty($slider['gambar'])) {
+      $img_src = (filter_var($slider['gambar'], FILTER_VALIDATE_URL)) ? $slider['gambar'] : '../uploads/' . $slider['gambar'];
+    }
+    ?>
+    <?php if (!empty($img_src)) : ?>
+      <img src="<?= htmlspecialchars($img_src) ?>" alt="Pratinjau Slider" class="w-full h-full object-cover">
+    <?php else : ?>
+      <div class="w-full h-full flex items-center justify-center">
+        <p class="text-gray-500 font-semibold">🖼️ Pratinjau tidak tersedia</p>
+      </div>
+    <?php endif; ?>
+  </div>
+
   <div class="bg-white p-6 rounded-2xl shadow-sm border w-full dark:bg-zinc-900 dark:border-zinc-700">
 
     <form action="<?= ADMIN_URL ?>sliders-aksi" method="POST" enctype="multipart/form-data" class="space-y-4 ajax-form" data-redirect-url="<?= ADMIN_URL ?>sliders">
@@ -55,7 +72,7 @@ $slider = mysqli_fetch_assoc($res);
 
       <div class="flex gap-2 pt-2 font-semibold">
         <button type="submit" class="flex-grow bg-amber-500 text-white py-2 rounded-md hover:bg-amber-600">Simpan Perubahan</button>
-        <a href="<?= ADMIN_URL ?>sliders" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 text-center dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">Batal</a>
+        <a href="<?= ADMIN_URL ?>sliders" class="spa-trigger bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 text-center dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">Batal</a>
       </div>
     </form>
   </div>

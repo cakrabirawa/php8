@@ -43,7 +43,7 @@ if (!isset($_SESSION['login_admin'])) {
       </div>
       <div class="flex gap-2">
         <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded font-bold hover:bg-indigo-700">Terbitkan Video</button>
-        <a href="<?= ADMIN_URL ?>videos" class="bg-gray-100 px-4 py-2 rounded font-bold text-gray-700 hover:bg-gray-200 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">Batal</a>
+        <a href="<?= ADMIN_URL ?>videos" class="spa-trigger bg-gray-100 px-4 py-2 rounded font-bold text-gray-700 hover:bg-gray-200 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">Batal</a>
       </div>
     </form>
   </div>

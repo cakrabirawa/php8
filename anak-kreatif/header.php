@@ -69,46 +69,42 @@
         <span>🎨</span> <span><?= htmlspecialchars(SITE_TITLE); ?></span>
       </a>
 
-      <!-- Menu Navigasi Layar Lebar (Desktop) FIXED BASE_URL -->
-      <div id="desktop-menu" class="hidden md:flex space-x-8 font-semibold text-sm items-center text-white">
-        <a href="<?= BASE_URL; ?>" class="hover:text-amber-200 transition-colors">Beranda</a>
-        <div class="relative group inline-block py-2">
-          <a href="<?= BASE_URL; ?>toko" class="hover:text-cerita transition-colors">Toko Buku</a>
-          <div class="absolute left-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition ease-out duration-150 z-50 pointer-events-none group-hover:pointer-events-auto">
-            <?php
-            // ambil daftar klasifikasi aktif jika koneksi DB tersedia
-            if (!isset($conn)) {
-              @include __DIR__ . '/config/database.php';
-            }
-            $klas_list = [];
-            if (isset($conn)) {
-              $kres = mysqli_query($conn, "SELECT nama, slug FROM klasifikasi_produk WHERE is_active=1 ORDER BY id");
-              if ($kres) {
-                while ($kr = mysqli_fetch_assoc($kres)) {
-                  $klas_list[] = $kr;
+      <!-- Area Kontrol Kanan (Menu Desktop & Tombol Mobile) -->
+      <div class="flex items-center gap-6">
+        <!-- Menu Navigasi Layar Lebar (Desktop) -->
+        <div id="desktop-menu" class="hidden md:flex space-x-8 font-semibold text-sm items-center text-white">
+          <a href="<?= BASE_URL; ?>" class="hover:text-amber-200 transition-colors">Beranda</a>
+          <div class="relative group inline-block py-2">
+            <a href="<?= BASE_URL; ?>toko" class="hover:text-cerita transition-colors">Toko Buku</a>
+            <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition ease-out duration-150 z-50 pointer-events-none group-hover:pointer-events-auto">
+              <?php
+              // ambil daftar klasifikasi aktif jika koneksi DB tersedia
+              if (!isset($conn)) {
+                @include __DIR__ . '/config/database.php';
+              }
+              $klas_list = [];
+              if (isset($conn)) {
+                $kres = mysqli_query($conn, "SELECT nama, slug FROM klasifikasi_produk WHERE is_active=1 ORDER BY id");
+                if ($kres) {
+                  while ($kr = mysqli_fetch_assoc($kres)) {
+                    $klas_list[] = $kr;
+                  }
                 }
               }
-            }
-            foreach ($klas_list as $kl) : ?>
-              <a href="<?= BASE_URL; ?>toko/klasifikasi/<?= urlencode($kl['slug']); ?>" class="block px-3 py-2 text-sm text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-700 pointer-events-auto"><?= htmlspecialchars($kl['nama']); ?></a>
-            <?php endforeach; ?>
+              foreach ($klas_list as $kl) : ?>
+                <a href="<?= BASE_URL; ?>toko/klasifikasi/<?= urlencode($kl['slug']); ?>" class="block px-3 py-2 text-sm text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-700 pointer-events-auto"><?= htmlspecialchars($kl['nama']); ?></a>
+              <?php endforeach; ?>
+            </div>
           </div>
+          <a href="<?= BASE_URL; ?>kelas" class="hover:text-amber-200 transition-colors">Kelas Menulis</a>
         </div>
-        <a href="<?= BASE_URL; ?>kelas" class="hover:text-amber-200 transition-colors">Kelas Menulis</a>
 
-        <button id="theme-toggle" class="p-2 rounded-lg bg-white/10 dark:bg-white/10 text-white text-md focus:outline-none hover:bg-white/20 transition" aria-label="Ubah Tema">
-          <span class="dark:hidden">🌙</span>
-          <span class="hidden dark:inline">☀️</span>
-        </button>
-      </div>
-
-      <!-- Area Kontrol Mobile -->
-      <div class="flex items-center gap-2 md:hidden">
+        <!-- Tombol Kontrol (Tema & Menu Mobile) -->
         <button id="theme-toggle-mobile" class="p-2 rounded-lg bg-white/10 dark:bg-white/10 text-white text-sm focus:outline-none" aria-label="Ubah Tema Mobile">
           <span class="dark:hidden">🌙</span>
           <span class="hidden dark:inline">☀️</span>
         </button>
-        <button id="menu-toggle" class="text-2xl text-white p-2 focus:outline-none">
+        <button id="menu-toggle" class="md:hidden text-2xl text-white p-2 focus:outline-none">
           <span id="menu-icon-open">☰</span>
           <span id="menu-icon-close" class="hidden">✕</span>
         </button>

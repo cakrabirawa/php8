@@ -1,0 +1,66 @@
+<?php
+require_once '../config/database.php';
+
+if (!isset($_SESSION['login_admin'])) {
+    header("Location: " . ADMIN_URL . "login");
+    exit;
+}
+
+// Ambil ID admin yang sedang login dari session
+$id = $_SESSION['admin_id'] ?? 0;
+if ($id === 0) {
+    // Pengaman jika session ID tidak ada, paksa logout
+    header("Location: " . ADMIN_URL . "logout.php");
+    exit;
+}
+
+$stmt = mysqli_prepare($conn, "SELECT * FROM users_admin WHERE id = ?");
+mysqli_stmt_bind_param($stmt, 'i', $id);
+mysqli_stmt_execute($stmt);
+$res = mysqli_stmt_get_result($stmt);
+$user = mysqli_fetch_assoc($res);
+
+if (!$user) {
+    // Jika data user tidak ditemukan, paksa logout untuk sinkronisasi
+    header("Location: " . ADMIN_URL . "logout.php");
+    exit;
+}
+?>
+<?php include 'header.php'; ?>
+
+<div class="w-full max-w-2xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-2xl font-black text-gray-800 dark:text-zinc-100">✏️ Perbarui Profil Anda</h1>
+        <p class="text-gray-500 mt-1 dark:text-zinc-400">Ubah nama lengkap atau kata sandi Anda.</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-sm border w-full dark:bg-zinc-900 dark:border-zinc-700">
+        <form action="<?= ADMIN_URL ?>users-aksi" method="POST" enctype="multipart/form-data" class="space-y-4 ajax-form">
+            <?= csrf_token_input(); ?>
+            <input type="hidden" name="id" value="<?= $user['id']; ?>">
+            <input type="hidden" name="action_type" value="update">
+            <input type="hidden" name="avatar_lama" value="<?= $user['avatar']; ?>">
+
+            <div class="flex items-center gap-4">
+                <?php if (!empty($user['avatar']) && file_exists('../uploads/avatars/' . $user['avatar'])) : ?>
+                    <img id="profile-page-avatar-img" src="../uploads/avatars/<?= htmlspecialchars($user['avatar']); ?>" alt="Avatar" class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md">
+                <?php else : ?>
+                    <div id="profile-page-avatar-initial" class="w-16 h-16 rounded-full bg-orange-200 flex flex-shrink-0 items-center justify-center text-orange-700 font-bold text-2xl border-2 border-white shadow-md">
+                        <?= strtoupper(substr($user['nama_lengkap'] ?? 'A', 0, 1)); ?>
+                    </div>
+                <?php endif; ?>
+                <div class="flex-grow">
+                    <label class="block font-semibold mb-1 dark:text-zinc-200">Ganti Foto Profil (Opsional)</label>
+                    <input type="file" name="avatar" accept="image/*" class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-500/10 dark:file:text-blue-300 dark:hover:file:bg-blue-500/20">
+                </div>
+            </div>
+
+            <div><label class="block font-medium mb-1 dark:text-zinc-200">Username (Tidak Dapat Diubah)</label><input type="text" value="<?= htmlspecialchars($user['username']); ?>" readonly class="w-full p-2 border rounded-md bg-gray-100 text-gray-500 cursor-not-allowed font-semibold focus:outline-none dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400"></div>
+            <div><label class="block font-medium mb-1 dark:text-zinc-200">Nama Lengkap</label><input type="text" name="nama_lengkap" value="<?= htmlspecialchars($user['nama_lengkap']); ?>" required class="w-full p-2 border rounded-md focus:ring-1 focus:ring-blue-500 focus:outline-none dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-100"></div>
+            <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20"><label class="block font-medium mb-1 text-amber-800 dark:text-amber-300">Password Baru (Opsional)</label><input type="password" name="password" placeholder="Isi hanya jika ingin ganti password" class="w-full p-2 border bg-white rounded-md focus:ring-1 focus:ring-blue-500 focus:outline-none dark:bg-zinc-700 dark:border-zinc-600">
+                <p class="text-[10px] text-amber-600 mt-1 dark:text-amber-400">*Kosongkan jika tidak ingin mengubah kata sandi.</p>
+            </div>
+            <div class="flex gap-2 pt-2 font-semibold"><button type="submit" class="flex-grow bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">Simpan Perubahan</button><a href="<?= ADMIN_URL ?>" class="spa-trigger bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 text-center dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">Kembali</a></div>
+        </form>
+    </div>
+</div>
+<?php include 'footer.php'; ?>

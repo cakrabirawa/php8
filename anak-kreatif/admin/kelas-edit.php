@@ -50,13 +50,25 @@ $kelas = mysqli_fetch_assoc($res);
         <input type="text" name="jadwal" value="<?= htmlspecialchars($kelas['jadwal']); ?>" required class="w-full p-2.5 border rounded-lg dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-100">
       </div>
 
-      <div class="bg-gray-50 p-3 rounded-lg border space-y-3 dark:bg-zinc-800/50 dark:border-zinc-700">
-        <div><label class="block text-xs font-semibold text-gray-500 mb-1 dark:text-zinc-400">Opsi 1: Ganti File Gambar Baru</label>
-          <input type="file" name="gambar_upload" accept="image/*" class="w-full p-1 border bg-white rounded-md text-xs dark:bg-zinc-700 dark:border-zinc-600">
-        </div>
-        <div class="text-center text-xs text-gray-400 font-bold">ATAU</div>
-        <div><label class="block text-xs font-semibold text-gray-500 mb-1 dark:text-zinc-400">Opsi 2: Ganti Tautan URL Gambar</label>
-          <input type="url" name="gambar_url" value="<?= filter_var($kelas['gambar'], FILTER_VALIDATE_URL) ? htmlspecialchars($kelas['gambar']) : ''; ?>" class="w-full p-2 border bg-white rounded-md text-xs dark:bg-zinc-700 dark:border-zinc-600">
+      <div class="flex items-start gap-4 pt-2">
+        <?php
+        $img_src = '';
+        if (!empty($kelas['gambar'])) {
+          $img_src = (filter_var($kelas['gambar'], FILTER_VALIDATE_URL)) ? $kelas['gambar'] : '../uploads/' . $kelas['gambar'];
+        }
+        ?>
+        <?php if (!empty($img_src)) : ?>
+          <img src="<?= htmlspecialchars($img_src); ?>" alt="Gambar Kelas" class="w-24 h-24 rounded-md object-cover border-2 border-white shadow-md flex-shrink-0">
+        <?php endif; ?>
+        <div class="flex-grow space-y-3">
+          <div>
+            <label class="block font-semibold mb-1 dark:text-zinc-200">Ganti Gambar (Opsional)</label>
+            <input type="file" name="gambar_upload" accept="image/*" class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 dark:file:bg-teal-500/10 dark:file:text-teal-300 dark:hover:file:bg-teal-500/20">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 dark:text-zinc-200">Atau gunakan URL Gambar</label>
+            <input type="url" name="gambar_url" value="<?= filter_var($kelas['gambar'], FILTER_VALIDATE_URL) ? htmlspecialchars($kelas['gambar']) : ''; ?>" placeholder="https://example.com/image.jpg" class="w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-teal-500 outline-none font-medium text-sm text-gray-800 dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-100">
+          </div>
         </div>
       </div>
 
@@ -66,7 +78,7 @@ $kelas = mysqli_fetch_assoc($res);
 
       <div class="flex gap-3 pt-2">
         <button type="submit" class="flex-grow bg-teal-500 text-white font-bold py-2.5 rounded-lg hover:bg-teal-600">Simpan Perubahan</button>
-        <a href="<?= ADMIN_URL ?>kelas" class="bg-gray-200 text-gray-700 font-bold py-2.5 px-5 rounded-lg hover:bg-gray-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">Batal</a>
+        <a href="<?= ADMIN_URL ?>kelas" class="spa-trigger bg-gray-200 text-gray-700 font-bold py-2.5 px-5 rounded-lg hover:bg-gray-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">Batal</a>
       </div>
     </form>
   </div>

@@ -29,6 +29,20 @@ $user = mysqli_fetch_assoc($res);
       <input type="hidden" name="id" value="<?= $user['id']; ?>">
       <input type="hidden" name="avatar_lama" value="<?= $user['avatar']; ?>">
 
+      <div class="flex items-center gap-4">
+        <?php if (!empty($user['avatar']) && file_exists('../uploads/avatars/' . $user['avatar'])) : ?>
+          <img src="../uploads/avatars/<?= htmlspecialchars($user['avatar']); ?>" alt="Avatar" class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md">
+        <?php else : ?>
+          <div class="w-16 h-16 rounded-full bg-blue-100 flex flex-shrink-0 items-center justify-center text-blue-600 font-bold text-2xl border-2 border-white shadow-md dark:bg-blue-500/20 dark:text-blue-300">
+            <?= strtoupper(substr($user['nama_lengkap'] ?? 'A', 0, 1)); ?>
+          </div>
+        <?php endif; ?>
+        <div class="flex-grow">
+          <label class="block font-semibold mb-1 dark:text-zinc-200">Ganti Foto Profil (Opsional)</label>
+          <input type="file" name="avatar" accept="image/*" class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-500/10 dark:file:text-blue-300 dark:hover:file:bg-blue-500/20">
+        </div>
+      </div>
+
       <div>
         <label class="block font-medium mb-1 dark:text-zinc-200">Username (Tidak Dapat Diubah)</label>
         <!-- PERBAIKAN: Ditambahkan atribut readonly dan styling disabled -->
@@ -46,14 +60,9 @@ $user = mysqli_fetch_assoc($res);
         <p class="text-[10px] text-amber-600 mt-1 dark:text-amber-400">*Kosongkan jika tidak ingin mengubah kata sandi lama.</p>
       </div>
 
-      <div>
-        <label class="block font-semibold mb-1 dark:text-zinc-200">Ganti Foto Profil (Opsional)</label>
-        <input type="file" name="avatar" accept="image/*" class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-500/10 dark:file:text-blue-300 dark:hover:file:bg-blue-500/20">
-      </div>
-
       <div class="flex gap-2 pt-2 font-semibold">
         <button type="submit" class="flex-grow bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">Simpan</button>
-        <a href="<?= ADMIN_URL ?>users" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 text-center dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">Batal</a>
+        <a href="<?= ADMIN_URL ?>users" class="spa-trigger bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 text-center dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">Batal</a>
       </div>
     </form>
   </div>

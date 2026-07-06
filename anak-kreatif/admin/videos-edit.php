@@ -21,6 +21,22 @@ $v = mysqli_fetch_assoc($res);
     <p class="text-gray-500 mt-1 dark:text-zinc-400">Mengubah tautan atau berkas video dokumentasi.</p>
   </div>
 
+  <!-- Video Preview Section -->
+  <div class="mb-6 bg-black rounded-xl overflow-hidden aspect-video relative shadow-lg border dark:border-zinc-700">
+    <?php if ($v['tipe_sumber'] === 'youtube' && !empty($v['tautan_video'])) : ?>
+      <iframe class="absolute inset-0 w-full h-full" src="<?= htmlspecialchars($v['tautan_video']) ?>" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <?php elseif ($v['tipe_sumber'] === 'upload' && !empty($v['tautan_video']) && file_exists('../uploads/videos/' . $v['tautan_video'])) : ?>
+      <video class="w-full h-full object-contain bg-black" controls>
+        <source src="../uploads/videos/<?= htmlspecialchars($v['tautan_video']) ?>" type="video/mp4">
+        Browser Anda tidak mendukung tag video.
+      </video>
+    <?php else : ?>
+      <div class="w-full h-full bg-gray-200 dark:bg-zinc-800 flex items-center justify-center">
+        <p class="text-gray-500 font-semibold">🎬 Pratinjau tidak tersedia</p>
+      </div>
+    <?php endif; ?>
+  </div>
+
   <div class="bg-white p-6 rounded-2xl shadow-sm border w-full dark:bg-zinc-900 dark:border-zinc-700">
     <form action="<?= ADMIN_URL ?>videos-aksi" method="POST" enctype="multipart/form-data" class="space-y-4 ajax-form" data-redirect-url="<?= ADMIN_URL ?>videos">
       <?= csrf_token_input(); ?>
@@ -53,7 +69,7 @@ $v = mysqli_fetch_assoc($res);
       </div>
       <div class="flex gap-2 pt-2 font-semibold">
         <button type="submit" class="flex-grow bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 text-xs">Simpan</button>
-        <a href="<?= ADMIN_URL ?>videos" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md text-center hover:bg-gray-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">Batal</a>
+        <a href="<?= ADMIN_URL ?>videos" class="spa-trigger bg-gray-200 text-gray-700 py-2 px-4 rounded-md text-center hover:bg-gray-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">Batal</a>
       </div>
     </form>
   </div>

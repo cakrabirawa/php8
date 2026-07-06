@@ -60,12 +60,12 @@ $kelas_res = mysqli_stmt_get_result($stmt_kelas);
                 <td class="p-2">Rp <?= number_format($r['harga_kelas'], 0, ',', '.'); ?></td>
                 <td class="p-2"><?= $r['kuota']; ?> anak</td>
                 <td class="p-2 text-center space-x-2 whitespace-nowrap font-bold">
-                  <form action="<?= ADMIN_URL ?>kelas-aksi" method="POST" class="inline" onsubmit="return confirm('Duplikat kelas ini?')">
+                  <form action="<?= ADMIN_URL ?>kelas-aksi" method="POST" class="inline ajax-form" data-action="reload" onsubmit="return confirm('Duplikat kelas ini?')">
                     <input type="hidden" name="duplikat" value="<?= $r['id'] ?>"><input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <button type="submit" class="text-amber-600 hover:underline bg-transparent border-none p-0 font-bold cursor-pointer">Salin</button>
                   </form>
                   <a href="<?= ADMIN_URL ?>kelas-edit?id=<?= $r['id']; ?>" class="text-blue-600 hover:underline spa-trigger">Edit</a>
-                  <form action="<?= ADMIN_URL ?>kelas-aksi" method="POST" class="inline" onsubmit="return confirm('Hapus program kelas ini?')">
+                  <form action="<?= ADMIN_URL ?>kelas-aksi" method="POST" class="inline ajax-form" data-action="reload" onsubmit="return confirm('Hapus program kelas ini?')">
                     <input type="hidden" name="hapus" value="<?= $r['id'] ?>"><input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <button type="submit" class="text-red-600 hover:underline bg-transparent border-none p-0 font-bold cursor-pointer">Hapus</button>
                   </form>

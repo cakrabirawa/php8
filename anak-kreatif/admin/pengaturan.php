@@ -94,14 +94,14 @@ if (!isset($_SESSION['login_admin'])) {
       <div>
         <label class="block font-semibold mb-1 text-gray-700 dark:text-zinc-200">Tema Panel Admin</label>
         <p class="text-[10px] text-gray-400 mb-3 dark:text-zinc-400">Pilih skema warna untuk antarmuka panel admin.</p>
-        <div class="flex gap-6">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="admin_theme" value="light" <?= (ADMIN_THEME === 'light') ? 'checked' : ''; ?> class="w-4 h-4 text-orange-500 border-gray-300 focus:ring-orange-400">
-            <span class="font-medium text-gray-700 dark:text-zinc-300">☀️ Terang</span>
+        <div class="relative inline-block w-40 h-8">
+          <input type="radio" id="theme_light" name="admin_theme" value="light" class="hidden peer" <?= (ADMIN_THEME === 'light') ? 'checked' : ''; ?>>
+          <input type="radio" id="theme_dark" name="admin_theme" value="dark" class="hidden peer" <?= (ADMIN_THEME === 'dark') ? 'checked' : ''; ?>>
+          <label for="theme_light" class="absolute top-0 left-0 w-1/2 h-full flex items-center justify-center text-sm font-semibold cursor-pointer transition-all duration-300 rounded-lg peer-checked:bg-white peer-checked:shadow peer-checked:text-orange-600 dark:peer-checked:bg-zinc-700 dark:peer-checked:text-white">
+            ☀️ Terang
           </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="admin_theme" value="dark" <?= (ADMIN_THEME === 'dark') ? 'checked' : ''; ?> class="w-4 h-4 text-orange-500 border-gray-300 focus:ring-orange-400">
-            <span class="font-medium text-gray-700 dark:text-zinc-300">🌙 Gelap</span>
+          <label for="theme_dark" class="absolute top-0 right-0 w-1/2 h-full flex items-center justify-center text-sm font-semibold cursor-pointer transition-all duration-300 rounded-lg peer-checked:bg-zinc-800 peer-checked:shadow peer-checked:text-white dark:peer-checked:bg-zinc-700">
+            🌙 Gelap
           </label>
         </div>
       </div>

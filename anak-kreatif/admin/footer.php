@@ -5,15 +5,26 @@
       <script>
         function toggleSidebar() {
           const sidebar = document.getElementById('sidebar');
-          const overlay = document.getElementById('sidebarOverlay');
-          sidebar.classList.toggle('-translate-x-full');
-          overlay.classList.toggle('hidden');
+          const mainContent = document.querySelector('main');
+
+          // Toggle untuk mobile (menggunakan translate)
+          if (window.innerWidth < 768) {
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+          } else {
+            // Toggle untuk desktop (menggunakan class)
+            document.body.classList.toggle('sidebar-collapsed');
+            // Simpan preferensi pengguna
+            localStorage.setItem('sidebar-collapsed', document.body.classList.contains('sidebar-collapsed'));
+          }
         }
       </script>
 
       <!-- Memuat skrip AJAX kustom -->
       <script src="<?= BASE_URL; ?>assets/js/admin-ajax.js"></script>
       <script src="<?= BASE_URL; ?>assets/js/admin-search.js"></script>
+      <script src="<?= BASE_URL; ?>assets/js/admin-chunk-upload.js"></script>
 
       <!-- SPA Navigation Script for Admin Panel -->
       <script>
@@ -146,6 +157,16 @@
               }
             });
           }
+
+          // Re-initialize chunk upload script if it exists and we are on the assets page
+          if (typeof initChunkUpload === 'function' && document.getElementById('upload-area')) {
+            initChunkUpload();
+          }
+
+          // Re-initialize asset manager scripts (for modal)
+          if (typeof initAssetManager === 'function') {
+            initAssetManager();
+          }
         };
 
         const updateActiveMenu = (url) => {
@@ -175,8 +196,14 @@
           const contentWrapper = document.getElementById('page-content-wrapper');
           if (!contentWrapper) return;
 
+          // LANGKAH 1: Hancurkan (destroy) listener lama sebelum mengganti konten
+          // HANYA jalankan destroy jika kita berada di halaman assets
+          if (typeof destroyChunkUpload === 'function' && document.getElementById('upload-area')) {
+            destroyChunkUpload();
+          }
+
           try {
-            contentWrapper.style.opacity = '0.5';
+            contentWrapper.style.opacity = '0.3';
             contentWrapper.style.transition = 'opacity 0.2s ease-in-out';
 
             const response = await fetch(url);
@@ -195,23 +222,14 @@
                 contentWrapper.removeChild(contentWrapper.firstChild);
               }
 
-              // Append new nodes and execute scripts
+              // Append new nodes
               Array.from(newContentWrapper.childNodes).forEach(node => {
-                if (node.nodeName === 'SCRIPT') {
-                  const newScript = document.createElement('script');
-                  // Copy attributes
-                  Array.from(node.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                  // Copy content
-                  newScript.textContent = node.textContent;
-                  contentWrapper.appendChild(newScript);
-                } else {
-                  contentWrapper.appendChild(node.cloneNode(true));
-                }
+                contentWrapper.appendChild(node.cloneNode(true));
               });
 
               document.title = newTitle;
 
-              // Re-initialize scripts for the new content
+              // LANGKAH 2: Inisialisasi ulang skrip untuk konten yang baru
               reinitializeScripts();
 
               // Update the active state in the sidebar
@@ -270,6 +288,18 @@
           // Handle SPA Navigation Link
           if (isSpaLink) {
             e.preventDefault();
+
+            // Sembunyikan sidebar di layar mobile setelah menu diklik
+            if (window.innerWidth < 768) {
+              toggleSidebar();
+            }
+
+            // Sembunyikan dropdown profil jika link di dalamnya diklik
+            const profileMenu = document.getElementById('profile-menu');
+            if (profileMenu && link.closest('#profile-menu')) {
+              profileMenu.classList.add('hidden');
+            }
+
             history.pushState({}, '', link.href);
             loadAdminPage(link.href);
           }
@@ -301,6 +331,11 @@
 
         // Jalankan inisialisasi skrip saat halaman pertama kali dimuat
         reinitializeScripts();
+
+        // Terapkan state sidebar dari localStorage saat halaman dimuat
+        if (localStorage.getItem('sidebar-collapsed') === 'true' && window.innerWidth >= 768) {
+          document.body.classList.add('sidebar-collapsed');
+        }
       </script>
       </body>
 

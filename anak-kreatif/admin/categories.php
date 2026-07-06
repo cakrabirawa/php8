@@ -54,15 +54,14 @@ $res = mysqli_query($conn, "SELECT * FROM kategori_produk ORDER BY id DESC LIMIT
                   </span>
                 </td>
                 <td class="p-2 text-center space-x-2 whitespace-nowrap font-bold">
-                  <form action="<?= ADMIN_URL ?>categories-aksi" method="POST" class="inline ajax-form" data-redirect-url="<?= ADMIN_URL ?>categories?p=<?= $halaman ?>">
+                  <form action="<?= ADMIN_URL ?>categories-aksi" method="POST" class="inline ajax-form" data-action="reload">
                     <?= csrf_token_input(); ?>
                     <input type="hidden" name="toggle_status" value="<?= $r['id']; ?>">
                     <input type="hidden" name="status" value="<?= $r['is_active']; ?>">
-                    <input type="hidden" name="p" value="<?= $halaman; ?>">
                     <button type="submit" class="bg-transparent border-none p-0 font-bold cursor-pointer <?= (int)$r['is_active'] === 1 ? 'text-amber-600 hover:underline' : 'text-emerald-600 hover:underline' ?>"><?= (int)$r['is_active'] === 1 ? 'Nonaktifkan' : 'Aktifkan' ?></button>
                   </form>
                   <a href="<?= ADMIN_URL ?>categories-edit?id=<?= $r['id']; ?>" class="text-blue-600 hover:underline spa-trigger">Ubah</a>
-                  <form action="<?= ADMIN_URL ?>categories-aksi" method="POST" class="inline" onsubmit="return confirm('Hapus kategori ini?')">
+                  <form action="<?= ADMIN_URL ?>categories-aksi" method="POST" class="inline ajax-form" data-action="reload" onsubmit="return confirm('Hapus kategori ini?')">
                     <input type="hidden" name="hapus" value="<?= $r['id'] ?>"><input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <button type="submit" class="text-red-600 hover:underline bg-transparent border-none p-0 font-bold cursor-pointer">Hapus</button>
                   </form>

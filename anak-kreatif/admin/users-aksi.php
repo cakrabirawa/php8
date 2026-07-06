@@ -41,7 +41,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       mysqli_stmt_bind_param($stmt, 'ssi', $nama_lengkap, $avatar_final, $id);
     }
     mysqli_stmt_execute($stmt);
-    send_json_response('success', 'Data admin berhasil diperbarui.');
+
+    // Siapkan data respons dasar
+    $response_data = [
+      'status' => 'success',
+      'message' => 'Data admin berhasil diperbarui.'
+    ];
+
+    // Jika admin yang diedit adalah admin yang sedang login, perbarui session namanya
+    // dan kirim data baru ke frontend untuk pembaruan UI instan.
+    if ($id === ($_SESSION['admin_id'] ?? null)) {
+      $_SESSION['admin_name'] = $nama_lengkap;
+      $response_data['new_admin_name'] = $nama_lengkap;
+      if ($avatar_final) {
+        $response_data['new_avatar_url'] = BASE_URL . 'uploads/avatars/' . $avatar_final;
+      }
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($response_data);
+    exit;
   } elseif ($action_type === 'insert') { // PROSES TAMBAH
     // PROSES TAMBAH
     $username     = trim($_POST['username']);

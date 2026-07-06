@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['login_admin']    = true;
         $_SESSION['username_admin'] = $row['username']; // Untuk validasi hapus diri sendiri
         $_SESSION['admin_name']     = $row['nama_lengkap'];
+        $_SESSION['admin_id']       = $row['id']; // ID untuk link edit profil
         // Kembalikan respons JSON untuk ditangani oleh AJAX
         header('Content-Type: application/json');
         echo json_encode(['status' => 'success', 'message' => 'Login berhasil!', 'redirect' => ADMIN_URL]);
