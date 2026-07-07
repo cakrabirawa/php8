@@ -1,4 +1,22 @@
     <!-- Kaki Halaman (Footer Global) -->
+    <style>
+      /* CSS untuk kursor efek mengetik */
+      .typing-cursor {
+        display: inline-block;
+        width: 3px;
+        height: 1em;
+        background-color: #FDE68A;
+        /* Warna gradien awal */
+        margin-left: 4px;
+        animation: blink 0.7s infinite;
+      }
+
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+    </style>
     <footer class="bg-tulisan dark:bg-zinc-900 text-white py-10 mt-16 border-t-4 border-amber-200 dark:border-zinc-700 transition-colors duration-300">
       <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
         <div class="text-center md:text-left">
@@ -17,66 +35,88 @@
     <!-- Efek Header Transparan & Parallax -->
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-        const header = document.getElementById('main-header');
-        const heroBg = document.getElementById('slider-bg-wrapper');
-        const desktopMenu = document.getElementById('desktop-menu');
+        /**
+         * =================================================================
+         * EFEK MENGETIK UNTUK HERO SECTION
+         * =================================================================
+         */
+        const initTypingEffect = () => {
+          const typingElement = document.querySelector('.typing-text');
+          const cursorElement = document.querySelector('.typing-cursor');
+          if (!typingElement || typingElement.hasAttribute('data-typed')) return;
 
-        const handleScroll = () => {
-          // Efek Header
-          const isScrolled = window.scrollY > 1; // Sedikit buffer untuk transisi yang lebih baik
-          const logoLink = header.querySelector('a[title]');
+          const textToType = "Tumbuhkan Imajinasi Si Kecil Lewat Buku, Kata dan Tulisan";
+          let i = 0;
+          typingElement.setAttribute('data-typed', 'true'); // Tandai sudah pernah jalan
 
-          console.log(window.scrollY)
-          if (isScrolled) {
-            console.log("a")
-            // Saat di-scroll ke bawah: tambahkan background, shadow, dan ubah warna teks menjadi gelap.
-            header.classList.add('bg-black/90', 'dark:bg-zinc-900/90', 'backdrop-blur-lg', 'shadow-sm', 'border-gray-100', 'dark:border-zinc-800');
-            if (desktopMenu) {
-              // desktopMenu.classList.remove('text-white');
-              desktopMenu.classList.add('text-tulisan', 'dark:text-zinc-100');
+          const typeWriter = () => {
+            if (i < textToType.length) {
+              typingElement.innerHTML += textToType.charAt(i);
+              i++;
+              setTimeout(typeWriter, 70); // Kecepatan mengetik
+            } else {
+              // Sembunyikan kursor setelah selesai
+              if (cursorElement) cursorElement.style.display = 'none';
             }
-            if (logoLink) {
-              // logoLink.classList.remove('text-white');
-              logoLink.classList.add('text-cerita', 'dark:text-zinc-100');
-            }
-          } else {
-            console.log("bbbbbbbbbbbbbb")
-            // Saat di paling atas: hapus background dan kembalikan warna teks ke putih.
-            header.classList.remove('bg-black/100', 'dark:bg-zinc-900/90', 'backdrop-blur-lg', 'shadow-sm', 'border-gray-100', 'dark:border-zinc-800');
-            if (desktopMenu) {
-              desktopMenu.classList.add('text-white');
-              desktopMenu.classList.remove('text-tulisan', 'dark:text-zinc-100');
-            }
-            if (logoLink) {
-              logoLink.classList.add('text-white');
-              logoLink.classList.remove('text-cerita');
-            }
-          }
+          };
 
-          // Efek Parallax
-          if (heroBg) {
-            const scrollPosition = window.pageYOffset;
-            heroBg.style.transform = `translateY(${scrollPosition * 0.4}px)`;
+          typeWriter();
+        };
+
+
+        // Fungsi ini akan dipanggil setiap kali halaman dimuat, baik secara normal maupun via SPA
+        const initializePageEffects = () => {
+          const header = document.getElementById('main-header');
+          const heroBg = document.getElementById('slider-bg-wrapper');
+          const desktopMenu = document.getElementById('desktop-menu');
+          const logoLink = header?.querySelector('a[title]');
+
+          if (!header) return;
+
+          // Cek apakah kita di halaman utama (berdasarkan keberadaan hero)
+          const isHomepage = !!heroBg;
+
+          const handleScroll = () => {
+            const isScrolled = window.scrollY > 10;
+
+            // Saat di-scroll, buat background sedikit transparan dan tambahkan efek blur.
+            if (isScrolled) {
+              header.classList.remove('bg-black');
+              header.classList.add('bg-black/80', 'backdrop-blur-sm', 'shadow-lg');
+            } else {
+              // Saat kembali ke atas, kembalikan ke background hitam solid.
+              header.classList.add('bg-black');
+              header.classList.remove('bg-black/80', 'backdrop-blur-sm', 'shadow-lg');
+            }
+
+            // Efek parallax untuk slider di homepage
+            if (heroBg) {
+              const scrollPosition = window.pageYOffset;
+              heroBg.style.transform = `translateY(${scrollPosition * 0.4}px)`;
+            }
+          };
+
+          // Hapus event listener lama untuk mencegah duplikasi
+          window.removeEventListener('scroll', window.handleScroll);
+          window.handleScroll = handleScroll; // Simpan referensi fungsi untuk bisa dihapus nanti
+          window.addEventListener('scroll', window.handleScroll);
+
+          // Hapus semua logika pengaturan state awal karena header sekarang statis.
+          // Cukup pastikan efek parallax tetap berjalan.
+
+          handleScroll(); // Panggil sekali untuk mengatur state awal
+
+          // Jalankan efek mengetik jika di homepage
+          if (isHomepage) {
+            initTypingEffect();
           }
         };
 
-        window.addEventListener('scroll', handleScroll);
+        // Simpan fungsi inisialisasi ke window agar bisa diakses dari script SPA
+        window.initializePageEffects = initializePageEffects;
 
-        // Panggil handleScroll sekali saat halaman dimuat untuk mengatur state awal
-        handleScroll();
-
-        // Saat di-scroll ke bawah: tambahkan background, shadow, dan ubah warna teks menjadi gelap.
-        header.classList.add('bg-transparent/100', 'dark:bg-zinc-900/90', 'backdrop-blur-lg', 'shadow-sm', 'border-gray-100', 'dark:border-zinc-800');
-        if (desktopMenu) {
-          // desktopMenu.classList.remove('text-white');
-          desktopMenu.classList.add('text-tulisan', 'dark:text-zinc-100');
-        }
-        if (logoLink) {
-          // logoLink.classList.remove('text-white');
-          logoLink.classList.add('text-cerita', 'dark:text-zinc-100');
-        }
-
-
+        // Panggil saat halaman pertama kali dimuat
+        initializePageEffects();
       });
     </script>
 
@@ -119,6 +159,10 @@
 
             // Panggil fungsi inisialisasi secara eksplisit setelah DOM diperbarui
             requestAnimationFrame(() => {
+              // Panggil kembali fungsi untuk menyesuaikan efek header
+              if (typeof window.initializePageEffects === 'function') {
+                window.initializePageEffects();
+              }
               if (typeof initHomepageSlider === 'function') {
                 initHomepageSlider();
               }

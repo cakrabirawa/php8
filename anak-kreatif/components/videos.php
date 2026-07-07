@@ -8,7 +8,7 @@
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <?php if (mysqli_num_rows($video_res) > 0) : while ($v = mysqli_fetch_assoc($video_res)): ?>
+    <?php if ($video_res->rowCount() > 0) : while ($v = $video_res->fetch(PDO::FETCH_ASSOC)): ?>
         <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm flex flex-col justify-between transition duration-300">
 
           <!-- BINGKAI KOTAK MULTIMEDIA -->

@@ -30,6 +30,12 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'captcha' => ['required', 'numeric', function ($attribute, $value, $fail) {
+                // Cukup pastikan slider digeser hampir penuh (misal > 95%)
+                if ($value < 95) {
+                    $fail('Silakan geser slider hingga penuh untuk verifikasi.');
+                }
+            }],
         ];
     }
 
@@ -51,6 +57,9 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        // Hapus session captcha setelah berhasil login
+        // $this->session()->forget('captcha_target'); // Tidak lagi diperlukan
     }
 
     /**
@@ -81,6 +90,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

@@ -19,23 +19,17 @@ if ($halaman < 1) {
 $offset = ($halaman - 1) * $batas;
 
 // 4. Hitung total seluruh baris kelas di database
-$total_kelas = 0;
-$stmt_total = mysqli_prepare($conn, "SELECT COUNT(*) AS total FROM kelas_menulis");
-if ($stmt_total) {
-  mysqli_stmt_execute($stmt_total);
-  $res_total = mysqli_stmt_get_result($stmt_total);
-  $total_kelas = mysqli_fetch_assoc($res_total)['total'] ?? 0;
-  mysqli_stmt_close($stmt_total);
-}
+$stmt_total = $conn->query("SELECT COUNT(*) FROM kelas_menulis");
+$total_kelas = $stmt_total->fetchColumn();
 
 // 5. Hitung total halaman kelas
 $total_halaman = ceil($total_kelas / $batas);
 
 // 6. Ambil data kelas sesuai limit halaman aktif
-$stmt_data = mysqli_prepare($conn, "SELECT * FROM kelas_menulis ORDER BY id DESC LIMIT ? OFFSET ?");
-mysqli_stmt_bind_param($stmt_data, 'ii', $batas, $offset);
-mysqli_stmt_execute($stmt_data);
-$result = mysqli_stmt_get_result($stmt_data);
+$stmt_data = $conn->prepare("SELECT * FROM kelas_menulis ORDER BY id DESC LIMIT :limit OFFSET :offset");
+$stmt_data->bindValue(':limit', $batas, PDO::PARAM_INT);
+$stmt_data->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt_data->execute();
 ?>
 <!-- Wrapper <main> ditambahkan agar kompatibel dengan navigasi SPA -->
 <main class="flex-grow">
@@ -49,7 +43,7 @@ $result = mysqli_stmt_get_result($stmt_data);
   <section class="container mx-auto px-6 py-12 max-w-5xl">
     <!-- List Grid Kelas -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <?php if (mysqli_num_rows($result) > 0) : while ($kelas = mysqli_fetch_assoc($result)) : ?>
+      <?php if ($stmt_data->rowCount() > 0) : while ($kelas = $stmt_data->fetch(PDO::FETCH_ASSOC)) : ?>
 
           <?php
           // MEMBENTUK TAUTAN LINK BERBASIS SEO SLUG UNTUK KELAS

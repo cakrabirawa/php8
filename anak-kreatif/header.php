@@ -61,18 +61,24 @@
 
 <body class="bg-transparent bg-amber-50 dark:bg-zinc-900 text-tulisan dark:text-zinc-100 font-sans flex flex-col min-h-screen transition-colors duration-300">
 
+  <?php
+  // Cek apakah halaman saat ini adalah halaman utama (index.php)
+  $is_homepage = basename($_SERVER['PHP_SELF']) == 'index.php';
+  $header_text_color = 'text-white';
+  ?>
+
   <!-- Navigasi Utama -->
-  <header id="main-header" class="sticky top-0 z-50 transition-all duration-300 border-b border-transparent">
+  <header id="main-header" class="sticky top-0 z-50 transition-all duration-300 border-b border-black/20 bg-black">
     <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
       <!-- Tautan Logo Menggunakan BASE_URL -->
-      <a href="<?= BASE_URL; ?>" class="text-2xl font-bold text-white flex items-center gap-2" title="<?= htmlspecialchars(SITE_TITLE); ?>">
+      <a href="<?= BASE_URL; ?>" class="text-2xl font-bold flex items-center gap-2 <?= $header_text_color ?>" title="<?= htmlspecialchars(SITE_TITLE); ?>">
         <span>🎨</span> <span><?= htmlspecialchars(SITE_TITLE); ?></span>
       </a>
 
       <!-- Area Kontrol Kanan (Menu Desktop & Tombol Mobile) -->
       <div class="flex items-center gap-6">
         <!-- Menu Navigasi Layar Lebar (Desktop) -->
-        <div id="desktop-menu" class="hidden md:flex space-x-8 font-semibold text-sm items-center text-white">
+        <div id="desktop-menu" class="hidden md:flex space-x-8 font-semibold text-sm items-center <?= $header_text_color ?>">
           <a href="<?= BASE_URL; ?>" class="hover:text-amber-200 transition-colors">Beranda</a>
           <div class="relative group inline-block py-2">
             <a href="<?= BASE_URL; ?>toko" class="hover:text-cerita transition-colors">Toko Buku</a>
@@ -84,10 +90,7 @@
               }
               $klas_list = [];
               if (isset($conn)) {
-                $stmt = $conn->query("SELECT nama, slug FROM klasifikasi_produk WHERE is_active=1 ORDER BY id");
-                if ($stmt) {
-                  $klas_list = $stmt->fetchAll();
-                }
+                $klas_list = $conn->query("SELECT nama, slug FROM klasifikasi_produk WHERE is_active=1 ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
               }
               foreach ($klas_list as $kl) : ?>
                 <a href="<?= BASE_URL; ?>toko/klasifikasi/<?= urlencode($kl['slug']); ?>" class="block px-3 py-2 text-sm text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-700 pointer-events-auto"><?= htmlspecialchars($kl['nama']); ?></a>

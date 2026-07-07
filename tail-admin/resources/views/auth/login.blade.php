@@ -2,7 +2,7 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form method="POST" action="{{ route('login') }}">
+    <form method="POST" action="{{ route('login') }}" x-data="loginForm()">
         @csrf
 
         <!-- Email Address -->
@@ -32,6 +32,21 @@
             </label>
         </div>
 
+        <!-- Captcha Slider -->
+        <div class="mt-4">
+            <x-input-label for="captcha" value="Geser untuk verifikasi" />
+            <div class="relative w-full h-12 bg-gray-200 rounded-lg mt-1 flex items-center">
+                <div class="absolute top-0 left-0 h-full bg-indigo-500 rounded-lg" :style="`width: ${sliderValue}%`"></div>
+                <input type="range" id="captcha_slider" min="0" max="100" x-model="sliderValue" class="w-full h-full opacity-0 cursor-pointer" style="z-index: 10;">
+                <div class="absolute inset-0 flex items-center justify-center text-white font-semibold pointer-events-none">
+                    <span x-show="sliderValue < 98">Geser ke kanan</span>
+                    <span x-show="sliderValue >= 98">✓ Terverifikasi</span>
+                </div>
+            </div>
+            <input type="hidden" name="captcha" x-model="sliderValue">
+            <x-input-error :messages="$errors->get('captcha')" class="mt-2" />
+        </div>
+
         <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
                 <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
@@ -44,4 +59,19 @@
             </x-primary-button>
         </div>
     </form>
+
+    <script>
+        function loginForm() {
+            return {
+                sliderValue: 0,
+                init() {
+                    // Tidak perlu lagi mengambil target dari server
+                    // Reset slider jika ada error validasi dari server
+                    @if($errors->has('captcha'))
+                        this.sliderValue = 0;
+                    @endif
+                }
+            }
+        }
+    </script>
 </x-guest-layout>

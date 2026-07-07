@@ -24,6 +24,7 @@ class AuthenticationTest extends TestCase
         $response = $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
+            'captcha' => 100, // Kirim nilai captcha yang valid (slider digeser penuh)
         ]);
 
         $this->assertAuthenticated();
@@ -37,6 +38,7 @@ class AuthenticationTest extends TestCase
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'wrong-password',
+            'captcha' => 100, // Kirim nilai captcha yang valid
         ]);
 
         $this->assertGuest();

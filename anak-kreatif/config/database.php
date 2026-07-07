@@ -191,7 +191,6 @@ function get_flag_icon(?string $country_code): string
 /**
  * Mencatat kunjungan ke halaman tertentu.
  * Mencegah pencatatan ganda dari IP yang sama dalam interval waktu singkat.
- * @param mysqli $conn Objek koneksi database.
  * @param PDO $conn Objek koneksi database.
  * @param string $page Nama halaman yang dikunjungi (e.g., 'beranda').
  */
