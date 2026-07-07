@@ -57,16 +57,15 @@ $stmt_kelas->execute();
                 <td class="p-2"><?= htmlspecialchars($r['jadwal']); ?></td>
                 <td class="p-2">Rp <?= number_format($r['harga_kelas'], 0, ',', '.'); ?></td>
                 <td class="p-2"><?= $r['kuota']; ?> anak</td>
-                <td class="p-2 text-center space-x-2 whitespace-nowrap font-bold">
-                  <form action="<?= ADMIN_URL ?>kelas-aksi" method="POST" class="inline ajax-form" data-action="reload" onsubmit="return confirm('Duplikat kelas ini?')">
-                    <input type="hidden" name="duplikat" value="<?= $r['id'] ?>"><input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <td class="p-2 text-center space-x-3 whitespace-nowrap font-bold">
+                  <form action="<?= ADMIN_URL ?>kelas-aksi" method="POST" class="inline ajax-form" data-action="reload" onsubmit="return confirm('Anda yakin ingin menyalin kelas ini?')">
+                    <input type="hidden" name="action_type" value="copy">
+                    <input type="hidden" name="id" value="<?= $r['id']; ?>">
+                    <?= csrf_token_input(); ?>
                     <button type="submit" class="text-amber-600 hover:underline bg-transparent border-none p-0 font-bold cursor-pointer">Salin</button>
                   </form>
                   <a href="<?= ADMIN_URL ?>kelas-edit?id=<?= $r['id']; ?>" class="text-blue-600 hover:underline spa-trigger">Edit</a>
-                  <form action="<?= ADMIN_URL ?>kelas-aksi" method="POST" class="inline ajax-form" data-action="reload" onsubmit="return confirm('Hapus program kelas ini?')">
-                    <input type="hidden" name="hapus" value="<?= $r['id'] ?>"><input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                    <button type="submit" class="text-red-600 hover:underline bg-transparent border-none p-0 font-bold cursor-pointer">Hapus</button>
-                  </form>
+                  <button onclick="handleAjaxDelete('kelas-aksi', <?= $r['id']; ?>, 'Anda yakin ingin menghapus kelas ini?')" class="text-red-600 hover:underline bg-transparent border-none p-0 font-bold cursor-pointer">Hapus</button>
                 </td>
               </tr>
             <?php endforeach;

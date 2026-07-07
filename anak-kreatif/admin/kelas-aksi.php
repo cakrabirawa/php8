@@ -17,6 +17,7 @@ function send_json_response($status, $message)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   validate_csrf_token();
   $action_type = $_POST['action_type'] ?? '';
+  $id          = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 
   // Aksi Simpan (Insert/Update)
   if ($action_type === 'insert' || $action_type === 'update') {
@@ -67,47 +68,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     send_json_response('success', 'Data kelas berhasil disimpan.');
   }
 
-  // Aksi Hapus
-  if (isset($_POST['hapus'])) {
-    $id = (int)$_POST['hapus'];
+  // ==========================================
+  // PROSES HAPUS KELAS (AJAX)
+  // ==========================================
+  elseif ($action_type === 'delete' && $id > 0) {
     $stmt_select = $conn->prepare("SELECT gambar FROM kelas_menulis WHERE id=:id");
     $stmt_select->execute([':id' => $id]);
     $row = $stmt_select->fetch();
-    if ($row) {
-      if (!empty($row['gambar']) && !filter_var($row['gambar'], FILTER_VALIDATE_URL)) {
-        @unlink('../uploads/' . $row['gambar']);
-      }
+    if ($row && !empty($row['gambar']) && !filter_var($row['gambar'], FILTER_VALIDATE_URL)) {
+      @unlink('../uploads/' . $row['gambar']);
     }
     $stmt_delete = $conn->prepare("DELETE FROM kelas_menulis WHERE id=:id");
     $stmt_delete->execute([':id' => $id]);
-    header("Location: " . ADMIN_URL . "kelas");
-    exit;
+    send_json_response('success', 'Data kelas berhasil dihapus. Halaman akan dimuat ulang.');
   }
 
-  // Aksi Duplikat
-  if (isset($_POST['duplikat'])) {
-    $id = (int)$_POST['duplikat'];
-    $stmt_cari = $conn->prepare("SELECT * FROM kelas_menulis WHERE id = :id");
-    $stmt_cari->execute([':id' => $id]);
-    $kelas = $stmt_cari->fetch();
+  // ==========================================
+  // PROSES SALIN / DUPLIKAT KELAS (AJAX)
+  // ==========================================
+  elseif ($action_type === 'copy' && $id > 0) {
+    // 1. Ambil data asli dari kelas yang akan disalin
+    $stmt_source = $conn->prepare("SELECT * FROM kelas_menulis WHERE id = :id");
+    $stmt_source->execute([':id' => $id]);
+    $source_data = $stmt_source->fetch(PDO::FETCH_ASSOC);
 
-    if ($kelas) {
-      // ... (logika duplikat yang sudah ada)
-      $nama_kelas = $kelas['nama_kelas'] . ' (Salinan)';
-      // ... (sisa logika)
-      $sql = "INSERT INTO kelas_menulis (nama_kelas, mentor, harga_kelas, kuota, jadwal, deskripsi_kelas, gambar) VALUES (:nama_kelas, :mentor, :harga_kelas, :kuota, :jadwal, :deskripsi_kelas, :gambar)";
+    if ($source_data) {
+      // 2. Siapkan data baru dengan menambahkan "(Salinan)" pada nama
+      $new_nama = $source_data['nama_kelas'] . ' (Salinan)';
+
+      // 3. Masukkan data baru sebagai baris baru di database
+      $sql = "INSERT INTO kelas_menulis (nama_kelas, deskripsi_kelas, mentor, jadwal, kuota, harga_kelas, gambar) 
+                 VALUES (:nama, :deskripsi, :mentor, :jadwal, :kuota, :harga, :gambar)";
       $stmt_insert = $conn->prepare($sql);
       $stmt_insert->execute([
-        ':nama_kelas' => $nama_kelas,
-        ':mentor' => $kelas['mentor'],
-        ':harga_kelas' => $kelas['harga_kelas'],
-        ':kuota' => $kelas['kuota'],
-        ':jadwal' => $kelas['jadwal'],
-        ':deskripsi_kelas' => $kelas['deskripsi_kelas'],
-        ':gambar' => $kelas['gambar']
+        ':nama' => $new_nama,
+        ':deskripsi' => $source_data['deskripsi_kelas'],
+        ':mentor' => $source_data['mentor'],
+        ':jadwal' => $source_data['jadwal'],
+        ':kuota' => $source_data['kuota'],
+        ':harga' => $source_data['harga_kelas'],
+        ':gambar' => $source_data['gambar']
       ]);
+      send_json_response('success', 'Kelas berhasil disalin. Halaman akan dimuat ulang.');
+    } else {
+      send_json_response('error', 'Data sumber untuk disalin tidak ditemukan.');
     }
-    header("Location: " . ADMIN_URL . "kelas");
-    exit;
   }
 }
