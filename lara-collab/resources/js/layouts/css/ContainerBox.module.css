@@ -1,6 +1,0 @@
-.box {
-
-    @mixin light {
-        background-color: var(--mantine-color-white);
-    }
-}
