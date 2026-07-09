@@ -1,0 +1,19 @@
+{
+    "name": "Test",
+    "alias": "test",
+    "title": "Test",
+    "description": "",
+    "keywords": [],
+    "category": "addon",
+    "priority": 50,
+    "providers": [
+        "Modules\\Test\\Providers\\TestServiceProvider"
+    ],
+    "files": [],
+    "icon": "lucide:box",
+    "logo_image": null,
+    "banner_image": null,
+    "version": "1.0.0",
+    "author": "Lara Dashboard",
+    "pricing": "free"
+}

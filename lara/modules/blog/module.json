@@ -1,0 +1,19 @@
+{
+    "name": "Blog",
+    "alias": "blog",
+    "title": "Blog",
+    "description": "",
+    "keywords": [],
+    "category": "addon",
+    "priority": 50,
+    "providers": [
+        "Modules\\Blog\\Providers\\BlogServiceProvider"
+    ],
+    "files": [],
+    "icon": "lucide:box",
+    "logo_image": null,
+    "banner_image": null,
+    "version": "1.0.0",
+    "author": "Lara Dashboard",
+    "pricing": "free"
+}
