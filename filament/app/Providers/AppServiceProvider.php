@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Filament\Auth\CustomLogin;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,8 +19,5 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-        //
-    }
+    public function boot(): void {}
 }
