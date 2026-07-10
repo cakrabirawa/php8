@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -61,6 +62,16 @@ class UserForm
                     ->required() // Wajib diisi agar user baru pasti punya hak akses
                     // Hapus baris di bawah ini jika 1 user HANYA BOLEH memiliki 1 jabatan saja
                     ->multiple(),
-            ])->columns(3);
+                FileUpload::make('avatar_url')
+                    ->label('Foto Profil (Avatar)')
+                    ->image() // Hanya gambar
+                    ->avatar() // Bentuk lingkaran estetik
+                    ->disk('public') // 🛠️ WAJIB: Kunci mutlak ke disk public
+                    ->directory('avatars')
+                    ->visibility('public')
+                    // Matikan sementara imageEditor() dan circleCropper() jika ada untuk testing
+                    ->maxSize(1024) // Maksimal 1 MB
+                    ->columnSpanFull(),
+            ])->columns(2);
     }
 }

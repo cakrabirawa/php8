@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['product_name', 'price', 'category_id'])]
+#[Fillable(['product_name', 'price', 'category_id', 'description', 'product_image'])]
 class Product extends Model
 {
     use HasFactory, Notifiable;
