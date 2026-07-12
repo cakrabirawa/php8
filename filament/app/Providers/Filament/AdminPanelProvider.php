@@ -65,13 +65,17 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->assets([
-                Js::make('alpine-mask', 'https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js'),
-            ])
+            // ->assets([
+            //     Js::make('alpine-mask', 'https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js'),
+            // ])
             ->font('Poppins')
             ->spa()
             ->colors([
-                'primary' => Color::Emerald,
+                'primary' => Color::Fuchsia,
+                'secondary' => Color::Indigo,
+                'success' => Color::Emerald,
+                'warning' => Color::Amber,
+                'danger' => Color::Rose,
             ])
             ->plugins([
                 LightSwitchPlugin::make(),

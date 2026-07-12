@@ -58,4 +58,13 @@ class AuthorResource extends Resource
             'edit' => EditAuthor::route('/{record}/edit'),
         ];
     }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+        //return static::getModel()::where('status', 'active')->count();
+        //return static::getModel()::count() < 5 ? 'danger' : 'success';
+    }
+
+    protected static ?string $navigationBadgeColor = 'primary';
 }
