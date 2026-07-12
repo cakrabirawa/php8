@@ -13,3 +13,4 @@ $role->givePermissionTo(Spatie\Permission\Models\Permission::all());
 #============================================================================
 php artisan permission:cache-reset
 php artisan filament:clear-cached-components
+ok
