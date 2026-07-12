@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -22,6 +23,12 @@ class UserInfolist
                     ->color('gray'),
                 TextEntry::make('email')
                     ->label('Email address'),
+                ImageEntry::make('avatar_url')
+                    ->label('Foto Profil (Avatar)')
+                    ->circular() // Mengunci bentuk preview menjadi lingkaran bulat rapi
+                    ->disk('public') // Memastikan membaca dari disk storage/public
+                    ->visibility('public')
+                    ->columnSpanFull(),
                 TextEntry::make('email_verified_at')
                     ->dateTime()
                     ->placeholder('-'),
@@ -30,7 +37,7 @@ class UserInfolist
                     ->placeholder('-'),
                 TextEntry::make('updated_at')
                     ->dateTime()
-                    ->placeholder('-'),
+                    ->placeholder('-')
             ]);
     }
 }

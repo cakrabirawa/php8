@@ -3,11 +3,14 @@
 namespace App\Filament\Resources\Products\Tables;
 
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ReplicateAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -18,8 +21,16 @@ class ProductsTable
     {
         return $table
             ->columns([
+                ImageColumn::make('product_image')
+                    ->label('Foto Produk')
+                    ->disk('public'), // 🛠️ WAJIB: Kunci mutlak ke disk public
                 TextColumn::make('product_name')
                     ->searchable(),
+                TextColumn::make('description')
+                    ->searchable()
+                    ->html()
+                    ->limit(50)
+                    ->wrap(),
                 TextColumn::make('price')
                     ->money('idr', true)
                     ->searchable(),
@@ -73,6 +84,19 @@ class ProductsTable
             ])
             ->defaultSort('created_at', 'desc')
             ->striped()
+            ->actions([
+                // 🛠️ BUNGKUS SEMUA TOMBOL DENGAN ACTIONGROUP
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    ReplicateAction::make()
+                        ->label('Duplicate'), // Mengubah teks tombol duplikat jika diperlukan
+                ])
+                    ->label('') // Teks utama pada tombol dropdown (bisa dikosongkan jika hanya ingin ikon)
+                    ->icon('heroicon-m-ellipsis-vertical') // Mengubah ikon menjadi titik tiga vertikal yang ringkas
+                    ->color('gray') // Mengubah warna tombol dropdown
+                    ->button(), // Membuat bentuknya menjadi tombol (opsional, jika dihapus akan berupa tautan teks biasa)
+            ])
         ;
     }
 }
