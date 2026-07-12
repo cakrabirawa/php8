@@ -1,8 +1,0 @@
-@extends('$LOWER_NAME$::layouts.master')
-
-@section('$LOWER_NAME$-admin-content')
-    <div>
-        {{-- Breadcrumbs are rendered by the page component --}}
-        {{ $slot }}
-    </div>
-@endsection
