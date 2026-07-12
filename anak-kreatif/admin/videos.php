@@ -13,18 +13,16 @@ if ($hal < 1) {
 }
 $offset = ($hal - 1) * $limit;
 
-$stmt_total = mysqli_prepare($conn, "SELECT COUNT(*) AS total FROM videos");
-mysqli_stmt_execute($stmt_total);
-$total_res = mysqli_stmt_get_result($stmt_total);
-$total_videos = mysqli_fetch_assoc($total_res)['total'] ?? 0;
-mysqli_stmt_close($stmt_total);
+$stmt_total = $conn->query("SELECT COUNT(*) AS total FROM videos");
+$total_videos = $stmt_total->fetchColumn() ?? 0;
 
 $total_hal = ceil($total_videos / $limit);
 
-$stmt_videos = mysqli_prepare($conn, "SELECT * FROM videos ORDER BY id DESC LIMIT ? OFFSET ?");
-mysqli_stmt_bind_param($stmt_videos, 'ii', $limit, $offset);
-mysqli_stmt_execute($stmt_videos);
-$v_res = mysqli_stmt_get_result($stmt_videos);
+$query = "SELECT * FROM videos ORDER BY id DESC LIMIT :limit OFFSET :offset";
+$stmt_videos = $conn->prepare($query);
+$stmt_videos->bindValue(':limit', $limit, PDO::PARAM_INT);
+$stmt_videos->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt_videos->execute();
 ?>
 <?php include 'header.php'; ?>
 
@@ -53,7 +51,7 @@ $v_res = mysqli_stmt_get_result($stmt_videos);
           </tr>
         </thead>
         <tbody id="table-videos-body">
-          <?php if (mysqli_num_rows($v_res) > 0): while ($r = mysqli_fetch_assoc($v_res)):
+          <?php if ($stmt_videos->rowCount() > 0): foreach ($stmt_videos as $r):
               $is_active = (int)($r['is_active'] ?? 1) === 1;
           ?>
               <tr class="border-b hover:bg-gray-50 dark:border-zinc-700 dark:hover:bg-zinc-800">
@@ -75,7 +73,7 @@ $v_res = mysqli_stmt_get_result($stmt_videos);
                   </form>
                 </td>
               </tr>
-            <?php endwhile;
+            <?php endforeach;
           else: ?>
             <tr>
               <td colspan="4" id="no-results-videos" class="text-center text-gray-400 py-10">Belum ada koleksi rekaman video kegiatan.</td>

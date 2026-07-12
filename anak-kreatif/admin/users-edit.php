@@ -7,12 +7,13 @@ if (!isset($_SESSION['login_admin'])) {
 }
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$res = mysqli_query($conn, "SELECT * FROM users_admin WHERE id=$id");
-if (mysqli_num_rows($res) === 0) {
+$stmt = $conn->prepare("SELECT * FROM users_admin WHERE id = :id");
+$stmt->execute([':id' => $id]);
+$user = $stmt->fetch();
+if (!$user) {
   header("Location: " . ADMIN_URL . "users");
   exit;
 }
-$user = mysqli_fetch_assoc($res);
 ?>
 <?php include 'header.php'; ?>
 

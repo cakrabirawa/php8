@@ -7,18 +7,20 @@ track_page_visit($conn, 'beranda');
 include 'header.php';
 
 // AMBIL DATA SLIDER BACKGROUND AKTIF
-$slider_res = mysqli_query($conn, "SELECT gambar FROM sliders WHERE is_active = 1 ORDER BY id DESC");
+$stmt_sliders = $conn->query("SELECT gambar FROM sliders WHERE is_active = 1 ORDER BY id DESC");
 $sliders = [];
-while ($row = mysqli_fetch_assoc($slider_res)) {
+while ($row = $stmt_sliders->fetch(PDO::FETCH_ASSOC)) {
   $sliders[] = (!filter_var($row['gambar'], FILTER_VALIDATE_URL) && file_exists('uploads/' . $row['gambar'])) ? 'uploads/' . $row['gambar'] : $row['gambar'];
 }
 if (empty($sliders)) {
   $sliders = ['https://unsplash.com'];
 }
 
-// AMBIL 2 DATA VIDEO KEGIATAN TERBARU
+// AMBIL DATA VIDEO KEGIATAN TERBARU SESUAI LIMIT DARI PENGATURAN
 $video_limit = HOME_VIDEO_LIMIT;
-$video_res = mysqli_query($conn, "SELECT * FROM videos WHERE is_active = 1 ORDER BY id DESC LIMIT $video_limit");
+$video_res = $conn->prepare("SELECT * FROM videos WHERE is_active = 1 ORDER BY id DESC LIMIT :limit");
+$video_res->bindValue(':limit', (int)$video_limit, PDO::PARAM_INT);
+$video_res->execute();
 
 
 // ==========================================

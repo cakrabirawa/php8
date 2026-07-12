@@ -17,6 +17,7 @@ function send_json_response($status, $message)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   validate_csrf_token();
   $action_type = $_POST['action_type'] ?? '';
+  $id          = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 
   // Aksi Simpan (Insert/Update)
   if ($action_type === 'insert' || $action_type === 'update') {
@@ -37,60 +38,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $gambar_final = $gambar_url;
     }
 
-    $stmt = null;
     if ($action_type === 'update' && $id > 0) {
-      $stmt = mysqli_prepare($conn, "UPDATE kelas_menulis SET nama_kelas=?, mentor=?, harga_kelas=?, kuota=?, jadwal=?, deskripsi_kelas=?, gambar=? WHERE id=?");
-      if ($stmt) mysqli_stmt_bind_param($stmt, 'ssiisssi', $nama_kelas, $mentor, $harga_kelas, $kuota, $jadwal, $deskripsi_kelas, $gambar_final, $id);
+      $sql = "UPDATE kelas_menulis SET nama_kelas=:nama_kelas, mentor=:mentor, harga_kelas=:harga_kelas, kuota=:kuota, jadwal=:jadwal, deskripsi_kelas=:deskripsi_kelas, gambar=:gambar WHERE id=:id";
+      $stmt = $conn->prepare($sql);
+      $stmt->execute([
+        ':nama_kelas' => $nama_kelas,
+        ':mentor' => $mentor,
+        ':harga_kelas' => $harga_kelas,
+        ':kuota' => $kuota,
+        ':jadwal' => $jadwal,
+        ':deskripsi_kelas' => $deskripsi_kelas,
+        ':gambar' => $gambar_final,
+        ':id' => $id
+      ]);
     } elseif ($action_type === 'insert') {
-      $stmt = mysqli_prepare($conn, "INSERT INTO kelas_menulis (nama_kelas, mentor, harga_kelas, kuota, jadwal, deskripsi_kelas, gambar) VALUES (?, ?, ?, ?, ?, ?, ?)");
-      if ($stmt) mysqli_stmt_bind_param($stmt, 'ssiisss', $nama_kelas, $mentor, $harga_kelas, $kuota, $jadwal, $deskripsi_kelas, $gambar_final);
+      $sql = "INSERT INTO kelas_menulis (nama_kelas, mentor, harga_kelas, kuota, jadwal, deskripsi_kelas, gambar) VALUES (:nama_kelas, :mentor, :harga_kelas, :kuota, :jadwal, :deskripsi_kelas, :gambar)";
+      $stmt = $conn->prepare($sql);
+      $stmt->execute([
+        ':nama_kelas' => $nama_kelas,
+        ':mentor' => $mentor,
+        ':harga_kelas' => $harga_kelas,
+        ':kuota' => $kuota,
+        ':jadwal' => $jadwal,
+        ':deskripsi_kelas' => $deskripsi_kelas,
+        ':gambar' => $gambar_final
+      ]);
     }
 
-    if ($stmt && mysqli_stmt_execute($stmt)) {
-      send_json_response('success', 'Data kelas berhasil disimpan.');
+    send_json_response('success', 'Data kelas berhasil disimpan.');
+  }
+
+  // ==========================================
+  // PROSES HAPUS KELAS (AJAX)
+  // ==========================================
+  elseif ($action_type === 'delete' && $id > 0) {
+    $stmt_select = $conn->prepare("SELECT gambar FROM kelas_menulis WHERE id=:id");
+    $stmt_select->execute([':id' => $id]);
+    $row = $stmt_select->fetch();
+    if ($row && !empty($row['gambar']) && !filter_var($row['gambar'], FILTER_VALIDATE_URL)) {
+      @unlink('../uploads/' . $row['gambar']);
+    }
+    $stmt_delete = $conn->prepare("DELETE FROM kelas_menulis WHERE id=:id");
+    $stmt_delete->execute([':id' => $id]);
+    send_json_response('success', 'Data kelas berhasil dihapus. Halaman akan dimuat ulang.');
+  }
+
+  // ==========================================
+  // PROSES SALIN / DUPLIKAT KELAS (AJAX)
+  // ==========================================
+  elseif ($action_type === 'copy' && $id > 0) {
+    // 1. Ambil data asli dari kelas yang akan disalin
+    $stmt_source = $conn->prepare("SELECT * FROM kelas_menulis WHERE id = :id");
+    $stmt_source->execute([':id' => $id]);
+    $source_data = $stmt_source->fetch(PDO::FETCH_ASSOC);
+
+    if ($source_data) {
+      // 2. Siapkan data baru dengan menambahkan "(Salinan)" pada nama
+      $new_nama = $source_data['nama_kelas'] . ' (Salinan)';
+
+      // 3. Masukkan data baru sebagai baris baru di database
+      $sql = "INSERT INTO kelas_menulis (nama_kelas, deskripsi_kelas, mentor, jadwal, kuota, harga_kelas, gambar) 
+                 VALUES (:nama, :deskripsi, :mentor, :jadwal, :kuota, :harga, :gambar)";
+      $stmt_insert = $conn->prepare($sql);
+      $stmt_insert->execute([
+        ':nama' => $new_nama,
+        ':deskripsi' => $source_data['deskripsi_kelas'],
+        ':mentor' => $source_data['mentor'],
+        ':jadwal' => $source_data['jadwal'],
+        ':kuota' => $source_data['kuota'],
+        ':harga' => $source_data['harga_kelas'],
+        ':gambar' => $source_data['gambar']
+      ]);
+      send_json_response('success', 'Kelas berhasil disalin. Halaman akan dimuat ulang.');
     } else {
-      send_json_response('error', 'Terjadi kesalahan pada database.');
+      send_json_response('error', 'Data sumber untuk disalin tidak ditemukan.');
     }
-  }
-
-  // Aksi Hapus
-  if (isset($_POST['hapus'])) {
-    $id = (int)$_POST['hapus'];
-    $stmt_select = mysqli_prepare($conn, "SELECT gambar FROM kelas_menulis WHERE id=?");
-    mysqli_stmt_bind_param($stmt_select, 'i', $id);
-    mysqli_stmt_execute($stmt_select);
-    $res = mysqli_stmt_get_result($stmt_select);
-    if ($res && $row = mysqli_fetch_assoc($res)) {
-      if (!empty($row['gambar']) && !filter_var($row['gambar'], FILTER_VALIDATE_URL)) {
-        @unlink('../uploads/' . $row['gambar']);
-      }
-    }
-    $stmt_delete = mysqli_prepare($conn, "DELETE FROM kelas_menulis WHERE id=?");
-    mysqli_stmt_bind_param($stmt_delete, 'i', $id);
-    mysqli_stmt_execute($stmt_delete);
-    header("Location: " . ADMIN_URL . "kelas");
-    exit;
-  }
-
-  // Aksi Duplikat
-  if (isset($_POST['duplikat'])) {
-    $id = (int)$_POST['duplikat'];
-    $stmt_cari = mysqli_prepare($conn, "SELECT * FROM kelas_menulis WHERE id = ?");
-    mysqli_stmt_bind_param($stmt_cari, 'i', $id);
-    mysqli_stmt_execute($stmt_cari);
-    $cari_kelas = mysqli_stmt_get_result($stmt_cari);
-
-    if ($cari_kelas && mysqli_num_rows($cari_kelas) === 1) {
-      $kelas = mysqli_fetch_assoc($cari_kelas);
-      // ... (logika duplikat yang sudah ada)
-      $nama_kelas = $kelas['nama_kelas'] . ' (Salinan)';
-      // ... (sisa logika)
-      $stmt_insert = mysqli_prepare($conn, "INSERT INTO kelas_menulis (nama_kelas, mentor, harga_kelas, kuota, jadwal, deskripsi_kelas, gambar) VALUES (?, ?, ?, ?, ?, ?, ?)");
-      mysqli_stmt_bind_param($stmt_insert, 'ssiisss', $nama_kelas, $kelas['mentor'], $kelas['harga_kelas'], $kelas['kuota'], $kelas['jadwal'], $kelas['deskripsi_kelas'], $kelas['gambar']);
-      mysqli_stmt_execute($stmt_insert);
-      mysqli_stmt_close($stmt_insert);
-    }
-    header("Location: " . ADMIN_URL . "kelas");
-    exit;
   }
 }

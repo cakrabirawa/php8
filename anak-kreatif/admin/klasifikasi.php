@@ -11,11 +11,15 @@ $halaman = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 if ($halaman < 1) $halaman = 1;
 $offset = ($halaman - 1) * $batas;
 
-$total_res = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM klasifikasi_produk"));
-$total = $total_res['total'] ?? 0;
+$stmt_total = $conn->query("SELECT COUNT(*) AS total FROM klasifikasi_produk");
+$total = $stmt_total->fetchColumn() ?? 0;
 $total_hal = ceil($total / $batas);
 
-$res = mysqli_query($conn, "SELECT * FROM klasifikasi_produk ORDER BY id DESC LIMIT $batas OFFSET $offset");
+$query = "SELECT * FROM klasifikasi_produk ORDER BY id DESC LIMIT :limit OFFSET :offset";
+$stmt = $conn->prepare($query);
+$stmt->bindValue(':limit', $batas, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt->execute();
 ?>
 <?php include 'header.php'; ?>
 
@@ -49,7 +53,7 @@ $res = mysqli_query($conn, "SELECT * FROM klasifikasi_produk ORDER BY id DESC LI
           </tr>
         </thead>
         <tbody id="table-klasifikasi-body">
-          <?php if (mysqli_num_rows($res) > 0) : while ($r = mysqli_fetch_assoc($res)): ?>
+          <?php if ($stmt->rowCount() > 0) : foreach ($stmt as $r): ?>
               <tr class="border-b hover:bg-gray-50 dark:border-zinc-700 dark:hover:bg-zinc-800">
                 <td class="p-2 font-medium"><?= htmlspecialchars($r['nama']); ?></td>
                 <td class="p-2 text-gray-500 dark:text-zinc-400"><?= htmlspecialchars($r['slug']); ?></td>
@@ -72,7 +76,7 @@ $res = mysqli_query($conn, "SELECT * FROM klasifikasi_produk ORDER BY id DESC LI
                   </form>
                 </td>
               </tr>
-            <?php endwhile;
+            <?php endforeach;
           else: ?>
             <tr>
               <td colspan="4" id="no-results-klasifikasi" class="text-center text-gray-400 py-10">Belum ada klasifikasi.</td>

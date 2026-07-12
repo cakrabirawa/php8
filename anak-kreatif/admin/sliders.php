@@ -14,11 +14,15 @@ if ($halaman < 1) {
 }
 $offset = ($halaman - 1) * $batas;
 
-$total_res = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM sliders"));
-$total_slider = $total_res['total'];
+$stmt_total = $conn->query("SELECT COUNT(*) AS total FROM sliders");
+$total_slider = $stmt_total->fetchColumn() ?? 0;
 $total_hal = ceil($total_slider / $batas);
 
-$res = mysqli_query($conn, "SELECT * FROM sliders ORDER BY id DESC LIMIT $batas OFFSET $offset");
+$query = "SELECT * FROM sliders ORDER BY id DESC LIMIT :limit OFFSET :offset";
+$stmt = $conn->prepare($query);
+$stmt->bindValue(':limit', $batas, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt->execute();
 ?>
 <?php include 'header.php'; ?>
 
@@ -36,7 +40,7 @@ $res = mysqli_query($conn, "SELECT * FROM sliders ORDER BY id DESC LIMIT $batas 
 
     <div class="bg-white p-4 rounded-xl shadow-sm border mb-4 dark:bg-zinc-900 dark:border-zinc-700">
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <?php if (mysqli_num_rows($res) > 0) : while ($r = mysqli_fetch_assoc($res)):
+        <?php if ($stmt->rowCount() > 0) : foreach ($stmt as $r):
             $img = (filter_var($r['gambar'], FILTER_VALIDATE_URL)) ? $r['gambar'] : '../uploads/' . $r['gambar'];
             $status_aktif = (int)$r['is_active'] === 1;
         ?>
@@ -68,7 +72,7 @@ $res = mysqli_query($conn, "SELECT * FROM sliders ORDER BY id DESC LIMIT $batas 
                 </div>
               </div>
             </div>
-          <?php endwhile;
+          <?php endforeach;
         else: ?>
           <p class="text-gray-400 text-center py-10 col-span-full">Belum ada gambar latar belakang slider di halaman ini.</p>
         <?php endif; ?>

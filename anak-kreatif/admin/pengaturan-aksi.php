@@ -60,13 +60,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   // Professional Approach: Use INSERT ... ON DUPLICATE KEY UPDATE for efficiency and atomicity.
   // This single query handles both inserting a new setting and updating an existing one.
-  $stmt = mysqli_prepare($conn, "INSERT INTO pengaturan (key_name, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
+  $stmt = $conn->prepare("INSERT INTO pengaturan (key_name, setting_value) VALUES (:key, :value) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
 
   foreach ($settings_to_save as $key => $value) {
-    mysqli_stmt_bind_param($stmt, 'ss', $key, $value);
-    mysqli_stmt_execute($stmt);
+    $stmt->execute([':key' => $key, ':value' => $value]);
   }
-  mysqli_stmt_close($stmt);
 
   send_json_response('success', 'Pengaturan berhasil diperbarui!');
 }

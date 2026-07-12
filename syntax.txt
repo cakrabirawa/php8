@@ -67,3 +67,10 @@ php artisan view:clear - Menghapus file kompilasi template Blade.
 php artisan down - Mengubah status aplikasi menjadi mode perbaikan (maintenance mode).
 php artisan down --secret="[token]" - Masuk ke mode perbaikan namun mengizinkan akses lewat URL bypass `://domain.com[token]`.
 php artisan up - Mengembalikan aplikasi menjadi aktif kembali (online).
+
+
+
+composer create-project laravel/laravel .
+composer require livewire/livewire
+composer require nwidart/laravel-modules
+

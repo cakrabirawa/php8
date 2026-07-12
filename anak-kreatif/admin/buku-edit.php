@@ -12,12 +12,9 @@ if ($id === 0) {
   exit;
 }
 
-$stmt = mysqli_prepare($conn, "SELECT * FROM produk_buku WHERE id = ?");
-mysqli_stmt_bind_param($stmt, 'i', $id);
-mysqli_stmt_execute($stmt);
-
-$result = mysqli_stmt_get_result($stmt);
-$buku = mysqli_fetch_assoc($result);
+$stmt = $conn->prepare("SELECT * FROM produk_buku WHERE id = :id");
+$stmt->execute([':id' => $id]);
+$buku = $stmt->fetch();
 
 if (!$buku) {
   header("Location: " . ADMIN_URL . "buku");
@@ -25,8 +22,8 @@ if (!$buku) {
 }
 
 // Ambil daftar kategori dan klasifikasi
-$kategori_res = mysqli_query($conn, "SELECT id, nama FROM kategori_produk WHERE is_active = 1 ORDER BY nama");
-$klasifikasi_res = mysqli_query($conn, "SELECT id, nama FROM klasifikasi_produk WHERE is_active = 1 ORDER BY id");
+$kategori_stmt = $conn->query("SELECT id, nama FROM kategori_produk WHERE is_active = 1 ORDER BY nama");
+$klasifikasi_stmt = $conn->query("SELECT id, nama FROM klasifikasi_produk WHERE is_active = 1 ORDER BY id");
 
 include 'header.php';
 ?>
@@ -91,10 +88,10 @@ include 'header.php';
       <div><label class="block font-semibold mb-1 dark:text-zinc-200">Deskripsi</label><textarea name="deskripsi" required class="w-full p-2.5 border rounded-lg h-28 focus:ring-1 focus:ring-orange-500 outline-none font-medium text-sm text-gray-800 dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-100"><?= htmlspecialchars($buku['deskripsi']); ?></textarea></div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div><label class="block font-semibold mb-1 dark:text-zinc-200">Kategori Produk</label><select name="kategori_id" class="w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-orange-500 outline-none font-medium text-sm text-gray-800 dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-100">
-            <option value="">-- Pilih Kategori --</option><?php while ($kat = mysqli_fetch_assoc($kategori_res)) : ?><option value="<?= $kat['id']; ?>" <?= ($buku['kategori_id'] == $kat['id']) ? 'selected' : ''; ?>><?= htmlspecialchars($kat['nama']); ?></option><?php endwhile; ?>
+            <option value="">-- Pilih Kategori --</option><?php foreach ($kategori_stmt as $kat) : ?><option value="<?= $kat['id']; ?>" <?= ($buku['kategori_id'] == $kat['id']) ? 'selected' : ''; ?>><?= htmlspecialchars($kat['nama']); ?></option><?php endforeach; ?>
           </select></div>
         <div><label class="block font-semibold mb-1 dark:text-zinc-200">Klasifikasi Produk</label><select name="klasifikasi_id" class="w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-orange-500 outline-none font-medium text-sm text-gray-800 dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-100">
-            <option value="">-- Pilih Klasifikasi --</option><?php while ($klas = mysqli_fetch_assoc($klasifikasi_res)) : ?><option value="<?= $klas['id']; ?>" <?= ($buku['klasifikasi_id'] == $klas['id']) ? 'selected' : ''; ?>><?= htmlspecialchars($klas['nama']); ?></option><?php endwhile; ?>
+            <option value="">-- Pilih Klasifikasi --</option><?php foreach ($klasifikasi_stmt as $klas) : ?><option value="<?= $klas['id']; ?>" <?= ($buku['klasifikasi_id'] == $klas['id']) ? 'selected' : ''; ?>><?= htmlspecialchars($klas['nama']); ?></option><?php endforeach; ?>
           </select></div>
       </div>
 

@@ -3,6 +3,9 @@
 // Konfigurasi koneksi database.
 // Harap sesuaikan nilai-nilai ini dengan pengaturan server database Anda.
 
+// Tipe driver database yang digunakan. Pilihan: 'mysql', 'pgsql', 'sqlsrv'
+define('DB_DRIVER', 'mysql');
+
 // Hostname server database (biasanya 'localhost' untuk pengembangan lokal)
 define('DB_HOST', 'localhost');
 // Username untuk mengakses database

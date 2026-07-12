@@ -12,13 +12,15 @@ if ($hal < 1) {
   $hal = 1;
 }
 $offset = ($hal - 1) * $limit;
-$total_res = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM users_admin"));
-$total_hal = ceil($total_res['total'] / $limit);
+$stmt_total = $conn->query("SELECT COUNT(*) AS total FROM users_admin");
+$total_users = $stmt_total->fetchColumn() ?? 0;
+$total_hal = ceil($total_users / $limit);
 
-$stmt_users = mysqli_prepare($conn, "SELECT * FROM users_admin ORDER BY id DESC LIMIT ? OFFSET ?");
-mysqli_stmt_bind_param($stmt_users, 'ii', $limit, $offset);
-mysqli_stmt_execute($stmt_users);
-$users_res = mysqli_stmt_get_result($stmt_users);
+$query = "SELECT * FROM users_admin ORDER BY id DESC LIMIT :limit OFFSET :offset";
+$stmt_users = $conn->prepare($query);
+$stmt_users->bindValue(':limit', $limit, PDO::PARAM_INT);
+$stmt_users->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt_users->execute();
 ?>
 <?php include 'header.php'; ?>
 
@@ -47,7 +49,7 @@ $users_res = mysqli_stmt_get_result($stmt_users);
           </tr>
         </thead>
         <tbody id="table-users-body">
-          <?php if (mysqli_num_rows($users_res) > 0): while ($r = mysqli_fetch_assoc($users_res)): ?>
+          <?php if ($stmt_users->rowCount() > 0): foreach ($stmt_users as $r): ?>
               <tr class="border-b hover:bg-gray-50 dark:border-zinc-700 dark:hover:bg-zinc-800">
                 <td class="p-2 w-12">
                   <?php if (!empty($r['avatar']) && file_exists('../uploads/avatars/' . $r['avatar'])): ?>
@@ -72,7 +74,7 @@ $users_res = mysqli_stmt_get_result($stmt_users);
                   <?php endif; ?>
                 </td>
               </tr>
-            <?php endwhile;
+            <?php endforeach;
           else: ?>
             <tr>
               <td colspan="4" id="no-results-users" class="text-center text-gray-400 py-10">Belum ada data admin.</td>

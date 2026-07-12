@@ -21,28 +21,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (isset($_POST['action_type'])) {
     $action = $_POST['action_type'];
     $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-    $nama = mysqli_real_escape_string($conn, trim($_POST['nama'] ?? ''));
+    $nama = trim($_POST['nama'] ?? '');
     $is_active = isset($_POST['is_active']) ? 1 : 0;
 
     if (empty($nama)) {
       send_json_response('error', 'Nama kategori tidak boleh kosong.');
     }
 
+    $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $nama)));
+
     if ($action === 'insert') {
-      $stmt = mysqli_prepare($conn, "INSERT INTO kategori_produk (nama, slug, is_active) VALUES (?, ?, ?)");
-      $slug_temp = 'temp_' . uniqid();
-      if ($stmt) {
-        mysqli_stmt_bind_param($stmt, 'ssi', $nama, $slug_temp, $is_active);
-        mysqli_stmt_execute($stmt);
-        $new_id = mysqli_insert_id($conn);
-        $stmt_slug = mysqli_prepare($conn, "UPDATE kategori_produk SET slug = ? WHERE id = ?");
-        mysqli_stmt_bind_param($stmt_slug, 'ii', $new_id, $new_id);
-        mysqli_stmt_execute($stmt_slug);
-      }
+      $sql = "INSERT INTO kategori_produk (nama, slug, is_active) VALUES (:nama, :slug, :is_active)";
+      $stmt = $conn->prepare($sql);
+      $stmt->execute([':nama' => $nama, ':slug' => $slug, ':is_active' => $is_active]);
     } elseif ($action === 'update' && $id > 0) {
-      $stmt = mysqli_prepare($conn, "UPDATE kategori_produk SET nama=?, is_active=? WHERE id=?");
-      mysqli_stmt_bind_param($stmt, 'sii', $nama, $is_active, $id);
-      mysqli_stmt_execute($stmt);
+      $sql = "UPDATE kategori_produk SET nama=:nama, slug=:slug, is_active=:is_active WHERE id=:id";
+      $stmt = $conn->prepare($sql);
+      $stmt->execute([':nama' => $nama, ':slug' => $slug, ':is_active' => $is_active, ':id' => $id]);
     }
     send_json_response('success', 'Data kategori berhasil disimpan.');
   }
@@ -52,13 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = (int)$_POST['toggle_status'];
     $status = (int)$_POST['status'];
     $new = ($status === 1) ? 0 : 1;
-    $stmt = mysqli_prepare($conn, "UPDATE kategori_produk SET is_active=? WHERE id=?");
-    mysqli_stmt_bind_param($stmt, 'ii', $new, $id);
-    mysqli_stmt_execute($stmt);
+    $stmt = $conn->prepare("UPDATE kategori_produk SET is_active=:status WHERE id=:id");
+    $stmt->execute([':status' => $new, ':id' => $id]);
     if ($new === 0) {
-      $stmt_update_buku = mysqli_prepare($conn, "UPDATE produk_buku SET kategori_id = NULL WHERE kategori_id = ?");
-      mysqli_stmt_bind_param($stmt_update_buku, 'i', $id);
-      mysqli_stmt_execute($stmt_update_buku);
+      $stmt_update_buku = $conn->prepare("UPDATE produk_buku SET kategori_id = NULL WHERE kategori_id = :id");
+      $stmt_update_buku->execute([':id' => $id]);
     }
     send_json_response('success', 'Status kategori berhasil diubah.');
   }
@@ -67,12 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (isset($_POST['hapus'])) {
     $id = (int)$_POST['hapus'];
     // set produk_buku kategori_id to NULL if any
-    $stmt_update = mysqli_prepare($conn, "UPDATE produk_buku SET kategori_id = NULL WHERE kategori_id = ?");
-    mysqli_stmt_bind_param($stmt_update, 'i', $id);
-    mysqli_stmt_execute($stmt_update);
-    $stmt_delete = mysqli_prepare($conn, "DELETE FROM kategori_produk WHERE id=?");
-    mysqli_stmt_bind_param($stmt_delete, 'i', $id);
-    mysqli_stmt_execute($stmt_delete);
+    $stmt_update = $conn->prepare("UPDATE produk_buku SET kategori_id = NULL WHERE kategori_id = :id");
+    $stmt_update->execute([':id' => $id]);
+    $stmt_delete = $conn->prepare("DELETE FROM kategori_produk WHERE id=:id");
+    $stmt_delete->execute([':id' => $id]);
     header("Location: " . ADMIN_URL . "categories");
     exit;
   }

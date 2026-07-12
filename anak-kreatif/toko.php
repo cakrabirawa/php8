@@ -19,62 +19,37 @@ if ($halaman < 1) {
 $offset = ($halaman - 1) * $batas;
 
 // Ambil daftar kategori aktif untuk filter
-$kategori_res = mysqli_query($conn, "SELECT id, nama FROM kategori_produk WHERE is_active = 1 ORDER BY nama");
-$kategori_list = [];
-if ($kategori_res) {
-  while ($row = mysqli_fetch_assoc($kategori_res)) {
-    $kategori_list[(int)$row['id']] = $row['nama'];
-  }
-}
+$stmt_kat = $conn->query("SELECT id, nama FROM kategori_produk WHERE is_active = 1 ORDER BY nama");
+$kategori_list = $stmt_kat->fetchAll(PDO::FETCH_KEY_PAIR);
+
 // Ambil daftar klasifikasi untuk tampilkan di kartu
-$klasifikasi_res = mysqli_query($conn, "SELECT id, nama FROM klasifikasi_produk WHERE is_active = 1 ORDER BY id");
-$klasifikasi_list = [];
-if ($klasifikasi_res) {
-  while ($kr = mysqli_fetch_assoc($klasifikasi_res)) {
-    $klasifikasi_list[(int)$kr['id']] = $kr['nama'];
-  }
-}
+$stmt_klas = $conn->query("SELECT id, nama FROM klasifikasi_produk WHERE is_active = 1 ORDER BY id");
+$klasifikasi_list = $stmt_klas->fetchAll(PDO::FETCH_KEY_PAIR);
 
 // dukung filter klasifikasi via slug (GET `klas`)
 $selected_klas = null;
 if (!empty($_GET['klas'])) {
   $slug = $_GET['klas'];
-  $stmtk = mysqli_prepare($conn, "SELECT id FROM klasifikasi_produk WHERE slug = ? AND is_active = 1 LIMIT 1");
-  if ($stmtk) {
-    mysqli_stmt_bind_param($stmtk, 's', $slug);
-    mysqli_stmt_execute($stmtk);
-    $rk = mysqli_stmt_get_result($stmtk);
-    $found = mysqli_fetch_assoc($rk);
-    if ($found) $selected_klas = (int)$found['id'];
-    mysqli_stmt_close($stmtk);
-  } else {
-    // fallback
-    $safe = mysqli_real_escape_string($conn, $slug);
-    $qk = mysqli_query($conn, "SELECT id FROM klasifikasi_produk WHERE slug = '$safe' AND is_active = 1 LIMIT 1");
-    if ($qk && mysqli_num_rows($qk) > 0) {
-      $fr = mysqli_fetch_assoc($qk);
-      $selected_klas = (int)$fr['id'];
-    }
-  }
+  $stmtk = $conn->prepare("SELECT id FROM klasifikasi_produk WHERE slug = :slug AND is_active = 1 LIMIT 1");
+  $stmtk->execute([':slug' => $slug]);
+  $found_id = $stmtk->fetchColumn();
+  if ($found_id) $selected_klas = (int)$found_id;
 }
 
 // periksa filter kategori dari query string
 $selected_kategori = isset($_GET['kat']) && is_numeric($_GET['kat']) ? (int)$_GET['kat'] : null;
 
 // 4. Hitung total seluruh data buku di database (prepared statement), dukung filter kategori
-$where_clauses = [];
-$bind_types = '';
+$where_clauses = ['1=1']; // Base condition
 $bind_params = [];
 
 if (!is_null($selected_kategori)) {
-  $where_clauses[] = 'kategori_id = ?';
-  $bind_types .= 'i';
-  $bind_params[] = $selected_kategori;
+  $where_clauses[] = 'kategori_id = :kat_id';
+  $bind_params[':kat_id'] = $selected_kategori;
 }
 if (!is_null($selected_klas)) {
-  $where_clauses[] = 'klasifikasi_id = ?';
-  $bind_types .= 'i';
-  $bind_params[] = $selected_klas;
+  $where_clauses[] = 'klasifikasi_id = :klas_id';
+  $bind_params[':klas_id'] = $selected_klas;
 }
 
 $where_sql = count($where_clauses) > 0 ? ' WHERE ' . implode(' AND ', $where_clauses) : '';
@@ -82,36 +57,24 @@ $where_sql = count($where_clauses) > 0 ? ' WHERE ' . implode(' AND ', $where_cla
 // Hitung total buku
 $total_buku = 0;
 $sql_total = "SELECT COUNT(*) AS total FROM produk_buku" . $where_sql;
-$stmt_total = mysqli_prepare($conn, $sql_total);
-if ($stmt_total) {
-  if (count($bind_params) > 0) {
-    mysqli_stmt_bind_param($stmt_total, $bind_types, ...$bind_params);
-  }
-  mysqli_stmt_execute($stmt_total);
-  $res_total = mysqli_stmt_get_result($stmt_total);
-  $data_total = mysqli_fetch_assoc($res_total);
-  $total_buku = $data_total['total'] ?? 0;
-  mysqli_stmt_close($stmt_total);
-}
+$stmt_total = $conn->prepare($sql_total);
+$stmt_total->execute($bind_params);
+$total_buku = $stmt_total->fetchColumn();
 
 // 5. Hitung total halaman yang tersedia
 $total_halaman = ceil($total_buku / $batas);
 
 // 6. Ambil data buku berdasarkan limit batas dan offset halaman aktif (prepared statement), dengan filter kategori/klasifikasi
-$sql = "SELECT * FROM produk_buku" . $where_sql . " ORDER BY id DESC LIMIT ? OFFSET ?";
-$stmt = mysqli_prepare($conn, $sql);
-if ($stmt) {
-  $final_bind_types = $bind_types . 'ii';
-  $final_bind_params = array_merge($bind_params, [$batas, $offset]);
-  mysqli_stmt_bind_param($stmt, $final_bind_types, ...$final_bind_params);
-  mysqli_stmt_execute($stmt);
-  $result = mysqli_stmt_get_result($stmt);
-  mysqli_stmt_close($stmt);
-} else {
-  // fallback
-  $query = "SELECT * FROM produk_buku" . $where_sql . " ORDER BY id DESC LIMIT $batas OFFSET $offset";
-  $result = mysqli_query($conn, $query);
+$sql = "SELECT * FROM produk_buku" . $where_sql . " ORDER BY id DESC LIMIT :limit OFFSET :offset";
+$stmt = $conn->prepare($sql);
+
+// Bind filter parameters
+foreach ($bind_params as $key => $value) {
+  $stmt->bindValue($key, $value);
 }
+$stmt->bindValue(':limit', $batas, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt->execute();
 ?>
 
 <!-- Wrapper <main> ditambahkan agar kompatibel dengan navigasi SPA -->
@@ -156,7 +119,7 @@ if ($stmt) {
   <section class="container mx-auto px-6 py-12">
     <!-- Grid Katalog Buku -->
     <div id="book-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      <?php if (mysqli_num_rows($result) > 0) : while ($buku = mysqli_fetch_assoc($result)) : ?>
+      <?php if ($stmt->rowCount() > 0) : while ($buku = $stmt->fetch(PDO::FETCH_ASSOC)) : ?>
 
           <?php
           // MEMBENTUK TAUTAN LINK BERBASIS SEO SLUG

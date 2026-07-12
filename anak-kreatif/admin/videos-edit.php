@@ -6,12 +6,13 @@ if (!isset($_SESSION['login_admin'])) {
 }
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$res = mysqli_query($conn, "SELECT * FROM videos WHERE id=$id");
-if (mysqli_num_rows($res) === 0) {
+$stmt = $conn->prepare("SELECT * FROM videos WHERE id = :id");
+$stmt->execute([':id' => $id]);
+$v = $stmt->fetch();
+if (!$v) {
   header("Location: " . ADMIN_URL . "videos");
   exit;
 }
-$v = mysqli_fetch_assoc($res);
 ?>
 <?php include 'header.php'; ?>
 

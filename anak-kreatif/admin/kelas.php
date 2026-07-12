@@ -11,17 +11,15 @@ $hal_k = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 if ($hal_k < 1) $hal_k = 1;
 $offset_k = ($hal_k - 1) * $limit_k;
 
-$stmt_total = mysqli_prepare($conn, "SELECT COUNT(*) AS total FROM kelas_menulis");
-mysqli_stmt_execute($stmt_total);
-$total_k_res = mysqli_stmt_get_result($stmt_total);
-$total_kelas = mysqli_fetch_assoc($total_k_res)['total'] ?? 0;
-mysqli_stmt_close($stmt_total);
+$stmt_total = $conn->query("SELECT COUNT(*) AS total FROM kelas_menulis");
+$total_kelas = $stmt_total->fetchColumn() ?? 0;
 
 $total_hal_k = ceil($total_kelas / $limit_k);
-$stmt_kelas = mysqli_prepare($conn, "SELECT * FROM kelas_menulis ORDER BY id DESC LIMIT ? OFFSET ?");
-mysqli_stmt_bind_param($stmt_kelas, 'ii', $limit_k, $offset_k);
-mysqli_stmt_execute($stmt_kelas);
-$kelas_res = mysqli_stmt_get_result($stmt_kelas);
+$query = "SELECT * FROM kelas_menulis ORDER BY id DESC LIMIT :limit OFFSET :offset";
+$stmt_kelas = $conn->prepare($query);
+$stmt_kelas->bindValue(':limit', $limit_k, PDO::PARAM_INT);
+$stmt_kelas->bindValue(':offset', $offset_k, PDO::PARAM_INT);
+$stmt_kelas->execute();
 ?>
 <?php include 'header.php'; ?>
 
@@ -52,26 +50,25 @@ $kelas_res = mysqli_stmt_get_result($stmt_kelas);
           </tr>
         </thead>
         <tbody id="table-kelas-body">
-          <?php if (mysqli_num_rows($kelas_res) > 0) : while ($r = mysqli_fetch_assoc($kelas_res)): ?>
+          <?php if ($stmt_kelas->rowCount() > 0) : foreach ($stmt_kelas as $r): ?>
               <tr class="border-b hover:bg-gray-50 dark:border-zinc-700 dark:hover:bg-zinc-800">
                 <td class="p-2 font-medium"><?= htmlspecialchars($r['nama_kelas']); ?></td>
                 <td class="p-2"><?= htmlspecialchars($r['mentor']); ?></td>
                 <td class="p-2"><?= htmlspecialchars($r['jadwal']); ?></td>
                 <td class="p-2">Rp <?= number_format($r['harga_kelas'], 0, ',', '.'); ?></td>
                 <td class="p-2"><?= $r['kuota']; ?> anak</td>
-                <td class="p-2 text-center space-x-2 whitespace-nowrap font-bold">
-                  <form action="<?= ADMIN_URL ?>kelas-aksi" method="POST" class="inline ajax-form" data-action="reload" onsubmit="return confirm('Duplikat kelas ini?')">
-                    <input type="hidden" name="duplikat" value="<?= $r['id'] ?>"><input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <td class="p-2 text-center space-x-3 whitespace-nowrap font-bold">
+                  <form action="<?= ADMIN_URL ?>kelas-aksi" method="POST" class="inline ajax-form" data-action="reload" onsubmit="return confirm('Anda yakin ingin menyalin kelas ini?')">
+                    <input type="hidden" name="action_type" value="copy">
+                    <input type="hidden" name="id" value="<?= $r['id']; ?>">
+                    <?= csrf_token_input(); ?>
                     <button type="submit" class="text-amber-600 hover:underline bg-transparent border-none p-0 font-bold cursor-pointer">Salin</button>
                   </form>
                   <a href="<?= ADMIN_URL ?>kelas-edit?id=<?= $r['id']; ?>" class="text-blue-600 hover:underline spa-trigger">Edit</a>
-                  <form action="<?= ADMIN_URL ?>kelas-aksi" method="POST" class="inline ajax-form" data-action="reload" onsubmit="return confirm('Hapus program kelas ini?')">
-                    <input type="hidden" name="hapus" value="<?= $r['id'] ?>"><input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                    <button type="submit" class="text-red-600 hover:underline bg-transparent border-none p-0 font-bold cursor-pointer">Hapus</button>
-                  </form>
+                  <button onclick="handleAjaxDelete('kelas-aksi', <?= $r['id']; ?>, 'Anda yakin ingin menghapus kelas ini?')" class="text-red-600 hover:underline bg-transparent border-none p-0 font-bold cursor-pointer">Hapus</button>
                 </td>
               </tr>
-            <?php endwhile;
+            <?php endforeach;
           else: ?>
             <tr>
               <td colspan="6" id="no-results-kelas" class="text-center text-gray-400 py-10">Belum ada data program kelas.</td>

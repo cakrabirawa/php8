@@ -9,19 +9,15 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 }
 
 $id = (int)$_GET['id'];
-$stmt = mysqli_prepare($conn, "SELECT * FROM kelas_menulis WHERE id = ?");
-mysqli_stmt_bind_param($stmt, 'i', $id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
+$stmt = $conn->prepare("SELECT * FROM kelas_menulis WHERE id = :id");
+$stmt->execute([':id' => $id]);
+$kelas = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (mysqli_num_rows($result) === 0) {
+if (!$kelas) {
   echo "<main class='flex-grow'><div class='text-center py-20 font-bold text-gray-500'>Program kelas tidak ditemukan! <a href='../kelas' class='text-sekolah underline'>Kembali ke Kelas</a></div></main>";
   include 'footer.php';
   exit;
 }
-
-$kelas = mysqli_fetch_assoc($result);
-mysqli_stmt_close($stmt);
 ?>
 
 <!-- Wrapper <main> ditambahkan agar kompatibel dengan navigasi SPA -->

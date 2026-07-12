@@ -10,37 +10,19 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $id = (int)$_GET['id'];
 
-$sql = "SELECT p.*, k.nama AS kategori_name, l.nama AS klasifikasi_name FROM produk_buku p LEFT JOIN kategori_produk k ON p.kategori_id = k.id LEFT JOIN klasifikasi_produk l ON p.klasifikasi_id = l.id WHERE p.id = ? LIMIT 1";
-$stmt = mysqli_prepare($conn, $sql);
-if ($stmt) {
-  mysqli_stmt_bind_param($stmt, 'i', $id);
-  mysqli_stmt_execute($stmt);
-  $res = mysqli_stmt_get_result($stmt);
-  if (!$res || mysqli_num_rows($res) === 0) {
-    echo "<div class='text-center py-20 font-bold text-gray-500'>Buku tidak ditemukan! <a href='../toko' class='text-cerita underline'>Kembali ke Toko</a></div>";
-    include 'footer.php';
-    exit;
-  }
-  $buku = mysqli_fetch_assoc($res);
-  mysqli_stmt_close($stmt);
-} else {
-  // fallback: query langsung
-  $query = "SELECT * FROM produk_buku WHERE id = $id";
-  $result = mysqli_query($conn, $query);
-  if (mysqli_num_rows($result) === 0) {
-    echo "<div class='text-center py-20 font-bold text-gray-500'>Buku tidak ditemukan! <a href='../toko' class='text-cerita underline'>Kembali ke Toko</a></div>";
-    include 'footer.php';
-    exit;
-  }
-  $buku = mysqli_fetch_assoc($result);
-  // ambil nama kategori jika ada
-  if (!empty($buku['kategori_id'])) {
-    $kres = mysqli_query($conn, "SELECT nama FROM kategori_produk WHERE id = " . (int)$buku['kategori_id'] . " LIMIT 1");
-    if ($kres && mysqli_num_rows($kres) > 0) {
-      $krow = mysqli_fetch_assoc($kres);
-      $buku['kategori_name'] = $krow['nama'];
-    }
-  }
+$sql = "SELECT p.*, k.nama AS kategori_name, l.nama AS klasifikasi_name 
+        FROM produk_buku p 
+        LEFT JOIN kategori_produk k ON p.kategori_id = k.id 
+        LEFT JOIN klasifikasi_produk l ON p.klasifikasi_id = l.id 
+        WHERE p.id = :id LIMIT 1";
+$stmt = $conn->prepare($sql);
+$stmt->execute([':id' => $id]);
+$buku = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$buku) {
+  echo "<div class='text-center py-20 font-bold text-gray-500'>Buku tidak ditemukan! <a href='" . BASE_URL . "toko' class='text-cerita underline'>Kembali ke Toko</a></div>";
+  include 'footer.php';
+  exit;
 }
 ?>
 

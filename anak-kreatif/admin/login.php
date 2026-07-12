@@ -16,17 +16,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $error_msg = "Silakan geser slider untuk verifikasi.";
   } else {
     // 2. Lanjutkan validasi login jika captcha benar
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $username = $_POST['username'];
     $password = $_POST['password'];
 
     // Gunakan prepared statement untuk keamanan
-    $stmt = mysqli_prepare($conn, "SELECT * FROM users_admin WHERE username = ?");
-    mysqli_stmt_bind_param($stmt, 's', $username);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
+    $stmt = $conn->prepare("SELECT * FROM users_admin WHERE username = :username");
+    $stmt->execute([':username' => $username]);
 
-    if (mysqli_num_rows($result) === 1) {
-      $row = mysqli_fetch_assoc($result);
+    if ($stmt->rowCount() === 1) {
+      $row = $stmt->fetch();
 
       // Verifikasi password menggunakan password_verify()
       if (password_verify($password, $row['password'])) {
