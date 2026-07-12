@@ -78,7 +78,7 @@ class AdminPanelProvider extends PanelProvider
                 'danger' => Color::Rose,
             ])
             ->plugins([
-                LightSwitchPlugin::make(),
+                // LightSwitchPlugin::make(),
                 FilamentShieldPlugin::make(),
             ])
             ->navigationItems([
