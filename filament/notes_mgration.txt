@@ -4,12 +4,16 @@ php artisan optimize:clear
 php artisan filament:install --panels
 php artisan make:filament-user
 php artisan shield:generate --all
+php artisan storage:link
 #============================================================================
 php artisan tinker
 // Ambil role super admin
 $role = Spatie\Permission\Models\Role::where('name', 'super_admin')->first();
 // Berikan semua permission yang ada di database ke role tersebut
 $role->givePermissionTo(Spatie\Permission\Models\Permission::all());
+#============================================================================
+$user = App\Models\User::find(1);
+$user->assignRole('super_admin');
 #============================================================================
 php artisan permission:cache-reset
 php artisan filament:clear-cached-components
