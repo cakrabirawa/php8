@@ -86,7 +86,6 @@ class ProductForm
                     ->disk('public') // 🛠️ WAJIB: Kunci mutlak ke disk public
                     ->directory('products')
                     ->visibility('public')
-                    // Matikan sementara imageEditor() dan circleCropper() jika ada untuk testing
                     ->maxSize(1024) // Maksimal 1 MB
                     ->imageEditor()
                     ->circleCropper()
