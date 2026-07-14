@@ -3,11 +3,13 @@
 namespace App\Filament\Resources\Users\Tables;
 
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
+use Filament\Support\Colors\Color;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -38,10 +40,12 @@ class UsersTable
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
+                    ->humanFormat()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
+                    ->humanFormat()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
@@ -57,43 +61,44 @@ class UsersTable
                 ]),
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                Action::make('duplicate')
-                    ->label('Duplicate') // Nama tombol yang muncul
-                    ->icon('heroicon-o-document-duplicate') // Ikon lembaran ganda
-                    ->color('warning') // Warna tombol (oranye/kuning)
-                    ->requiresConfirmation() // Memunculkan popup konfirmasi sebelum duplikasi
-                    ->modalHeading('Duplikasi Data')
-                    ->modalDescription('Apakah Anda yakin ingin menggandakan data ini?')
-                    ->modalSubmitActionLabel('Ya, Duplikat')
-                    ->action(function (Model $record) {
-                        // 1. Replicate: Menyalin seluruh data baris tersebut kecuali ID dan Timestamps
-                        $duplicate = $record->replicate();
-                        // 2. Modifikasi (Opsional): Menambahkan kata ' (Copy)' di belakang nama agar tidak kembar
-                        if (isset($duplicate->product_name)) {
-                            $duplicate->product_name = $duplicate->product_name . ' (Copy)';
-                        }
-                        if ($duplicate->getAttribute('email') !== null) {
-                            // Memecah email menjadi: 'ado' dan '@gramedia.com'
-                            $emailParts = explode('@', $record->email);
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    Action::make('duplicate')
+                        ->label('Duplicate')
+                        ->icon('heroicon-o-document-duplicate')
+                        ->color(Color::Amber)
+                        ->requiresConfirmation()
+                        ->modalHeading('Duplikasi Data')
+                        ->modalDescription('Apakah Anda yakin ingin menggandakan data ini ? File duplikat akan dibuat dengan nama baru.')
+                        ->modalSubmitActionLabel('Ya, Gandakan')
+                        ->modalCancelActionLabel('Batal')
+                        ->action(function (Model $record): void {
+                            $duplicate = $record->replicate();
+                            if (isset($duplicate->name)) {
+                                $duplicate->name = $duplicate->name . ' (Copy)';
+                            }
+                            if ($duplicate->getAttribute('email') !== null) {
+                                $emailParts = explode('@', $record->email);
+                                $uniqueSuffix = '-copy-' . time(); // Menggunakan timestamp waktu agar selalu unik
+                                $newEmail = $emailParts[0] . $uniqueSuffix . '@' . ($emailParts[1] ?? 'example.com');
 
-                            // Menggabungkan kembali dengan teks tambahan unik: 'ado-copy-171822@gramedia.com'
-                            $uniqueSuffix = '-copy-' . time(); // Menggunakan timestamp waktu agar selalu unik
-                            $newEmail = $emailParts[0] . $uniqueSuffix . '@' . ($emailParts[1] ?? 'example.com');
-
-                            $duplicate->setAttribute('email', $newEmail);
-                        }
-                        // 3. Simpan data baru tersebut ke database
-                        $duplicate->save();
-                        $roles = $record->roles->pluck('name')->toArray();
-                        $duplicate->assignRole($roles);
-                        // 4. Memunculkan notifikasi sukses pop-up hijau di kanan atas
-                        Notification::make()
-                            ->title('Data Berhasil Diduplikasi')
-                            ->success()
-                            ->send();
-                    }),
+                                $duplicate->setAttribute('email', $newEmail);
+                            }
+                            $duplicate->save();
+                            $roles = $record->roles->pluck('name')->toArray();
+                            $duplicate->assignRole($roles);
+                            Notification::make()
+                                ->title('Data Berhasil Diduplikasi')
+                                ->success()
+                                ->send();
+                        }),
+                ])
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->label('')
+                    ->iconButton()
+                    ->tooltip('Opsi Data')
+                    ->color('gray'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

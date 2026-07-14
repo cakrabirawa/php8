@@ -43,7 +43,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path('')
             ->login(CustomLogin::class)
             ->colors(['primary' => Color::Amber,])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
@@ -71,7 +71,7 @@ class AdminPanelProvider extends PanelProvider
             ->font('Poppins')
             ->spa()
             ->colors([
-                'primary' => Color::Fuchsia,
+                'primary' => Color::Emerald,
                 'secondary' => Color::Indigo,
                 'success' => Color::Emerald,
                 'warning' => Color::Amber,
@@ -95,6 +95,7 @@ class AdminPanelProvider extends PanelProvider
                 'panels::body.end',
                 fn() => view('filament.components.logout-form')
             )
+            ->maxContentWidth('full')
         ;
     }
 

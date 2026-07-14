@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products;
 
+use App\Filament\Resources\BaseResource;
 use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
@@ -11,8 +12,8 @@ use App\Filament\Resources\Products\Schemas\ProductInfolist;
 use App\Filament\Resources\Products\Tables\ProductsTable;
 use App\Models\Product;
 use BackedEnum;
-use UnitEnum;
 use Filament\Resources\Resource;
+use UnitEnum;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;

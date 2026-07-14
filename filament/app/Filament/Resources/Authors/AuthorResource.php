@@ -9,6 +9,7 @@ use App\Filament\Resources\Authors\Pages\ViewAuthor;
 use App\Filament\Resources\Authors\Schemas\AuthorForm;
 use App\Filament\Resources\Authors\Schemas\AuthorInfolist;
 use App\Filament\Resources\Authors\Tables\AuthorsTable;
+use App\Filament\Resources\BaseResource;
 use App\Models\Author;
 use BackedEnum;
 use Filament\Resources\Resource;

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\GroupUsers;
 
+use App\Filament\Resources\BaseResource;
 use App\Filament\Resources\GroupUsers\Pages\CreateGroupUser;
 use App\Filament\Resources\GroupUsers\Pages\EditGroupUser;
 use App\Filament\Resources\GroupUsers\Pages\ListGroupUsers;
