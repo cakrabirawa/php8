@@ -16,4 +16,11 @@ class ViewCategory extends ViewRecord
             EditAction::make(),
         ];
     }
+
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return "View Category: "
+            . $this->getRecord()->name;
+        // . '(' . $this->getRecord()->id . ')';
+    }
 }

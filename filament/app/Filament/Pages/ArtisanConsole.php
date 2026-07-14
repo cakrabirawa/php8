@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use Filament\Forms\Components\Textarea;
 use Filament\Pages\Page;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Artisan;
@@ -29,7 +30,6 @@ class ArtisanConsole extends Page implements HasForms
     protected static string | \UnitEnum | null $navigationGroup = 'Settings';
     protected static ?string $navigationLabel = 'Artisan Generator';
     protected static ?string $title = 'Artisan GUI Generator';
-
     protected string $view = 'filament.pages.artisan-console';
 
     // [TAB 1] State Properti untuk Model Generator
@@ -54,6 +54,23 @@ class ArtisanConsole extends Page implements HasForms
     public bool $deleteModelFile = true;
     public bool $deleteFilamentResourceFiles = true;
     public bool $deleteMigrationTable = false;
+
+    public function mount()
+    {
+        $this->logToTerminal('Sistem GUI Generator siap digunakan.');
+    }
+
+    private function logToTerminal(string $message): void
+    {
+        $timestamp = '[' . now()->format('Y-m-d H:i:s') . ']';
+
+        // Jika terminal masih kosong, langsung isi teksnya. Jika sudah ada, tambahkan ke baris baru (append)
+        if (empty($this->terminalOutput) || $this->terminalOutput === 'Belum ada perintah yang dieksekusi.') {
+            $this->terminalOutput = "{$timestamp} {$message}";
+        } else {
+            $this->terminalOutput .= "\n{$timestamp} {$message}";
+        }
+    }
 
     // Log Output Terminal Universal
     public ?string $terminalOutput = 'Belum ada perintah yang dieksekusi.';
@@ -143,6 +160,20 @@ class ArtisanConsole extends Page implements HasForms
                                     ]),
                                 View::make('filament.components.btn-delete-tools'),
                             ]),
+
+                        // --- 5. LOG ---
+                        Tabs\Tab::make('Logs')
+                            ->icon('heroicon-m-archive-box')
+                            ->schema([
+                                Textarea::make('terminalOutput')
+                                    ->label('Log')
+                                    ->placeholder('Log Content...')
+                                    ->rows(15)
+                                    ->extraInputAttributes([
+                                        'class' => 'font-mono text-xs bg-gray-950 text-emerald-400 border-gray-800 dark:bg-black dark:border-gray-900 focus:ring-0 leading-relaxed min-h-[350px] resize-y resize-none'
+                                    ])
+                                // View::make('filament.components.btn-delete-tools'),
+                            ]),
                     ]),
             ]);
     }
@@ -166,11 +197,17 @@ class ArtisanConsole extends Page implements HasForms
                 $logResult .= "\n\n=========================================\nOTOMATIS MENJALANKAN: php artisan migrate\n=========================================\n\n" . Artisan::output();
             }
 
-            $this->terminalOutput = $logResult;
+            $cleanedLines = collect(explode("\n", $logResult))
+                ->map(fn($line) => trim($line))
+                ->filter(fn($line) => !empty($line))
+                ->implode("\n");
+            $formattedLog = "Artisan Output:\n" . $cleanedLines . "\n";
+            $this->logToTerminal($formattedLog);
+
             Notification::make()->title('Proses Generator Sukses!')->success()->send();
             $this->reset(['modelName', 'migration', 'controller', 'seeder', 'factory', 'resource']);
         } catch (\Exception $e) {
-            $this->terminalOutput = "Gagal: " . $e->getMessage();
+            $this->logToTerminal("Gagal: " . $e->getMessage());
             Notification::make()->title('Gagal memproses data')->danger()->send();
         }
     }
@@ -183,11 +220,18 @@ class ArtisanConsole extends Page implements HasForms
 
         try {
             Artisan::call($command);
-            $this->terminalOutput = "Berhasil menjalankan: php artisan " . $command . "\n\nLog Terminal:\n" . Artisan::output();
+            $logResult = "Berhasil menjalankan: php artisan " . $command . "\n\nLog Terminal:\n" . Artisan::output();
+            $cleanedLines = collect(explode("\n", $logResult))
+                ->map(fn($line) => trim($line))
+                ->filter(fn($line) => !empty($line))
+                ->implode("\n");
+            $formattedLog = "Artisan Output:\n" . $cleanedLines . "\n";
+            $this->logToTerminal($formattedLog);
+
             Notification::make()->title('File Migration Sukses Dibuat!')->success()->send();
             $this->reset(['migrationName']);
         } catch (\Exception $e) {
-            $this->terminalOutput = "Gagal: " . $e->getMessage();
+            $this->logToTerminal("Gagal: " . $e->getMessage());
             Notification::make()->title('Gagal membuat migration')->danger()->send();
         }
     }
@@ -203,11 +247,17 @@ class ArtisanConsole extends Page implements HasForms
 
         try {
             Artisan::call($command);
-            $this->terminalOutput = "Berhasil menjalankan: php artisan " . $command . "\n\nLog Terminal:\n" . (Artisan::output() ?: "Berhasil! File baru telah dibuat.");
+            $logResult = "Berhasil menjalankan: php artisan " . $command . "\n\nLog Terminal:\n" . (Artisan::output() ?: "Berhasil! File baru telah dibuat.");
+            $cleanedLines = collect(explode("\n", $logResult))
+                ->map(fn($line) => trim($line))
+                ->filter(fn($line) => !empty($line))
+                ->implode("\n");
+            $formattedLog = "Artisan Output:\n" . $cleanedLines . "\n";
+            $this->logToTerminal($formattedLog);
             Notification::make()->title('Proses Generator Sukses!')->success()->send();
             $this->reset(['resourceModelName', 'generateSoftDeletes', 'generateViewPage', 'generateSimplePage']);
         } catch (\Exception $e) {
-            $this->terminalOutput = "Gagal: " . $e->getMessage();
+            $this->logToTerminal("Gagal: " . $e->getMessage());
             Notification::make()->title('Gagal menjalankan perintah')->danger()->send();
         }
     }
@@ -221,7 +271,7 @@ class ArtisanConsole extends Page implements HasForms
         $singularTarget = str($target)->singular()->studly()->toString();
         $pluralTarget = str($target)->plural()->studly()->toString();
 
-        $log = "Memulai proses pembersihan untuk target: {$singularTarget}\n=========================================\n\n";
+        $this->logToTerminal("Memulai proses pembersihan untuk target: {$singularTarget}=========================================");
 
         // 1. Drop Tabel Database
         if ($this->deleteMigrationTable) {
@@ -229,9 +279,9 @@ class ArtisanConsole extends Page implements HasForms
             try {
                 \Illuminate\Support\Facades\DB::statement("DROP TABLE IF EXISTS {$tableName}");
                 \Illuminate\Support\Facades\DB::table('migrations')->where('migration', 'like', "%_create_{$tableName}_table")->delete();
-                $log .= "[DATABASE] Sukses melakukan DROP TABLE '{$tableName}'.\n";
+                $this->logToTerminal("[DATABASE] Sukses melakukan DROP TABLE '{$tableName}'");
             } catch (\Exception $e) {
-                $log .= "[DATABASE ERROR] " . $e->getMessage() . "\n";
+                $this->logToTerminal("[DATABASE ERROR] " . $e->getMessage());
             }
         }
 
@@ -253,40 +303,52 @@ class ArtisanConsole extends Page implements HasForms
             foreach ($filesToDelete as $file) {
                 if (File::exists($file)) {
                     File::delete($file);
-                    $log .= "[DELETED] File dihapus: " . basename($file) . "\n";
+                    $this->logToTerminal("[DELETED] File dihapus: " . basename($file));
                 }
             }
         }
 
-        // 3. Hapus File & Folder Resource Filament (Mendukung Deteksi Folder Jamak/Tunggal)
+        // 3. Hapus File & Folder Resource Filament (Mendukung Deteksi Folder Jamak/Tunggal Lengkap)
         if ($this->deleteFilamentResourceFiles) {
-            // Daftar kemungkinan folder & file yang dibentuk oleh generator Filament
-            $possibleTargets = [
-                [
-                    'file' => app_path("Filament/Resources/{$singularTarget}Resource.php"),
-                    'folder' => app_path("Filament/Resources/{$singularTarget}Resource")
-                ],
-                [
-                    'file' => app_path("Filament/Resources/{$pluralTarget}Resource.php"),
-                    'folder' => app_path("Filament/Resources/{$pluralTarget}Resource")
-                ]
+            // Daftar file utama resource yang mungkin terbentuk
+            $possibleFiles = [
+                app_path("Filament/Resources/{$singularTarget}Resource.php"),
+                app_path("Filament/Resources/{$pluralTarget}Resource.php"),
             ];
 
-            foreach ($possibleTargets as $item) {
-                if (File::exists($item['file'])) {
-                    File::delete($item['file']);
-                    $log .= "[DELETED] File utama resource dihapus: " . basename($item['file']) . "\n";
-                }
+            // Daftar seluruh kemungkinan variasi nama folder yang dibuat oleh Filament / Generator
+            $possibleFolders = [
+                app_path("Filament/Resources/{$singularTarget}Resource"), // Contoh: Equipment3Resource
+                app_path("Filament/Resources/{$pluralTarget}Resource"),  // Contoh: Equipment3sResource
+                app_path("Filament/Resources/{$pluralTarget}Resources"), // Contoh: Equipment3sResources
+                app_path("Filament/Resources/{$pluralTarget}"),           // Contoh Kasus Anda: Equipment3s
+                app_path("Filament/Resources/{$singularTarget}"),         // Contoh: Equipment3
+            ];
 
-                if (File::isDirectory($item['folder'])) {
-                    File::deleteDirectory($item['folder']);
-                    $log .= "[DELETED] Folder direktori resource sukses dihancurkan: " . basename($item['folder']) . "\n";
+            // Eksekusi Penghapusan File Utama
+            foreach ($possibleFiles as $file) {
+                if (File::exists($file)) {
+                    File::delete($file);
+                    $this->logToTerminal("[DELETED] File utama resource dihapus: " . basename($file));
+                }
+            }
+
+            // Eksekusi Penghapusan Folder Halaman (Pages)
+            foreach ($possibleFolders as $folder) {
+                if (File::isDirectory($folder)) {
+                    File::deleteDirectory($folder);
+                    $this->logToTerminal("[DELETED] Folder direktori resource sukses dihancurkan: " . basename($folder));
                 }
             }
         }
 
-        $this->terminalOutput = $log . "\n[SELESAI] Semua komponen sukses dibersihkan dari direktori.";
+        $this->logToTerminal("[SELESAI] Semua komponen sukses dibersihkan dari direktori.");
+
+        $this->dispatch('close-modal', id: 'delete-components-modal');
+
         Notification::make()->title('Komponen Berhasil Dihapus!')->warning()->send();
+
+        // Perbaikan: Reset properti secara aman tanpa menghilangkan state penting jika diperlukan
         $this->reset(['deleteTargetName', 'deleteMigrationTable']);
 
         // Membersihkan cache manifest agar menu sidebar langsung hilang seketika
