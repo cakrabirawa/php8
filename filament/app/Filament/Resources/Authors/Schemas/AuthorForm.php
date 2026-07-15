@@ -17,7 +17,7 @@ class AuthorForm
         return $schema
             ->components([
                 TextInput::make('name')->required(),
-                DatePicker::make('dob')->required(),
+                DatePicker::make('dob')->label('Tanggal Lahir')->required(),
                 TextInput::make('email')->required()->email(),
                 Repeater::make('phones')
                     ->relationship() // Membaca otomatis relasi phones() di model Author

@@ -81,8 +81,24 @@ class AdminPanelProvider extends PanelProvider
                 'danger' => Color::Rose,
             ])
             ->plugins([
-                // LightSwitchPlugin::make(),
-                FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make()
+                    ->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3,
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ])
+                    // 🔔 TAMBAHKAN BARIS INI UNTUK MEMAKSA PINDAH GRUP
+                    ->navigationGroup('Admin'),
             ])
             ->navigationItems([
                 NavigationItem::make('Logout')

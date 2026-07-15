@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Menambahkan kolom ke tabel products
         Schema::table('products', function (Blueprint $table) {
             $table->foreignId('created_by')->nullable()->after('updated_at')->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->after('created_by')->constrained('users')->nullOnDelete();
         });
 
-        // Menambahkan kolom ke tabel categories
         Schema::table('categories', function (Blueprint $table) {
             $table->foreignId('created_by')->nullable()->after('updated_at')->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->after('created_by')->constrained('users')->nullOnDelete();

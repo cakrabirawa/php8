@@ -27,7 +27,8 @@ class AuthorsTable
                     ->searchable(),
                 TextColumn::make('dob')
                     ->date('d-m-Y')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Tanggal Lahir'),
                 TextColumn::make('email')
                     ->searchable(),
                 TextColumn::make('created_at')

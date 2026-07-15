@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -31,12 +32,15 @@ class User extends Authenticatable
     }
     public function getFilamentAvatarUrl(): ?string
     {
-        if ($this->avatar_url) {
-            // Mengambil hanya nama file dari path yang tersimpan (misal: 'avatars/namafile.jpg' -> 'namafile.jpg')
-            $filename = basename($this->avatar_url);
-            // Membuat URL menggunakan route kustom 'custom.avatar'
-            return route('custom.avatar', ['filename' => $filename]);
-        }
-        return null;
+        // if ($this->avatar_url) {
+        //     // Mengambil hanya nama file dari path yang tersimpan (misal: 'avatars/namafile.jpg' -> 'namafile.jpg')
+        //     $filename = basename($this->avatar_url);
+        //     // Membuat URL menggunakan route kustom 'custom.avatar'
+        //     return route('custom.avatar', ['filename' => $filename]);
+        // }
+        // return null;
+        return $this->avatar_url
+            ? Storage::url($this->avatar_url)
+            : null;
     }
 }
