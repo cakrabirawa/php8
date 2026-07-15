@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
+use App\Filament\Exports\CustomCsvExport;
 use App\Models\Category;
 use App\Models\Product;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
@@ -112,6 +115,9 @@ class ProductsTable
             ])
             ->defaultSort('created_at', 'desc')
             ->striped()
-        ;
+            ->toolbarActions([
+                CustomCsvExport::make(), // Memanggil tombol Ekspor CSV baru kita
+                DeleteBulkAction::make(), // Tombol hapus massal bawaan Filament
+            ]);
     }
 }

@@ -35,7 +35,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Override;
-use Spatie\Permission\Models\Role;
+use UnitEnum;
 
 class RoleResource extends Resource
 {
@@ -45,6 +45,8 @@ class RoleResource extends Resource
     use Essentials\HasLabels;
     use Essentials\HasNavigation;
     use HasShieldFormComponents;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Admin';
 
     protected static ?string $recordTitleAttribute = 'name';
 

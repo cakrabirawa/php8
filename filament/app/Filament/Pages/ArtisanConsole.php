@@ -27,7 +27,7 @@ class ArtisanConsole extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cpu-chip';
-    protected static string | \UnitEnum | null $navigationGroup = 'Settings';
+    protected static string | \UnitEnum | null $navigationGroup = 'Admin';
     protected static ?string $navigationLabel = 'Artisan Generator';
     protected static ?string $title = 'Artisan GUI Generator';
     protected string $view = 'filament.pages.artisan-console';
