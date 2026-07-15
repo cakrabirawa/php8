@@ -25,6 +25,7 @@ class CategoryResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBackspace;
 
     protected static ?string $recordTitleAttribute = 'Category';
+    protected static ?string $modelLabel = 'Category';
 
     protected static string|UnitEnum|null $navigationGroup = 'Master Data';
 

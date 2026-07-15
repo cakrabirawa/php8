@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Authors\Tables;
 
+use App\Filament\Exports\CustomCsvExport;
 use App\Models\Author;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -79,6 +80,7 @@ class AuthorsTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    CustomCsvExport::make(),
                 ]),
             ])
         ;

@@ -25,6 +25,7 @@ class GroupUserResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCheckBadge;
 
     protected static ?string $recordTitleAttribute = 'Group User';
+    protected static ?string $modelLabel = 'Group User';
 
     protected static string|UnitEnum|null $navigationGroup = 'Admin';
 

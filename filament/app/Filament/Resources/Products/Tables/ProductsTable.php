@@ -60,6 +60,8 @@ class ProductsTable
                     })
                     ->html()
                     ->wrap(),
+                TextColumn::make('released_date')
+                    ->date('d-m-Y'),
                 TextColumn::make('creator.name')
                     ->label('Dibuat Oleh')
                     ->placeholder('Sistem / Anonim')

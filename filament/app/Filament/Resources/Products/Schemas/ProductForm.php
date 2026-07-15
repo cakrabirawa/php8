@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Filament\Resources\Categories\Tables\CategoriesTable;
 use App\Models\Category;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -12,9 +13,12 @@ use Filament\Schemas\Schema;
 use Filament\Support\RawJs;
 use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\ModalTableSelect;
 use Filament\Forms\Components\Radio;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Support\HtmlString;
 
 class ProductForm
 {
@@ -76,6 +80,13 @@ class ProductForm
                                 $set('category_id', $data['selected_id']);
                             })
                     ),
+                ModalTableSelect::make('category_id')
+                    ->relationship('category', 'name')
+                    ->label('Kategori')
+                    ->tableConfiguration(CategoriesTable::class),
+                DatePicker::make('released_date')
+                    ->label('Tanggal Rilis')
+                    ->required(),
                 RichEditor::make('description')
                     ->columnSpanFull()
                     ->maxLength(255),

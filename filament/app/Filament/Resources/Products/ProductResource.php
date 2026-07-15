@@ -25,6 +25,7 @@ class ProductResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
 
     protected static ?string $recordTitleAttribute = 'Product';
+    protected static ?string $modelLabel = 'Product';
 
     protected static string|UnitEnum|null $navigationGroup = 'Master Data';
 

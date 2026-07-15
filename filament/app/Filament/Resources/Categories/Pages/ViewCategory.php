@@ -17,10 +17,10 @@ class ViewCategory extends ViewRecord
         ];
     }
 
-    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
-    {
-        return "View Category: "
-            . $this->getRecord()->name;
-        // . '(' . $this->getRecord()->id . ')';
-    }
+    // public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    // {
+    //     return "View Category: "
+    //         . $this->getRecord()->name;
+    //     // . '(' . $this->getRecord()->id . ')';
+    // }
 }

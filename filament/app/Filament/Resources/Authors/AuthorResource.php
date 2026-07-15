@@ -25,6 +25,7 @@ class AuthorResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'Author';
+    protected static ?string $modelLabel = 'Author';
 
     protected static string|UnitEnum|null $navigationGroup = 'Master Data';
 

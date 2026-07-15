@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\GroupUsers\Tables;
 
+use App\Filament\Exports\CustomCsvExport;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -79,6 +80,7 @@ class GroupUsersTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    CustomCsvExport::make(),
                 ]),
             ])
             ->striped()

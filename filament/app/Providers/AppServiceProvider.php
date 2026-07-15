@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Carbon;
@@ -36,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
                     if ($date->format('Y-m-d') === $today->format('Y-m-d')) {
                         return $date->diffForHumans();
                     }
-                    return $date->translatedFormat('d F Y, H:i');
+                    return $date->translatedFormat('d-m-Y H:i:s');
                 });
         });
 
@@ -61,6 +62,12 @@ class AppServiceProvider extends ServiceProvider
             }
 
             return Str::ucfirst(Str::headline(Str::plural(class_basename($modelClass))));
+        });
+
+        DatePicker::configureUsing(function (DatePicker $component) {
+            $component
+                ->displayFormat('d/m/Y')
+                ->format('Y-m-d');
         });
     }
 }
