@@ -3,23 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Stimulsoft\Laravel\StiHandler;
-use Stimulsoft\StiResult;
 
 class HandlerController extends Controller
 {
     public function process(Request $request)
     {
-        // Inisialisasi handler otomatis dari Stimulsoft
-        $handler = new StiHandler();
+        // Inisialisasi Handler bawaan paket Stimulsoft
+        $handler = new \Stimulsoft\StiHandler();
 
-        // Event saat komponen meminta data atau memuat file laporan (.mrt)
-        $handler->onRegisterData = function ($event) {
-            // Anda bisa menyuntikkan koneksi database Laravel atau JSON data di sini
-            return StiResult::success();
+        // Menggunakan kurung kurawal string untuk mengunci properti dinamis tanpa memicu error IDE
+        $handler->{'onRegisterData'} = function ($event) {
+            // Tempat menyuntikkan data dinamis dari Database Laravel 13 Anda
+            // Contoh: $event->data->registerData('KoneksiKu', 'Produk', \App\Models\Product::all());
+
+            return \Stimulsoft\StiResult::getSuccess();
         };
 
-        // Memproses permintaan Ajax secara real-time
         return $handler->process();
     }
 }

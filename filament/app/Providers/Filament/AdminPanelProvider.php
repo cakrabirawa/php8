@@ -71,6 +71,11 @@ class AdminPanelProvider extends PanelProvider
             // ->assets([
             //     Js::make('alpine-mask', 'https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js'),
             // ])
+            ->assets([
+                Js::make('stimulsoft-engine', asset('stimulsoft/stimulsoft.reports.engine.pack.js')),
+                Js::make('stimulsoft-viewer', asset('stimulsoft/stimulsoft.viewer.pack.js')),
+                Js::make('stimulsoft-export', asset('stimulsoft/stimulsoft.reports.export.pack.js')),
+            ])
             ->font('Poppins')
             ->spa()
             ->colors([
