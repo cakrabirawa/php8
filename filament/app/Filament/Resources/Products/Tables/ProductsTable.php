@@ -32,7 +32,8 @@ class ProductsTable
                     ->searchable(),
                 TextColumn::make('description')
                     ->searchable()
-                    ->html()
+                    // ->html()
+                    ->formatStateUsing(fn(string $state): string => strip_tags($state))
                     ->limit(50)
                     ->wrap(),
                 TextColumn::make('price')
@@ -118,8 +119,8 @@ class ProductsTable
             ->defaultSort('created_at', 'desc')
             ->striped()
             ->toolbarActions([
-                CustomCsvExport::make(), // Memanggil tombol Ekspor CSV baru kita
-                DeleteBulkAction::make(), // Tombol hapus massal bawaan Filament
+                CustomCsvExport::makeCSV(),
+                DeleteBulkAction::make(),
             ]);
     }
 }

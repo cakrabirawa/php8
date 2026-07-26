@@ -79,7 +79,7 @@ class CustomersTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    CustomCsvExport::make(),
+                    CustomCsvExport::makeCSV(),
                 ]),
             ])
         ;

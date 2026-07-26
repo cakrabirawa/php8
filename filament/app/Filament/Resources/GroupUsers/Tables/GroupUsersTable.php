@@ -80,7 +80,7 @@ class GroupUsersTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    CustomCsvExport::make(),
+                    CustomCsvExport::makeCSV(),
                 ]),
             ])
             ->striped()

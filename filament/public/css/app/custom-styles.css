@@ -1,0 +1,20 @@
+/* Menargetkan komponen sidebar utama, pembungkus konten, dan navigasinya */
+.fi-sidebar,
+.fi-sidebar-content,
+.fi-sidebar-nav,
+.fi-sidebar nav {
+    scrollbar-width: none !important;
+    /* Untuk Firefox */
+    -ms-overflow-style: none !important;
+    /* Untuk IE & Edge */
+}
+
+/* Menyembunyikan scrollbar di browser berbasis WebKit (Chrome, Safari, Edge Baru, Opera) */
+.fi-sidebar::-webkit-scrollbar,
+.fi-sidebar-content::-webkit-scrollbar,
+.fi-sidebar-nav::-webkit-scrollbar,
+.fi-sidebar nav::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
