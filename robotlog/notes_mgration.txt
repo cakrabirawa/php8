@@ -18,3 +18,73 @@ $user->assignRole('super_admin');
 php artisan permission:cache-reset
 php artisan filament:clear-cached-components
 ok
+
+
+
+# Daftar Perintah CLI Artisan - Laravel Filament
+| `php artisan filament:assets` | Menyalin (*publish*) semua file aset bawaan dan kustom dari paket Filament ke folder `public`. |
+| `php artisan filament:clear-cached-assets` | Menghapus tembolok (*cache*) aset Filament yang tersimpan di server/browser. |
+| `php artisan filament:cache-components` | Membuat *cache* untuk seluruh komponen *form* dan *table* guna meningkatkan performa pemuatan halaman. |
+| `php artisan filament:clear-cached-components` | Menghapus kembali *cache* komponen *form* dan *table* yang sudah dibuat. |
+
+---
+
+## 2. Perintah Pembuatan Komponen (Generators)
+
+Gunakan perintah di bawah ini untuk mempercepat pembuatan struktur kode baru (*Scaffolding*) di dalam proyek Filament Anda.
+
+### 🏢 Panel & Halaman Utama
+* **`php artisan make:filament-panel`**
+  Membuat panel admin baru secara utuh (misal: membuat panel terpisah untuk `CustomerPanel` atau `VendorPanel`).
+* **`php artisan make:filament-page`**
+  Membuat halaman kustom (*custom blank page*) kosong yang berdiri sendiri di dalam panel.
+* **`php artisan make:filament-cluster`**
+  Membuat *cluster* baru untuk mengelompokkan beberapa *resource* dan halaman ke dalam satu grup navigasi.
+
+### 📦 Manajemen Data (CRUD & Widgets)
+* **`php artisan make:filament-resource`**
+  Membuat CRUD lengkap otomatis (Resource, Pages List, Create, Edit, View) berdasarkan model database yang dipilih.
+  * *Tip Tambahan:* Gunakan bendera `--generate` untuk membaca skema tabel database dan membuat kolom input otomatis:
+    ```bash
+    php artisan make:filament-resource NamaModel --generate
+    ```
+* **`php artisan make:filament-widget`**
+  Membuat komponen *dashboard* baru seperti grafik (*chart widget*), ringkasan angka (*stats widget*), atau tabel ringkas.
+* **`php artisan make:filament-relation-manager`**
+  Membuat pengelola relasi antar-tabel database (misal: menampilkan daftar komentar di bawah halaman edit artikel).
+
+### 🛠️ Kustomisasi Tingkat Lanjut
+* **`php artisan make:filament-theme`**
+  Membuat berkas tema Tailwind CSS kustom baru untuk merombak total skema warna dan gaya visual Filament.
+* **`php artisan make:filament-plugin`**
+  Membuat struktur dasar (*scaffolding*) paket *plugin* kustom jika Anda ingin mendistribusikan fitur buatan sendiri.
+
+---
+
+## 3. Administrasi, Pengguna & Pembaruan
+
+Perintah inti untuk mengelola operasional dasar dan akun admin panel.
+
+| Perintah | Deskripsi |
+| :--- | :--- |
+| `php artisan make:filament-user` | Membuat akun pengguna (*user*) admin baru secara interaktif langsung melalui terminal. |
+| `php artisan filament:upgrade` | Menjalankan proses migrasi internal, pembersihan *cache*, dan sinkronisasi ulang aset. Wajib dijalankan setelah Anda melakukan perintah `composer update`. |
+
+---
+
+### 💡 Tips Alur Kerja
+Setiap kali Anda selesai memperbarui baris kode di berkas konfigurasi panel atau menambahkan file CSS baru, biasakan untuk menjalankan perintah kombinasi ini:
+```bash
+php artisan filament:upgrade && php artisan filament:assets
+```
+
+--Install api nya defaultblm di install
+php artisan install:api
+--Buat contoller API
+php artisan make:controller Api/MonitoringController
+--Buat Command untuk generate key token api
+php artisan make:command GenerateApiKey
+--Generate Token
+php artisan api:generate-key nama_user
+--Lihat path route api
+php artisan route:list --path=api

@@ -88,7 +88,8 @@ class CategoriesTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    CustomCsvExport::make(),
+                    CustomCsvExport::makeCSV(),
+                    CustomCsvExport::makeJson(),
                 ]),
             ])
         ;

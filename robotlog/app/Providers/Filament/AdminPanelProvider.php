@@ -36,6 +36,7 @@ use Filament\Navigation\NavigationItem;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Support\Assets\Css;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Carbon;
 
@@ -75,6 +76,8 @@ class AdminPanelProvider extends PanelProvider
                 Js::make('stimulsoft-engine', asset('stimulsoft/stimulsoft.reports.engine.pack.js')),
                 Js::make('stimulsoft-viewer', asset('stimulsoft/stimulsoft.viewer.pack.js')),
                 Js::make('stimulsoft-export', asset('stimulsoft/stimulsoft.reports.export.pack.js')),
+                Css::make('custom-styles', resource_path('css/custom-filament.css')),
+
             ])
             ->font('Poppins')
             ->spa()
@@ -102,18 +105,16 @@ class AdminPanelProvider extends PanelProvider
                         'default' => 1,
                         'sm' => 2,
                     ])
-                    // 🔔 TAMBAHKAN BARIS INI UNTUK MEMAKSA PINDAH GRUP
                     ->navigationGroup('Admin'),
             ])
             ->navigationItems([
                 NavigationItem::make('Logout')
-                    ->label('Keluar Sistem') // Teks yang muncul di sidebar
-                    ->url(fn(): string => "javascript:document.getElementById('logout-form').submit();") // Rute logout otomatis Filament
-                    ->icon('heroicon-o-arrow-left-on-rectangle') // Ikon pintu keluar
+                    ->label('Keluar Sistem')
+                    ->url(fn(): string => "javascript:document.getElementById('logout-form').submit();")
+                    ->icon('heroicon-o-arrow-left-on-rectangle')
                     ->sort(1000)
-                    // 2. Berikan nama grup khusus agar posisinya terpisah di paling bawah sidebar
                     ->group('Sistem')
-                    ->visible(fn(): bool => auth()->check()), // Hanya muncul jika user sudah login
+                    ->visible(fn(): bool => auth()->check()),
             ])
             ->renderHook(
                 'panels::body.end',
