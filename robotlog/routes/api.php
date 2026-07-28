@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\JobLogController;
 use App\Http\Controllers\Api\MonitoringController;
 use App\Http\Controllers\Api\RobotLogController;
 use Illuminate\Http\Request;
@@ -11,4 +12,5 @@ Route::get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/monitoring', [MonitoringController::class, 'index']);
     Route::post('/robot-logs', [RobotLogController::class, 'store']);
+    Route::post('/job-logs', [JobLogController::class, 'store']);
 });
