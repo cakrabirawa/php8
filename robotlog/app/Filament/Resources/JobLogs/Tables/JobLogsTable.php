@@ -18,6 +18,9 @@ class JobLogsTable
     {
         return $table
             ->columns([
+                TextColumn::make('job_id')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('start_date')
                     ->dateTime()
                     ->sortable(),
@@ -27,9 +30,6 @@ class JobLogsTable
                 TextColumn::make('duration')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('job_id')
-                    ->sortable()
-                    ->searchable(),
                 TextColumn::make('timestamp_extracted')
                     ->dateTime()
                     ->sortable()
@@ -54,6 +54,7 @@ class JobLogsTable
             ->filters([
                 //
             ])
+            ->defaultSort('timestamp_extracted', 'desc')
             ->recordActions([
                 ViewAction::make(),
             ])
