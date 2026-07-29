@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\RobotLogs\Tables;
 
+use App\Filament\Resources\RobotLogs\RobotLogResource;
+use App\Models\RobotLog;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -82,8 +84,8 @@ class RobotLogsTable
                     ->placeholder('Semua Status'),
 
             ])
-            ->recordUrl(null)
-            ->recordAction(null)
-        ;
+            ->recordUrl(
+                fn(RobotLog $record): string => RobotLogResource::getUrl('view', ['record' => $record]),
+            );;
     }
 }
