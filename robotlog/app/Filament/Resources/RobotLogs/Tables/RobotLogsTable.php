@@ -86,6 +86,8 @@ class RobotLogsTable
             ])
             ->recordUrl(
                 fn(RobotLog $record): string => RobotLogResource::getUrl('view', ['record' => $record]),
-            );;
+            )
+            ->striped()
+        ;
     }
 }

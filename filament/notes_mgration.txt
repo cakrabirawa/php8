@@ -77,3 +77,14 @@ Setiap kali Anda selesai memperbarui baris kode di berkas konfigurasi panel atau
 ```bash
 php artisan filament:upgrade && php artisan filament:assets
 ```
+
+--Install api nya defaultblm di install
+php artisan install:api
+--Buat contoller API
+php artisan make:controller Api/MonitoringController
+--Buat Command untuk generate key token api
+php artisan make:command GenerateApiKey
+--Generate Token
+php artisan api:generate-key nama_user
+--Lihat path route api
+php artisan route:list --path=api

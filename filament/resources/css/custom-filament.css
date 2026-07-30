@@ -18,3 +18,20 @@
     width: 0 !important;
     height: 0 !important;
 }
+
+/* Mengunci warna background halaman utama agar identik dengan WhatsApp */
+.fi-layout .dark body,
+.fi-main.dark,
+html.dark {
+    background-color: #111b21 !important;
+}
+
+/* Mengunci warna card, sidebar, dan header admin area */
+.dark .fi-sidebar,
+.dark .fi-topbar,
+.dark .fi-section,
+.dark .fi-ta-ctn {
+    background-color: #121b22 !important;
+    /* Latar panel sekunder WA */
+    border-color: #222e35 !important;
+}

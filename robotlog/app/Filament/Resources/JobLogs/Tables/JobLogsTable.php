@@ -65,6 +65,7 @@ class JobLogsTable
             // ])
             ->recordUrl(
                 fn(JobLog $record): string => JobLogResource::getUrl('view', ['record' => $record]),
-            );
+            )
+            ->striped();
     }
 }

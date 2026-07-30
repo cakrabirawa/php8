@@ -23,9 +23,9 @@ class RobotLogResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Robot Pending Invoice';
+    protected static ?string $navigationLabel = 'Job Raw Data';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Logs';
+    protected static string|UnitEnum|null $navigationGroup = 'Robot Logs';
 
     public static function form(Schema $schema): Schema
     {
@@ -57,5 +57,10 @@ class RobotLogResource extends Resource
             'view' => ViewRobotLog::route('/{record}'),
             'edit' => EditRobotLog::route('/{record}/edit'),
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }
