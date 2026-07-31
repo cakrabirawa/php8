@@ -44,6 +44,9 @@ class RobotLogsTable
                                 ]);
                             })
                     ),
+                TextColumn::make('batch_job_id')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('invoice_no')
                     ->sortable()
                     ->searchable(),
@@ -51,9 +54,6 @@ class RobotLogsTable
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('automatic_transaction')
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('batch_job_id')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('caption')
@@ -87,7 +87,7 @@ class RobotLogsTable
             ->recordUrl(
                 fn(RobotLog $record): string => RobotLogResource::getUrl('view', ['record' => $record]),
             )
-            ->striped()
+            //->striped()
         ;
     }
 }

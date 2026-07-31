@@ -24,8 +24,6 @@ use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Navigation\NavigationItem;
 use Filament\Support\Assets\Css;
 use Filament\View\PanelsRenderHook;
-use Illuminate\Support\Facades\Blade;
-use Octopy\Filament\Palette\PaletteSwitcherPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -131,14 +129,14 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::USER_MENU_BEFORE,
                 fn(): string => view('filament.components.custom-user-menu')->render(),
             )
-            ->renderHook(
-                PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
-                fn(): string => Blade::render('
-                <div class="text-sm font-medium text-gray-500 me-3">
-                    Halo, Selamat Datang!
-                </div>
-            '),
-            )
+            // ->renderHook(
+            //     PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
+            //     fn(): string => Blade::render('
+            //     <div class="text-sm font-medium text-gray-500 me-3">
+            //         Halo, Selamat Datang!
+            //     </div>
+            // '),
+            // )
             ->maxContentWidth('full')
         ;
     }

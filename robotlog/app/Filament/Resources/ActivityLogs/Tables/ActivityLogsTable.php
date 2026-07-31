@@ -31,7 +31,7 @@ class ActivityLogsTable
                 ViewAction::make(),
                 // EditAction::make(),
             ])
-            ->striped()
+            //->striped()
             ->defaultSort(function (Builder $query): Builder {
                 return $query
                     ->orderBy('count', 'desc')

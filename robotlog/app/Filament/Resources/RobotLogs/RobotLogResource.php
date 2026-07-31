@@ -21,7 +21,7 @@ class RobotLogResource extends Resource
 {
     protected static ?string $model = RobotLog::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAtSymbol;
 
     protected static ?string $navigationLabel = 'Job Raw Data';
 

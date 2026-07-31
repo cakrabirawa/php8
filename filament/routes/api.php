@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ActivityLogController;
+use App\Http\Controllers\Api\InvoiceLogController;
 use App\Http\Controllers\Api\JobLogController;
 use App\Http\Controllers\Api\MonitoringController;
 use App\Http\Controllers\Api\RobotLogController;
@@ -16,4 +17,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/job-logs', [JobLogController::class, 'store']);
     Route::get('/activity-logs', [ActivityLogController::class, 'index']);
     Route::post('/activity-logs', [ActivityLogController::class, 'store']);
+    Route::post('/invoice-logs', [InvoiceLogController::class, 'store']);
 });

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\InvoiceLogController;
 use App\Http\Controllers\Api\JobLogController;
 use App\Http\Controllers\Api\MonitoringController;
+use App\Http\Controllers\Api\RobotController;
 use App\Http\Controllers\Api\RobotLogController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -18,4 +19,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/activity-logs', [ActivityLogController::class, 'index']);
     Route::post('/activity-logs', [ActivityLogController::class, 'store']);
     Route::post('/invoice-logs', [InvoiceLogController::class, 'store']);
+    Route::post('/robots/activity', [RobotController::class, 'store']);
 });

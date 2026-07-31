@@ -19,7 +19,7 @@ return new class extends Migration
             $table->dateTime('timestamp');
             $table->integer('count')->default(0);
             $table->string('entity');
-            $table->json('detail')->nullable(); // Mendukung array/json kosong []
+            // $table->json('detail')->nullable(); // Mendukung array/json kosong []
             $table->timestamps();
         });
     }

@@ -24,8 +24,8 @@ use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Navigation\NavigationItem;
 use Filament\Support\Assets\Css;
 use Filament\View\PanelsRenderHook;
-use Illuminate\Support\Facades\Blade;
-use Octopy\Filament\Palette\PaletteSwitcherPlugin;
+use Illuminate\Support\HtmlString;
+use WatheqAlshowaiter\FilamentStickyTableHeader\StickyTableHeaderPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -100,6 +100,8 @@ class AdminPanelProvider extends PanelProvider
                 'danger' => Color::Rose,
             ])
             ->plugins([
+                StickyTableHeaderPlugin::make()
+                    ->shouldScrollToTopOnPageChanged(enabled: true, behavior: 'smooth'),
                 FilamentShieldPlugin::make()
                     ->gridColumns([
                         'default' => 1,
@@ -132,13 +134,37 @@ class AdminPanelProvider extends PanelProvider
                 fn(): string => view('filament.components.custom-user-menu')->render(),
             )
             ->renderHook(
-                PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
-                fn(): string => Blade::render('
-                <div class="text-sm font-medium text-gray-500 me-3">
-                    Halo, Selamat Datang!
-                </div>
-            '),
+                'panels::head.end',
+                fn() => new HtmlString('
+                <style>
+                    /* 1. Paksa padding tbody (seluruh baris data) & thead (header) menjadi tipis */
+                    .fi-ta-table :is(th, td) {
+                        padding: 8px !important;
+                        height: auto !important;            /* Hilangkan batas tinggi minimal */
+                    }
+
+                    /* 2. Kecilkan ukuran font untuk seluruh isi tbody */
+                    .fi-ta-table tbody * {
+                        font-size: 0.825rem !important;     /* Sedikit lebih kecil dari text-sm */
+                        line-height: 1.25 !important;
+                    }
+
+                    /* 3. Menghilangkan ruang kosong (gap) berlebih di dalam baris */
+                    .fi-ta-text, .fi-ta-col-wrp {
+                        margin: 0 !important;
+                        padding: 6px !important;
+                    }
+                </style>
+            ')
             )
+            // ->renderHook(
+            //     PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
+            //     fn(): string => Blade::render('
+            //     <div class="text-sm font-medium text-gray-500 me-3">
+            //         Halo, Selamat Datang!
+            //     </div>
+            // '),
+            // )
             ->maxContentWidth('full')
         ;
     }

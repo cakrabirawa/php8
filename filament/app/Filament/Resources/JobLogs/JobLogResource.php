@@ -21,13 +21,13 @@ class JobLogResource extends Resource
 {
     protected static ?string $model = JobLog::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
     protected static ?string $recordTitleAttribute = 'Batch Job History';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Logs';
+    protected static string|UnitEnum|null $navigationGroup = 'Robot Logs';
 
-    protected static ?string $navigationLabel = 'Robot Job History';
+    protected static ?string $navigationLabel = 'Job Error Detail';
 
     public static function form(Schema $schema): Schema
     {
@@ -59,5 +59,10 @@ class JobLogResource extends Resource
             'view' => ViewJobLog::route('/{record}'),
             // 'edit' => EditJobLog::route('/{record}/edit'),
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }

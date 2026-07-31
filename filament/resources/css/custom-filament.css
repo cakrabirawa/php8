@@ -35,3 +35,25 @@ html.dark {
     /* Latar panel sekunder WA */
     border-color: #222e35 !important;
 }
+/* Targetkan elemen pembungkus di dalam cell header (th) */
+.fi-ta-header-cell-container {
+    padding-top: 0.4rem !important;
+    padding-bottom: 0.4rem !important;
+}
+
+/* Targetkan elemen pembungkus di dalam cell data (td) */
+.fi-ta-record-select-cell,
+.fi-ta-col-wrp {
+    padding-top: 0.4rem !important;
+    padding-bottom: 0.4rem !important;
+}
+
+/* Opsional: Jika ingin mengecilkan jarak ikon action di ujung kanan */
+.fi-ta-actions-cell {
+    padding-top: 0.4rem !important;
+    padding-bottom: 0.4rem !important;
+}
+.fi-ta-text-item-label,
+.fi-ta-cell {
+    user-select: text !important;
+}

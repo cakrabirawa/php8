@@ -23,9 +23,11 @@ class ActivityLogResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'Activity Log';
+    protected static ?string $recordTitleAttribute = 'Purchase Invoice Activity Log';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Logs';
+    protected static string|UnitEnum|null $navigationGroup = 'Robot Logs';
+
+    protected static ?string $navigationLabel = 'Job Count';
 
     public static function form(Schema $schema): Schema
     {
@@ -57,5 +59,10 @@ class ActivityLogResource extends Resource
             'view' => ViewActivityLog::route('/{record}'),
             'edit' => EditActivityLog::route('/{record}/edit'),
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }

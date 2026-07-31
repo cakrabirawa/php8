@@ -13,14 +13,14 @@ class ActivityLog extends Model
         'timestamp',
         'count',
         'entity',
-        'detail',
+        // 'detail',
     ];
 
     protected $casts = [
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'timestamp' => 'datetime',
-        'detail' => 'array', // Mengonversi otomatis json ke array PHP
+        // 'detail' => 'array', // Mengonversi otomatis json ke array PHP
         'count' => 'integer',
     ];
 }

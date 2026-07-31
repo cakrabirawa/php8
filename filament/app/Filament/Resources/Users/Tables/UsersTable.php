@@ -150,7 +150,7 @@ class UsersTable
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->striped()
+            //->striped()
         ;
     }
 }

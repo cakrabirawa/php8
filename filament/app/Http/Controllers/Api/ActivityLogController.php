@@ -26,12 +26,15 @@ class ActivityLogController extends Controller
             'data.timestamp' => 'required|date',
             'data.count' => 'required|integer',
             'data.entity' => 'required|string',
-            'data.detail' => 'nullable|array',
         ]);
 
-        // Mengambil data dari dalam key 'data' sesuai payload Anda
+        // Mengambil data dari dalam key 'data'
         $data = $validated['data'];
 
+        // Hapus semua baris data lama yang memiliki entity yang sama
+        ActivityLog::where('entity', $data['entity'])->delete();
+
+        // Insert data baru ke database
         $log = ActivityLog::create($data);
 
         return new ActivityLogResource($log);

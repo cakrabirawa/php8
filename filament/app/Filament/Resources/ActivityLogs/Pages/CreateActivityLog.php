@@ -8,4 +8,11 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateActivityLog extends CreateRecord
 {
     protected static string $resource = ActivityLogResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            // Kosongkan di sini untuk menghilangkan tombol "New Job Log"
+        ];
+    }
 }

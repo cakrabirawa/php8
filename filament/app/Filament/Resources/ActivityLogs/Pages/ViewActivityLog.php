@@ -13,7 +13,14 @@ class ViewActivityLog extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make(),
+            // EditAction::make(),
         ];
+    }
+
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return "View Activity Log Count: "
+            . $this->getRecord()->entity;
+        // . '(' . $this->getRecord()->id . ')';
     }
 }
