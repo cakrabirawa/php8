@@ -40,6 +40,10 @@ class AuthorsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
+            ])
             ->filters([])
             ->defaultSort('created_at', 'desc')
             ->striped()

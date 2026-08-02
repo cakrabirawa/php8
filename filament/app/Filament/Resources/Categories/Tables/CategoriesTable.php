@@ -44,10 +44,6 @@ class CategoriesTable
                     ->label('Hanya Kategori Utama')
                     ->query(fn($query) => $query->whereNull('parent_id')),
             ])
-            ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-            ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
