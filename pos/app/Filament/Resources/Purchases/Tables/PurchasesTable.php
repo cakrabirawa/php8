@@ -18,10 +18,12 @@ class PurchasesTable
     {
         return $table
             ->columns([
-                TextColumn::make('product.name')->label('Product'),
-                TextColumn::make('quantity')->alignCenter(),
-                TextColumn::make('cost_price')->money('USD', divideBy: 100),
-                TextColumn::make('subtotal')->money('USD', divideBy: 100),
+                TextColumn::make('purchase_number')->searchable()->sortable(),
+                TextColumn::make('supplier.name')->searchable()->sortable(),
+                TextColumn::make('grand_total')->money('IDR')->sortable(),
+                TextColumn::make('purchase_date')->date()->sortable(),
+                TextColumn::make('creator.name')->label('Created By')->searchable()->sortable(),
+                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 TrashedFilter::make(),
