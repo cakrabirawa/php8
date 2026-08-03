@@ -15,12 +15,12 @@ class RobotActivitiesTable
     {
         return $table
             ->columns([
-                TextColumn::make('robot_name')
+                TextColumn::make('robot_name')->label("Robot Name")
                     ->searchable(),
-                TextColumn::make('robot_last_activity_at')
+                TextColumn::make('robot_last_activity_at')->label("Robot Last Activity At")
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('robot_diff_time_current')
+                TextColumn::make('robot_diff_time_current')->label("Robot Diff Time Current")
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -36,13 +36,8 @@ class RobotActivitiesTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                // EditAction::make(),
             ])
-            ->toolbarActions([
-                // BulkActionGroup::make([
-                //     DeleteBulkAction::make(),
-                // ]),
-            ])
+            ->toolbarActions([])
         ;
     }
 }

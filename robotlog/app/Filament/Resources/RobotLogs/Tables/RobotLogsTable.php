@@ -44,25 +44,25 @@ class RobotLogsTable
                                 ]);
                             })
                     ),
-                TextColumn::make('batch_job_id')
+                TextColumn::make('batch_job_id')->label("Batch Job ID")
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('invoice_no')
+                TextColumn::make('invoice_no')->label("Invoice No")
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('timestamp')
+                TextColumn::make('timestamp')->label("Timestamp")
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('automatic_transaction')
+                TextColumn::make('automatic_transaction')->label("Automatic Transaction")
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('caption')
+                TextColumn::make('caption')->label("Caption")
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('company')
+                TextColumn::make('company')->label("Company")
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('server_id')
+                TextColumn::make('server_id')->label("Server ID")
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('created_at')

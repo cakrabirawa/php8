@@ -18,23 +18,23 @@ class JobLogsTable
     {
         return $table
             ->columns([
-                TextColumn::make('job_id')
+                TextColumn::make('job_id')->label('Job ID')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('start_date')
+                TextColumn::make('start_date')->label('Start Date')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('end_date')
+                TextColumn::make('end_date')->label('End Date')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('duration')
+                TextColumn::make('duration')->label('Duration')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('timestamp_extracted')
+                TextColumn::make('timestamp_extracted')->label('Timestamp Extracted')
                     ->dateTime()
                     ->sortable()
                     ->sortable(),
-                TextColumn::make('error_details_log')
+                TextColumn::make('error_details_log')->label('Error Details Log')
                     ->sortable()
                     ->searchable()
                     ->limit(30)

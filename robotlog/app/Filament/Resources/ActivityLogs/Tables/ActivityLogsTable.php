@@ -16,12 +16,12 @@ class ActivityLogsTable
     {
         return $table
             ->columns([
-                TextColumn::make('entity', 'Entity')->sortable()->searchable(),
-                TextColumn::make('count', 'Count')->sortable()->searchable(),
-                TextColumn::make('start_date', 'Start Date')->sortable()->searchable(),
-                TextColumn::make('end_date', 'End Date')->sortable()->searchable(),
-                TextColumn::make('duration', 'Duration')->sortable()->searchable(),
-                TextColumn::make('timestamp', 'Timestamp')->sortable()->searchable(),
+                TextColumn::make('entity')->label('Entity')->sortable()->searchable(),
+                TextColumn::make('count')->label('Count')->sortable()->searchable(),
+                TextColumn::make('start_date')->label('Start Date')->sortable()->searchable(),
+                TextColumn::make('end_date')->label('End Date')->sortable()->searchable(),
+                TextColumn::make('duration')->label('Duration')->sortable()->searchable(),
+                TextColumn::make('timestamp')->label('Time Stamp')->sortable()->searchable(),
 
             ])
             ->filters([
@@ -29,19 +29,12 @@ class ActivityLogsTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                // EditAction::make(),
             ])
-            //->striped()
             ->defaultSort(function (Builder $query): Builder {
                 return $query
                     ->orderBy('count', 'desc')
                     ->orderBy('end_date', 'desc');
             })
-            // ->toolbarActions([
-            //     BulkActionGroup::make([
-            //         DeleteBulkAction::make(),
-            //     ]),
-            // ])
         ;
     }
 }
