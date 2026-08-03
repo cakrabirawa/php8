@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Purchases;
 
-use App\Filament\Resources\PurchaseResource\RelationManagers\ItemsRelationManager;
+use App\Filament\Resources\Purchases\RelationManagers\ItemsRelationManager;
 use App\Filament\Resources\Purchases\Pages\CreatePurchase;
 use App\Filament\Resources\Purchases\Pages\EditPurchase;
 use App\Filament\Resources\Purchases\Pages\ListPurchases;
@@ -18,6 +18,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class PurchaseResource extends Resource
 {
@@ -26,6 +27,8 @@ class PurchaseResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'Purchase';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Transaksi';
 
     public static function form(Schema $schema): Schema
     {

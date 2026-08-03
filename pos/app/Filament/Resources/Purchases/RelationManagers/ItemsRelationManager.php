@@ -1,15 +1,17 @@
 <?php
 
-namespace App\Filament\Resources\PurchaseResource\RelationManagers;
+namespace App\Filament\Resources\Purchases\RelationManagers;
 
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class ItemsRelationManager extends RelationManager
@@ -26,12 +28,12 @@ class ItemsRelationManager extends RelationManager
                     ->searchable()
                     ->preload(),
 
-                Forms\Components\TextInput::make('quantity')
+                TextInput::make('quantity')
                     ->numeric()
                     ->required()
                     ->default(1),
 
-                Forms\Components\TextInput::make('cost_price')
+                TextInput::make('cost_price')
                     ->prefix('$')
                     ->required()
                     ->extraAlpineAttributes([
@@ -46,10 +48,10 @@ class ItemsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-                Tables\Columns\TextColumn::make('product.name')->label('Product'),
-                Tables\Columns\TextColumn::make('quantity')->alignCenter(),
-                Tables\Columns\TextColumn::make('cost_price')->money('USD', divideBy: 100),
-                Tables\Columns\TextColumn::make('subtotal')->money('USD', divideBy: 100),
+                TextColumn::make('product.name')->label('Product'),
+                TextColumn::make('quantity')->alignCenter(),
+                TextColumn::make('cost_price')->money('USD', divideBy: 100),
+                TextColumn::make('subtotal')->money('USD', divideBy: 100),
             ])
             ->filters([])
             ->headerActions([
