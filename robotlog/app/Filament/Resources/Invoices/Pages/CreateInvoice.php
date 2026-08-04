@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\RobotLogs\Pages;
+namespace App\Filament\Resources\Invoices\Pages;
 
-use App\Filament\Resources\RobotLogs\RobotLogResource;
+use App\Filament\Resources\Invoices\InvoiceResource;
 use Filament\Resources\Pages\CreateRecord;
 
-class CreateRobotLog extends CreateRecord
+class CreateInvoice extends CreateRecord
 {
-    protected static string $resource = RobotLogResource::class;
+    protected static string $resource = InvoiceResource::class;
+
     protected function getHeaderActions(): array
     {
         return [

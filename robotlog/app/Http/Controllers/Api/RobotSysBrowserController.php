@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\RobotLog;
+use App\Models\RobotSysBrowser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-class RobotLogController extends Controller
+class RobotSysBrowserController extends Controller
 {
     public function store(Request $request)
     {
@@ -20,6 +21,8 @@ class RobotLogController extends Controller
             'Company' => 'required|string',
             'ServerId' => 'required|string',
             'Status' => 'required|string',
+            'StartDate' => 'required|date_format:Y-m-d H:i:s',
+            'EndDate' => 'required|date_format:Y-m-d H:i:s',
         ]);
 
         if ($validator->fails()) {
@@ -35,11 +38,12 @@ class RobotLogController extends Controller
         $batchJobId = $request->input('BatchJobId');
 
         // Jika invoice_no dan batch_job_id sudah ada, tidak perlu insert
-        if ($invoiceNo !== '' && RobotLog::where('invoice_no', $invoiceNo)
+        if (
+            $invoiceNo !== '' && RobotSysBrowser::where('invoice_no', $invoiceNo,)
             ->where('batch_job_id', $batchJobId)
             ->exists()
         ) {
-            $existing = RobotLog::where('invoice_no', $invoiceNo)
+            $existing = RobotSysBrowser::where('invoice_no', $invoiceNo)
                 ->where('batch_job_id', $batchJobId)
                 ->first();
 
@@ -50,7 +54,7 @@ class RobotLogController extends Controller
             ], 200);
         }
 
-        $log = RobotLog::create([
+        $log = RobotSysBrowser::create([
             'timestamp' => $request->input('TimeStamp'),
             'automatic_transaction' => $request->input('AutomaticTransaction'),
             'batch_job_id' => $batchJobId,
@@ -59,6 +63,8 @@ class RobotLogController extends Controller
             'company' => $request->input('Company'),
             'server_id' => $request->input('ServerId'),
             'status' => $request->input('Status'),
+            'start_date' => $request->input('StartDate'),
+            'end_date' => $request->input('EndDate'),
         ]);
 
         return response()->json([

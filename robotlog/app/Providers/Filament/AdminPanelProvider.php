@@ -22,6 +22,7 @@ use Filament\Support\Assets\Js;
 use App\Filament\Pages\Auth\CustomLogin;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Navigation\NavigationItem;
+use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Css;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\HtmlString;
@@ -36,34 +37,6 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('')
             ->login(CustomLogin::class)
-            ->colors([
-                'primary' => [
-                    50 => '#e8faef',
-                    100 => '#c7f3d6',
-                    200 => '#93e7b2',
-                    300 => '#55d387',
-                    400 => '#25d366',
-                    500 => '#128c7e',
-                    600 => '#075e54',
-                    700 => '#05443c',
-                    800 => '#04302b',
-                    900 => '#032521',
-                    950 => '#011513',
-                ],
-                'gray' => [
-                    50 => '#f0f2f5',
-                    100 => '#e9edef',
-                    200 => '#dfe5e7',
-                    300 => '#8696a0',
-                    400 => '#667781',
-                    500 => '#3b4a54',
-                    600 => '#2a3942',
-                    700 => '#202c33',
-                    800 => '#182229',
-                    900 => '#111b21',
-                    950 => '#0b141a',
-                ]
-            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([Dashboard::class,])
@@ -84,11 +57,9 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->assets([
-                Js::make('stimulsoft-engine', asset('stimulsoft/stimulsoft.reports.engine.pack.js')),
-                Js::make('stimulsoft-viewer', asset('stimulsoft/stimulsoft.viewer.pack.js')),
-                Js::make('stimulsoft-export', asset('stimulsoft/stimulsoft.reports.export.pack.js')),
+                // Pindahkan JS ke AlpineComponent agar kompatibel dengan SPA
+                AlpineComponent::make('stimulsoft-scripts', resource_path('js/stimulsoft-loader.js')),
                 Css::make('custom-styles', resource_path('css/custom-filament.css')),
-
             ])
             ->font('Poppins')
             ->spa()

@@ -15,8 +15,11 @@ return new class extends Migration
             $table->string('batch_job_id');
             $table->string('caption');
             $table->string('company');
+            $table->string('invoice_no');
             $table->string('server_id');
             $table->string('status'); // ERROR / SUCCESS
+            $table->dateTime('start_date');
+            $table->dateTime('end_date');
             $table->timestamps(); // Menambahkan created_at dan updated_at bawaan laravel
         });
     }

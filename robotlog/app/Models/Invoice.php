@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Invoice extends Model
 {
@@ -39,4 +41,15 @@ class Invoice extends Model
         'c_ready_to_post_created_datetime' => 'datetime',
         'imported_invoice_amount' => 'decimal:2',
     ];
+
+    public function robotLogs(): HasMany
+    {
+        return $this->hasMany(RobotLog::class, 'invoice_no', 'invoice_number');
+    }
+
+    public function latestRobotLog(): HasOne
+    {
+        return $this->hasOne(RobotLog::class, 'invoice_no', 'invoice_number')
+            ->latestOfMany(); // Otomatis mengambil baris data terakhir
+    }
 }

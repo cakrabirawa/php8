@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\Resources\RobotLogs\Schemas;
+namespace App\Filament\Resources\RobotSysBrowsers\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
-class RobotLogInfolist
+class RobotSysBrowserInfolist
 {
     public static function configure(Schema $schema): Schema
     {
@@ -17,8 +17,13 @@ class RobotLogInfolist
                 TextEntry::make('batch_job_id'),
                 TextEntry::make('caption'),
                 TextEntry::make('company'),
+                TextEntry::make('invoice_no'),
                 TextEntry::make('server_id'),
                 TextEntry::make('status'),
+                TextEntry::make('start_date')
+                    ->dateTime(),
+                TextEntry::make('end_date')
+                    ->dateTime(),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),

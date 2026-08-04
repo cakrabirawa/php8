@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class RobotLog extends Model
+class RobotSysBrowser extends Model
 {
     protected $table = 'robot_logs';
 
@@ -17,5 +17,7 @@ class RobotLog extends Model
         'company',
         'server_id',
         'status',
+        'start_date',
+        'end_date',
     ];
 }

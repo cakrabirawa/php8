@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Filament\Resources\RobotLogs\Schemas;
+namespace App\Filament\Resources\RobotSysBrowsers\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
-class RobotLogForm
+class RobotSysBrowserForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -22,9 +22,15 @@ class RobotLogForm
                     ->required(),
                 TextInput::make('company')
                     ->required(),
+                TextInput::make('invoice_no')
+                    ->required(),
                 TextInput::make('server_id')
                     ->required(),
                 TextInput::make('status')
+                    ->required(),
+                DateTimePicker::make('start_date')
+                    ->required(),
+                DateTimePicker::make('end_date')
                     ->required(),
             ]);
     }

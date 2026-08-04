@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\InvoiceLogs\Pages;
+namespace App\Filament\Resources\Invoices\Pages;
 
-use App\Filament\Resources\InvoiceLogs\InvoiceLogResource;
+use App\Filament\Resources\Invoices\InvoiceResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
-class EditInvoiceLog extends EditRecord
+class EditInvoice extends EditRecord
 {
-    protected static string $resource = InvoiceLogResource::class;
+    protected static string $resource = InvoiceResource::class;
 
     protected function getHeaderActions(): array
     {
