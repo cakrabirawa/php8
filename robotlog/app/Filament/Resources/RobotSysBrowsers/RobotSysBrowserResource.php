@@ -15,14 +15,19 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class RobotSysBrowserResource extends Resource
 {
     protected static ?string $model = RobotSysBrowser::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBox;
 
     protected static ?string $recordTitleAttribute = 'System Browser';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Robot Logs';
+
+    protected static ?string $navigationLabel = 'System Browser';
 
     public static function form(Schema $schema): Schema
     {
@@ -54,5 +59,10 @@ class RobotSysBrowserResource extends Resource
             'view' => ViewRobotSysBrowser::route('/{record}'),
             'edit' => EditRobotSysBrowser::route('/{record}/edit'),
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }

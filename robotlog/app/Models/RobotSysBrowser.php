@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RobotSysBrowser extends Model
 {
-    protected $table = 'robot_logs';
+    protected $table = 'robot_sys_browser';
 
     protected $fillable = [
         'timestamp',

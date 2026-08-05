@@ -39,7 +39,7 @@ class RobotSysBrowserController extends Controller
 
         // Jika invoice_no dan batch_job_id sudah ada, tidak perlu insert
         if (
-            $invoiceNo !== '' && RobotSysBrowser::where('invoice_no', $invoiceNo,)
+            $invoiceNo !== '' && RobotSysBrowser::where('invoice_no', $invoiceNo)
             ->where('batch_job_id', $batchJobId)
             ->exists()
         ) {
