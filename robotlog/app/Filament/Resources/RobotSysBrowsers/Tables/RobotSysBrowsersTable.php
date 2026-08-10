@@ -10,6 +10,7 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class RobotSysBrowsersTable
@@ -68,8 +69,6 @@ class RobotSysBrowsersTable
                 TextColumn::make('timestamp')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('automatic_transaction')
-                    ->searchable(),
                 TextColumn::make('caption')
                     ->searchable(),
                 TextColumn::make('server_id')
@@ -90,7 +89,17 @@ class RobotSysBrowsersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                // 1. Contoh Filter Select dengan Nilai Default
+                SelectFilter::make('status')
+                    ->options([
+                        'ERROR' => 'ERROR',
+                        'SUCCESS' => 'SUCCESS',
+                        'END' => 'END',
+                        'ENDED' => 'ENDED',
+                        'EXECUTING' => 'EXECUTING',
+                    ])
+                    ->default('ERROR'), // Kolom otomatis terfilter 'draft' saat halaman dibuka
+
             ])
             ->recordActions([
                 ViewAction::make(),

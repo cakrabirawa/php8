@@ -3,74 +3,88 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\RobotLog;
 use App\Models\RobotSysBrowser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class RobotSysBrowserController extends Controller
 {
     public function store(Request $request)
     {
+        // 1. Validasi mendukung Array of Objects (*.)
         $validator = Validator::make($request->all(), [
-            'TimeStamp' => 'required|date_format:Y-m-d H:i:s',
-            'AutomaticTransaction' => 'required|string|in:ON,OFF',
-            'BatchJobId' => 'required|string',
-            'Caption' => 'required|string',
-            'Company' => 'required|string',
-            'ServerId' => 'required|string',
-            'Status' => 'required|string',
-            'StartDate' => 'required|date_format:Y-m-d H:i:s',
-            'EndDate' => 'required|date_format:Y-m-d H:i:s',
+            '*.TimeStamp' => 'required|date_format:Y-m-d H:i:s',
+            '*.AutomaticTransaction' => 'required|string|in:ON,OFF',
+            '*.BatchJobId' => 'required|string',
+            '*.Caption' => 'required|string',
+            '*.Company' => 'required|string',
+            '*.ServerId' => 'required|string',
+            '*.Status' => 'required|string',
+            '*.StartDate' => 'required|date_format:Y-m-d H:i:s',
+            '*.EndDate' => 'required|date_format:Y-m-d H:i:s',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validasi gagal.',
+                'message' => 'Validasi gagal pada beberapa data.',
                 'errors' => $validator->errors()
             ], 422);
         }
 
-        $captionText = $request->input('Caption');
-        $invoiceNo = trim(Str::after($captionText, 'PURCHASE INVOICE'));
-        $batchJobId = $request->input('BatchJobId');
+        $insertedCount = 0;
+        $updatedCount = 0;
+        $skippedCount = 0; // Tambahan statistik data yang dilewati
+        $savedLogs = [];
 
-        // Jika invoice_no dan batch_job_id sudah ada, tidak perlu insert
-        if (
-            $invoiceNo !== '' && RobotSysBrowser::where('invoice_no', $invoiceNo)
-            ->where('batch_job_id', $batchJobId)
-            ->exists()
-        ) {
-            $existing = RobotSysBrowser::where('invoice_no', $invoiceNo)
-                ->where('batch_job_id', $batchJobId)
-                ->first();
+        // 2. Gunakan Database Transaction agar proses massal aman
+        DB::transaction(function () use ($request, &$insertedCount, &$updatedCount, &$skippedCount, &$savedLogs) {
+            foreach ($request->all() as $item) {
+                $captionText = $item['Caption'];
+                $invoiceNo = trim(Str::after(Str::upper($captionText), 'PURCHASE INVOICE'));
+                $batchJobId = $item['BatchJobId'];
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Data sudah ada. Tidak perlu disimpan.',
-                'data' => $existing
-            ], 200);
-        }
+                // KONDISI BARU: Jika invoiceNo kosong, lewati data ini dan lanjut ke data berikutnya
+                // if (empty($invoiceNo)) {
+                //     $skippedCount++;
+                //     continue;
+                // }
 
-        $log = RobotSysBrowser::create([
-            'timestamp' => $request->input('TimeStamp'),
-            'automatic_transaction' => $request->input('AutomaticTransaction'),
-            'batch_job_id' => $batchJobId,
-            'caption' => $request->input('Caption'),
-            'invoice_no' => $invoiceNo,
-            'company' => $request->input('Company'),
-            'server_id' => $request->input('ServerId'),
-            'status' => $request->input('Status'),
-            'start_date' => $request->input('StartDate'),
-            'end_date' => $request->input('EndDate'),
-        ]);
+                // Cek apakah data sudah ada sebelumnya untuk menghitung statistik log
+                $existingData = RobotSysBrowser::where('batch_job_id', $batchJobId)->first();
+
+                // === LOGIKA UPDATE OR CREATE ===
+                $log = RobotSysBrowser::updateOrCreate(
+                    ['batch_job_id' => $batchJobId], // Kunci unik pencarian
+                    [
+                        'timestamp' => $item['TimeStamp'],
+                        'automatic_transaction' => $item['AutomaticTransaction'],
+                        'caption' => $captionText,
+                        'invoice_no' => $invoiceNo,
+                        'company' => $item['Company'],
+                        'server_id' => $item['ServerId'],
+                        'status' => $item['Status'],
+                        'start_date' => $item['StartDate'],
+                        'end_date' => $item['EndDate'],
+                    ]
+                );
+
+                if ($existingData) {
+                    $updatedCount++;
+                } else {
+                    $insertedCount++;
+                }
+
+                $savedLogs[] = $log;
+            }
+        });
 
         return response()->json([
             'success' => true,
-            'message' => 'Data log robot berhasil disimpan.',
-            'data' => $log
-        ], 210);
+            'message' => "Proses log selesai. Berhasil menambahkan {$insertedCount} data baru, memperbarui {$updatedCount} data lama, dan melewati {$skippedCount} data tanpa nomor invoice.",
+            'data' => $savedLogs
+        ], 200);
     }
 }

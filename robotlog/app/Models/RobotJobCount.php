@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RobotJobCount extends Model
 {
@@ -23,4 +24,9 @@ class RobotJobCount extends Model
         'timestamp' => 'datetime',
         'count' => 'integer',
     ];
+
+    public function sysBrowsers(): HasMany
+    {
+        return $this->hasMany(RobotSysBrowser::class, 'company', 'entity');
+    }
 }
