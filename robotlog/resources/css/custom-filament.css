@@ -35,6 +35,7 @@ html.dark {
     /* Latar panel sekunder WA */
     border-color: #222e35 !important;
 }
+
 /* Targetkan elemen pembungkus di dalam cell header (th) */
 .fi-ta-header-cell-container {
     padding-top: 0.4rem !important;
@@ -53,7 +54,72 @@ html.dark {
     padding-top: 0.4rem !important;
     padding-bottom: 0.4rem !important;
 }
+
 .fi-ta-text-item-label,
 .fi-ta-cell {
     user-select: text !important;
+}
+
+/* Memaksa elemen dropdown/popover keluar dari pembungkus yang memotongnya */
+.fi-dropdown,
+.fi-popover,
+[class*="fi-ta-record-actions"] {
+    z-index: 50 !important;
+    overflow: visible !important;
+}
+
+/* 1. Pastikan posisi z-index aman seperti menu profil bawaan */
+.fi-dropdown,
+.fi-popover,
+.fi-user-menu {
+    z-index: 9999 !important;
+    overflow: visible !important;
+}
+
+/* 2. Samakan warna latar belakang & border panel dropdown dengan komponen profil asli */
+.fi-dropdown-list,
+.fi-popover-content {
+    overflow: hidden !important;
+    border-radius: 0.5rem !important;
+    /* Mode Terang: Putih bersih dengan border abu-abu tipis */
+    background-color: rgb(255, 255, 255) !important;
+    border: 1px solid rgb(241, 245, 249) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Mode Gelap: Ubah background menjadi abu-abu gelap khas panel profil Filament */
+.dark .fi-dropdown-list,
+.dark .fi-popover-content {
+    background-color: rgb(24, 24, 27) !important;
+    /* Menerapkan bg-zinc-900 bawaan Filament */
+    border: 1px solid rgb(39, 39, 42) !important;
+    /* Menerapkan border-zinc-800 bawaan Filament */
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 3. Samakan warna item menu di dalamnya agar tidak ada kotak hitam/putih kaku */
+.fi-dropdown-list-item,
+.fi-dropdown-list-item * {
+    background-color: transparent !important;
+}
+
+/* Mode Terang: Warna teks normal teks abu-abu gelap */
+.fi-dropdown-list-item {
+    color: rgb(63, 63, 70) !important;
+}
+
+/* Mode Gelap: Warna teks normal menjadi abu-abu terang */
+.dark .fi-dropdown-list-item {
+    color: rgb(228, 228, 231) !important;
+}
+
+/* Efek Hover: Samakan dengan feedback hover menu profil asli */
+.fi-dropdown-list-item:hover {
+    background-color: rgb(244, 244, 245) !important;
+    /* bg-gray-100 di mode terang */
+}
+
+.dark .fi-dropdown-list-item:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    /* bg-white/5 di mode gelap */
 }

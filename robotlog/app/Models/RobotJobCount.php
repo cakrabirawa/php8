@@ -27,6 +27,6 @@ class RobotJobCount extends Model
 
     public function sysBrowsers(): HasMany
     {
-        return $this->hasMany(RobotSysBrowser::class, 'company', 'entity');
+        return $this->hasMany(RobotSysBrowser::class);
     }
 }

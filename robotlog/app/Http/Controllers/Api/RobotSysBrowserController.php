@@ -59,15 +59,15 @@ class RobotSysBrowserController extends Controller
                 $log = RobotSysBrowser::updateOrCreate(
                     ['batch_job_id' => $batchJobId], // Kunci unik pencarian
                     [
-                        'timestamp' => $item['TimeStamp'],
-                        'automatic_transaction' => $item['AutomaticTransaction'],
-                        'caption' => $captionText,
-                        'invoice_no' => $invoiceNo,
-                        'company' => $item['Company'],
-                        'server_id' => $item['ServerId'],
-                        'status' => $item['Status'],
-                        'start_date' => $item['StartDate'],
-                        'end_date' => $item['EndDate'],
+                        'timestamp' => trim($item['TimeStamp']),
+                        'automatic_transaction' => trim($item['AutomaticTransaction']),
+                        'caption' => trim($captionText),
+                        'invoice_no' => trim($invoiceNo),
+                        'company' => trim($item['Company']),
+                        'server_id' => trim($item['ServerId']),
+                        'status' => trim($item['Status']),
+                        'start_date' => trim($item['StartDate']),
+                        'end_date' => trim($item['EndDate']),
                     ]
                 );
 

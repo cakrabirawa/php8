@@ -17,18 +17,30 @@ class RobotJobCountsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->withCount([
-                'sysBrowsers as error_count' => fn($q) => $q->whereRaw('UPPER(status) = ?', ['ERROR'])
-                    ->whereRaw('trim(UPPER(robot_sys_browser.company)) = trim(UPPER(robot_job_counts.entity))'),
+            ->modifyQueryUsing(fn(Builder $query) => $query->addSelect([
+                // Hitung error_count secara mandiri bypass relasi kaku
+                'error_count' => DB::table('robot_sys_browser')
+                    ->selectRaw('count(*)')
+                    ->whereRaw('trim(UPPER(status)) = ?', ['ERROR'])
+                    ->whereRaw('trim(UPPER(company)) = trim(UPPER(robot_job_counts.entity))'),
 
-                'sysBrowsers as ended_count' => fn($q) => $q->whereRaw('UPPER(status) = ?', ['ENDED'])
-                    ->whereRaw('trim(UPPER(robot_sys_browser.company)) = trim(UPPER(robot_job_counts.entity))'),
+                // Hitung ended_count
+                'ended_count' => DB::table('robot_sys_browser')
+                    ->selectRaw('count(*)')
+                    ->whereRaw('trim(UPPER(status)) = ?', ['ENDED'])
+                    ->whereRaw('trim(UPPER(company)) = trim(UPPER(robot_job_counts.entity))'),
 
-                'sysBrowsers as end_count' => fn($q) => $q->whereRaw('UPPER(status) = ?', ['END'])
-                    ->whereRaw('trim(UPPER(robot_sys_browser.company)) = trim(UPPER(robot_job_counts.entity))'),
+                // Hitung end_count
+                'end_count' => DB::table('robot_sys_browser')
+                    ->selectRaw('count(*)')
+                    ->whereRaw('trim(UPPER(status)) = ?', ['END'])
+                    ->whereRaw('trim(UPPER(company)) = trim(UPPER(robot_job_counts.entity))'),
 
-                'sysBrowsers as executing_count' => fn($q) => $q->whereRaw('UPPER(status) = ?', ['EXECUTING'])
-                    ->whereRaw('trim(UPPER(robot_sys_browser.company)) = trim(UPPER(robot_job_counts.entity))'),
+                // Hitung executing_count
+                'executing_count' => DB::table('robot_sys_browser')
+                    ->selectRaw('count(*)')
+                    ->whereRaw('trim(UPPER(status)) = ?', ['EXECUTING'])
+                    ->whereRaw('trim(UPPER(company)) = trim(UPPER(robot_job_counts.entity))'),
             ]))
             ->columns([
                 TextColumn::make('count')
@@ -99,8 +111,8 @@ class RobotJobCountsTable
     }
     protected static function countStatus($record, string $status): int
     {
-        return RobotSysBrowser::where(DB::raw('UPPER(status)'), $status)
-            ->where(DB::raw('UPPER(company)'), strtoupper($record->entity))
+        return RobotSysBrowser::where(DB::raw('trim(UPPER(status))'), trim($status))
+            ->where(DB::raw('trim(UPPER(company))'), trim(strtoupper($record->entity)))
             ->count();
     }
 }

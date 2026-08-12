@@ -26,6 +26,7 @@ use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Css;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Blade;
 use WatheqAlshowaiter\FilamentStickyTableHeader\StickyTableHeaderPlugin;
 
 class AdminPanelProvider extends PanelProvider
@@ -36,7 +37,6 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('')
-            ->viteTheme('resources/css/filament/admin/theme.css')
             ->login(CustomLogin::class)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -59,7 +59,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->assets([
                 // Pindahkan JS ke AlpineComponent agar kompatibel dengan SPA
-                AlpineComponent::make('stimulsoft-scripts', resource_path('js/stimulsoft-loader.js')),
+                // AlpineComponent::make('stimulsoft-scripts', resource_path('js/stimulsoft-loader.js')),
                 Css::make('custom-styles', resource_path('css/custom-filament.css')),
             ])
             ->font('Poppins')
@@ -75,21 +75,6 @@ class AdminPanelProvider extends PanelProvider
                 StickyTableHeaderPlugin::make()
                     ->shouldScrollToTopOnPageChanged(enabled: true, behavior: 'smooth'),
                 FilamentShieldPlugin::make()
-                    ->gridColumns([
-                        'default' => 1,
-                        'sm' => 2,
-                        'lg' => 3,
-                    ])
-                    ->sectionColumnSpan(1)
-                    ->checkboxListColumns([
-                        'default' => 1,
-                        'sm' => 2,
-                        'lg' => 4,
-                    ])
-                    ->resourceCheckboxListColumns([
-                        'default' => 1,
-                        'sm' => 2,
-                    ])
                     ->navigationGroup('Admin'),
             ])
             ->navigationItems([
@@ -106,37 +91,13 @@ class AdminPanelProvider extends PanelProvider
                 fn(): string => view('filament.components.custom-user-menu')->render(),
             )
             ->renderHook(
-                'panels::head.end',
-                fn() => new HtmlString('
-                <style>
-                    /* 1. Paksa padding tbody (seluruh baris data) & thead (header) menjadi tipis */
-                    .fi-ta-table :is(th, td) {
-                        padding: 8px !important;
-                        height: auto !important;            /* Hilangkan batas tinggi minimal */
-                    }
-
-                    /* 2. Kecilkan ukuran font untuk seluruh isi tbody */
-                    .fi-ta-table tbody * {
-                        font-size: 0.825rem !important;     /* Sedikit lebih kecil dari text-sm */
-                        line-height: 1.25 !important;
-                    }
-
-                    /* 3. Menghilangkan ruang kosong (gap) berlebih di dalam baris */
-                    .fi-ta-text, .fi-ta-col-wrp {
-                        margin: 0 !important;
-                        padding: 6px !important;
-                    }
-                </style>
-            ')
+                PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
+                fn(): string => Blade::render('
+                <div class="text-sm font-medium text-gray-500 me-3">
+                    Halo, Selamat Datang, {{ auth()->user()->name ?? "User" }}!
+                </div>
+            '),
             )
-            // ->renderHook(
-            //     PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
-            //     fn(): string => Blade::render('
-            //     <div class="text-sm font-medium text-gray-500 me-3">
-            //         Halo, Selamat Datang!
-            //     </div>
-            // '),
-            // )
             ->maxContentWidth('full')
         ;
     }

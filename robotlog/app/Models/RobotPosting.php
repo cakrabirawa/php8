@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Invoice extends Model
+class RobotPosting extends Model
 {
     use HasFactory;
 
@@ -50,6 +50,6 @@ class Invoice extends Model
     public function latestRobotLog(): HasOne
     {
         return $this->hasOne(RobotLog::class, 'invoice_no', 'invoice_number')
-            ->latestOfMany(); // Otomatis mengambil baris data terakhir
+            ->latestOfMany(); 
     }
 }
