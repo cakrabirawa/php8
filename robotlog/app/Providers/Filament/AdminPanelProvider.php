@@ -93,7 +93,7 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
                 fn(): string => Blade::render('
-                <div class="text-sm font-medium text-gray-500 me-3">
+                <div class="text-sm font-medium text-green-500 me-3">
                     Halo, Selamat Datang, {{ auth()->user()->name ?? "User" }}!
                 </div>
             '),
