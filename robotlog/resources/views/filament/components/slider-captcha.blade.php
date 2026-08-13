@@ -5,6 +5,7 @@
         targetKey: '',
         options: [],
         lastClickTime: 0,
+        isDark: document.documentElement.classList.contains('dark'),
     
         // Data bank simbol (Aman dari pembacaan teks HTML murni)
         icons: {
@@ -21,6 +22,12 @@
         },
     
         init() {
+            // Pengamat Mutasi Tema Filament
+            const observer = new MutationObserver(() => {
+                this.isDark = document.documentElement.classList.contains('dark');
+            });
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
             this.generateCaptcha();
             this.$watch('unlocked', value => {
                 if (value) {
@@ -117,7 +124,8 @@
             }
         }
     }"
-        style="width: 100%; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); box-sizing: border-box; font-family: inherit;">
+        style="width: 100%; border-radius: 16px; padding: 22px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); box-sizing: border-box; font-family: inherit;"
+        :style="{ backgroundColor: isDark ? '#18181b' : '#ffffff', borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0' }">
 
         <!-- INPUT TERSEMBUNYI UNTUK DIKIRIM KE BACKEND -->
         <input type="hidden" id="captcha_unlocked" x-ref="captchaInput" wire:model.defer="data.captcha_unlocked"
@@ -132,9 +140,9 @@
             </span>
 
             <!-- Lingkaran Bingkai Target Tengah Semesta -->
-            <div style="display: flex; position: relative; align-items: center; justify-content: center; width: 72px; height: 72px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 50%; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.03); margin: 0 auto 14px auto;"
+            <div style="display: flex; position: relative; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.03); margin: 0 auto 14px auto;"
                 :style="unlocked ? 'background-color: #dcfce7; border-color: #22c55e;' : (failed ?
-                    'background-color: #fee2e2; border-color: #ef4444;' : '')">
+                    'background-color: #fee2e2; border-color: #ef4444;' : (isDark ? 'background-color: #27272a; border-color: rgba(255,255,255,0.1);' : 'background-color: #f8fafc; border-color: #e2e8f0;'))">
 
                 <!-- Canvas Gambar Ikon Target Utama -->
                 <canvas x-show="!unlocked && !failed" x-ref="targetCanvas" width="70" height="70"
@@ -161,27 +169,29 @@
             </div>
 
             <!-- Teks Intruksi Dinamis -->
-            <div style="font-size: 14px; font-weight: 600; color: #334155; width: 100%; text-align: center;">
+            <div style="font-size: 14px; font-weight: 600; width: 100%; text-align: center;"
+                 :style="{ color: isDark ? '#e4e4e7' : '#334155' }">
                 <span x-show="!unlocked && !failed">Cari & ketuk ikon kembaran di bawah:</span>
                 <span x-show="unlocked" style="color: #16a34a; display: none;">Manusia Terverifikasi</span>
                 <span x-show="failed" style="color: #dc2626; display: none;">Salah, Mengacak Ulang...</span>
             </div>
         </div>
 
-        <!-- BARISAN OPSI TOMBOL CANVAS PILIHAN (BAWAH) -->
-        <div style="display: flex; justify-content: center; gap: 12px; margin-top: 16px; width: 100%;">
-            <template x-for="item in options" :key="item.key">
-                <button type="button" @click="checkAnswer(item.key)" :disabled="unlocked || failed"
-                    style="width: 56px; height: 56px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); outline: none; box-sizing: border-box; shadow: 0 1px 3px 0 rgba(0,0,0,0.05);"
-                    :style="unlocked ? 'opacity: 0.3; cursor: default; background: #f8fafc;' : ''"
-                    onmouseover="this.style.borderColor='#4f46e5'; this.style.boxShadow='0 4px 12px rgba(79, 70, 229, 0.12)'; this.style.transform='translateY(-1px)';"
-                    onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'; this.style.transform='translateY(0)';">
+        <!-- KOTAK BAWAH: PILIHAN TOMBOL OPSI (TIDAK BISA DI-SCAN BOT TEXT) -->
+        <div style="display: flex; justify-content: center; gap: 14px; width: 100%;">
+            <template x-for="opt in options" :key="opt.key">
+                <button type="button" @click="checkAnswer(opt.key)" :disabled="unlocked || failed"
+                    style="position: relative; width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); padding: 0; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05);"
+                    :style="{ backgroundColor: isDark ? '#27272a' : '#ffffff', borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0', borderStyle: 'solid', borderWidth: '1px' }"
+                    onmouseover="if(!this.disabled) { this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 6px -1px rgba(0,0,0,0.1)'; }"
+                    onmouseout="this.style.transform='none'; this.style.boxShadow='0 1px 3px 0 rgba(0,0,0,0.05)';">
 
-                    <!-- Element Canvas Gambar Tombol Pilihan -->
-                    <canvas :id="'opt-canvas-' + item.key" width="54" height="54"
-                        style="width:54px; height:54px; pointer-events: none; display: block;"></canvas>
+                    <!-- Canvas Gambar Gambar Tombol Opsi -->
+                    <canvas :id="'opt-canvas-' + opt.key" width="54" height="54"
+                        style="width:54px; height:54px; pointer-events: none; display: block; margin: 0 auto;"></canvas>
                 </button>
             </template>
         </div>
+
     </div>
 </div>

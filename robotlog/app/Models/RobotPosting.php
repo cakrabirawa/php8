@@ -44,12 +44,12 @@ class RobotPosting extends Model
 
     public function robotLogs(): HasMany
     {
-        return $this->hasMany(RobotLog::class, 'invoice_no', 'invoice_number');
+        return $this->hasMany(RobotSysBrowser::class, 'invoice_no', 'invoice_number');
     }
 
     public function latestRobotLog(): HasOne
     {
-        return $this->hasOne(RobotLog::class, 'invoice_no', 'invoice_number')
+        return $this->hasOne(RobotSysBrowser::class, 'invoice_no', 'invoice_number')
             ->latestOfMany(); 
     }
 }

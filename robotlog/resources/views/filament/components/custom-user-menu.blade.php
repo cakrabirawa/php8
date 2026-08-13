@@ -1,4 +1,11 @@
-<div x-data="{ open: false }" style="position: relative; display: inline-block;">
+<div x-data="{ open: false, isDark: document.documentElement.classList.contains('dark') }" 
+     x-init="
+        const observer = new MutationObserver(() => {
+            isDark = document.documentElement.classList.contains('dark');
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+     "
+     style="position: relative; display: inline-block;">
 
     {{-- Tombol Pemicu Bulat Menggunakan Heroicon Cog (Setting) --}}
     <button @click="open = !open" type="button"
@@ -14,21 +21,22 @@
         </svg>
     </button>
 
-    {{-- Kotak Dropdown Murni (Sudah Dikunci Warna Latar Belakangnya Agar Tidak Transparan) --}}
+    {{-- Kotak Dropdown Menggunakan Alpine Pendeteksi Tema --}}
     <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100"
         x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100"
         x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100"
         x-transition:leave-end="transform opacity-0 scale-95" id="custom-dropdown-panel"
-        style="position: absolute; right: 0; z-index: 50; margin-top: 8px; width: 200px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); border: 1px solid rgba(156, 163, 175, 0.15); padding: 4px 0; display: none; background-color: #ffffff;"
-        class="dark-bg-setter">
+        style="position: absolute; right: 0; z-index: 50; margin-top: 8px; width: 200px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); padding: 4px 0;"
+        :style="{ backgroundColor: isDark ? '#18181b' : '#ffffff', borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(156,163,175,0.15)' }"
+        class="border">
 
         {{-- Item Menu 1: Profil Saya --}}
         <a href="{{ url('/admin/profile') }}"
             style="display: flex; width: 100%; align-items: center; gap: 12px; padding: 10px 14px; font-size: 14px; font-weight: 500; text-decoration: none; box-sizing: border-box; transition: all 0.2s;"
-            class="text-gray-700 dark:text-zinc-200" onmouseover="
-                this.style.backgroundColor = document.documentElement.classList.contains('dark') ? '#27313f' : '#f3f4f6';
+            class="text-gray-700 dark:text-zinc-200" :onmouseover="
+                `this.style.backgroundColor = document.documentElement.classList.contains('dark') ? '#27313f' : '#f3f4f6';
                 this.style.color = '#10b981';
-                this.querySelector('svg').style.color = '#10b981';
+                this.querySelector('svg').style.color = '#10b981';`
            " onmouseout="
                 this.style.backgroundColor = 'transparent';
                 this.style.color = '';
@@ -45,10 +53,10 @@
         {{-- Item Menu 2: Keamanan --}}
         <a href="{{ url('/admin/security') }}"
             style="display: flex; width: 100%; align-items: center; gap: 12px; padding: 10px 14px; font-size: 14px; font-weight: 500; text-decoration: none; box-sizing: border-box; transition: all 0.2s;"
-            class="text-gray-700 dark:text-zinc-200" onmouseover="
-                this.style.backgroundColor = document.documentElement.classList.contains('dark') ? '#27313f' : '#f3f4f6';
+            class="text-gray-700 dark:text-zinc-200" :onmouseover="
+                `this.style.backgroundColor = document.documentElement.classList.contains('dark') ? '#27313f' : '#f3f4f6';
                 this.style.color = '#10b981';
-                this.querySelector('svg').style.color = '#10b981';
+                this.querySelector('svg').style.color = '#10b981';`
            " onmouseout="
                 this.style.backgroundColor = 'transparent';
                 this.style.color = '';
@@ -63,34 +71,24 @@
         </a>
 
         {{-- Garis Pembatas --}}
-        <hr style="margin: 4px 0; border: 0; border-top: 1px solid rgba(156, 163, 175, 0.15);">
+        <hr :style="{ margin: '4px 0', border: '0', borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(156, 163, 175, 0.15)' }">
 
         {{-- Tombol Aksi Keluar --}}
-        <button type="button"
-            style="display: flex; width: 100%; align-items: center; gap: 12px; padding: 10px 14px; font-size: 14px; font-weight: 500; border: none; background: transparent; cursor: pointer; box-sizing: border-box; transition: all 0.2s;"
-            class="text-red-600 dark:text-red-400"
-            onmouseover="this.style.backgroundColor = document.documentElement.classList.contains('dark') ? 'rgba(220, 38, 38, 0.1)' : '#fef2f2';"
-            onmouseout="this.style.backgroundColor = 'transparent';">
-            <svg style="height: 18px; width: 18px;" xmlns="http://w3.org" fill="none" viewBox="0 0 24 24"
-                stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
-            </svg>
-            <span>Keluar Panel</span>
-        </button>
+        {{-- Tombol Aksi Keluar (Disinkronkan dengan Logout Filament) --}}
+        <form method="POST" action="{{ route('filament.admin.auth.logout') }}" style="margin: 0; padding: 0; width: 100%;">
+            @csrf
+            <button type="submit"
+                style="display: flex; width: 100%; align-items: center; gap: 12px; padding: 10px 14px; font-size: 14px; font-weight: 500; border: none; background: transparent; cursor: pointer; box-sizing: border-box; transition: all 0.2s;"
+                class="text-red-600 dark:text-red-400"
+                :onmouseover="`this.style.backgroundColor = document.documentElement.classList.contains('dark') ? 'rgba(220, 38, 38, 0.1)' : '#fef2f2';`"
+                onmouseout="this.style.backgroundColor = 'transparent';">
+                <svg style="height: 18px; width: 18px;" xmlns="http://w3.org" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+                </svg>
+                <span>Keluar Sistem</span>
+            </button>
+        </form>
     </div>
 </div>
-
-<script>
-    // Memastikan warna latar belakang berganti secara solid sesuai deteksi dark mode browser saat dimuat
-    document.addEventListener("DOMContentLoaded", function () {
-        const dropdownPanel = document.getElementById('custom-dropdown-panel');
-        if (dropdownPanel) {
-            if (document.documentElement.classList.contains('dark')) {
-                dropdownPanel.style.backgroundColor = '#18181b'; // Zinc 900 solid
-            } else {
-                dropdownPanel.style.backgroundColor = '#ffffff'; // Putih bersih solid
-            }
-        }
-    });
-</script>
