@@ -138,6 +138,8 @@ class RobotSysBrowsersTable
                 // BulkActionGroup::make([
                 //     DeleteBulkAction::make(),
                 // ]),
-            ]);
+            ])
+            ->striped()
+        ;
     }
 }

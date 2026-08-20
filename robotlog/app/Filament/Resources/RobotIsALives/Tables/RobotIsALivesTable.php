@@ -60,6 +60,7 @@ class RobotIsALivesTable
                 // ViewAction::make(),
             ])
             ->defaultSort('robot_last_activity_at', 'desc')
+            ->striped()
         ;
     }
 }

@@ -126,6 +126,7 @@ class RobotPostingsTable
                 //     DeleteBulkAction::make(),
                 // ]),
             ])
+            ->striped()
         ;
     }
 }

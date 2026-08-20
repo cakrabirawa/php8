@@ -112,7 +112,9 @@ class RobotJobCountsTable
             ])
             ->filters([
                 //
-            ]);
+            ])
+            ->striped()
+        ;
     }
     protected static function countStatus($record, string $status): int
     {
