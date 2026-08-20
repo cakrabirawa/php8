@@ -15,15 +15,15 @@ class RobotSysBrowserController extends Controller
     {
         // 1. Validasi mendukung Array of Objects (*.)
         $validator = Validator::make($request->all(), [
-            '*.TimeStamp' => 'required|date_format:Y-m-d H:i:s',
-            '*.AutomaticTransaction' => 'required|string|in:ON,OFF',
-            '*.BatchJobId' => 'required|string',
-            '*.Caption' => 'required|string',
-            '*.Company' => 'required|string',
-            '*.ServerId' => 'required|string',
-            '*.Status' => 'required|string',
-            '*.StartDate' => 'required|date_format:Y-m-d H:i:s',
-            '*.EndDate' => 'required|date_format:Y-m-d H:i:s',
+            '*.TimeStamp' => 'nullable|date_format:Y-m-d H:i:s',
+            '*.AutomaticTransaction' => 'nullable|string|in:ON,OFF',
+            '*.BatchJobId' => 'nullable|string',
+            '*.Caption' => 'nullable|string',
+            '*.Company' => 'nullable|string',
+            '*.ServerId' => 'nullable|string',
+            '*.Status' => 'nullable|string',
+            '*.StartDate' => 'nullable|date_format:Y-m-d H:i:s',
+            '*.EndDate' => 'nullable|date_format:Y-m-d H:i:s',
         ]);
 
         if ($validator->fails()) {

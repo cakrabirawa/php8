@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\RobotSysBrowsers\Tables;
 
+use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -60,25 +62,51 @@ class RobotSysBrowsersTable
                             ->modalSubmitAction(false)
                             ->modalCancelActionLabel('Close')
                     ),
-                TextColumn::make('invoice_no')
+                TextColumn::make('invoice_no')->label("Invoice Number")
+                    ->sortable()
                     ->searchable(),
-                TextColumn::make('batch_job_id')
+                TextColumn::make('batch_job_id')->label("Batch Job Id")
+                    ->sortable()
                     ->searchable(),
-                TextColumn::make('company')
+                TextColumn::make('company')->label("Company")
+                    ->sortable()
                     ->searchable(),
-                TextColumn::make('timestamp')
+                TextColumn::make('timestamp')->label("Time Stamp")
+                    ->sortable()
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('caption')
+                TextColumn::make('caption')->label("Caption")
+                    ->sortable()
                     ->searchable(),
-                TextColumn::make('server_id')
+                TextColumn::make('server_id')->label("Server Id")
+                    ->sortable()
                     ->searchable(),
-                TextColumn::make('start_date')
+                TextColumn::make('start_date')->label("Start Date")
+                    ->searchable()
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('end_date')
+                TextColumn::make('end_date')->label("End Date")
+                    ->searchable()
                     ->dateTime()
                     ->sortable(),
+                TextColumn::make('duration')
+                    ->label('Duration')
+                    ->getStateUsing(function ($record) {
+                        // Validasi jika salah satu tanggal kosong agar tidak error
+                        if (!$record->start_date || !$record->end_date) {
+                            return '-';
+                        }
+
+                        $start = Carbon::parse($record->start_date);
+                        $end = Carbon::parse($record->end_date);
+
+                        // Menghitung selisih absolut (tanpa kata "ago" atau "from now")
+                        return $start->diffForHumans($end, [
+                            'syntax' => CarbonInterface::DIFF_ABSOLUTE,
+                            'short' => true, // Menghasilkan teks ringkas seperti "5s", "2m", "1h"
+                            'parts' => 2,    // Contoh jika detail: "1m 15s"
+                        ]);
+                    }),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -88,24 +116,24 @@ class RobotSysBrowsersTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                // 1. Contoh Filter Select dengan Nilai Default
-                SelectFilter::make('status')
-                    ->options([
-                        'ERROR' => 'ERROR',
-                        'SUCCESS' => 'SUCCESS',
-                        'END' => 'END',
-                        'ENDED' => 'ENDED',
-                        'EXECUTING' => 'EXECUTING',
-                    ])
-                    ->default('ERROR'), // Kolom otomatis terfilter 'draft' saat halaman dibuka
+            // ->filters([
+            //     // 1. Contoh Filter Select dengan Nilai Default
+            //     SelectFilter::make('status')
+            //         ->options([
+            //             'ERROR' => 'ERROR',
+            //             'SUCCESS' => 'SUCCESS',
+            //             'END' => 'END',
+            //             'ENDED' => 'ENDED',
+            //             'EXECUTING' => 'EXECUTING',
+            //         ])
+            //         ->default('ERROR'), // Kolom otomatis terfilter 'draft' saat halaman dibuka
 
-            ])
+            // ])
             ->recordActions([
-                ViewAction::make(),
+                // ViewAction::make(),
                 // EditAction::make(),
             ])
-            ->defaultSort('timestamp', 'desc')
+            ->defaultSort('end_date', 'desc')
             ->toolbarActions([
                 // BulkActionGroup::make([
                 //     DeleteBulkAction::make(),

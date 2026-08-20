@@ -95,7 +95,7 @@ class RobotPostingsTable
                 // 4. Kolom Timestamp dari sysbrowser
                 TextColumn::make('last_sys_browser_timestamp')
                     ->label('Timestamp')
-                    ->dateTime() // Format tanggal dan waktu otomatis bawaan Filament
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable(),
                 TextColumn::make('company')
                     ->searchable(),
@@ -106,11 +106,11 @@ class RobotPostingsTable
                 TextColumn::make('purchase_order')
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

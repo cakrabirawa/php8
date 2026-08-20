@@ -11,6 +11,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 
 class RobotIsALivesTable
 {
@@ -24,50 +25,40 @@ class RobotIsALivesTable
                     ->whereColumn('id', 'robot_is_alive.id')
             ]))
             ->columns([
-                TextColumn::make('robot_name')
+                TextColumn::make('robot_name')->label("Robot Name")
                     ->searchable(),
-                TextColumn::make('robot_last_activity_at')
-                    ->dateTime()
+                TextColumn::make('robot_last_activity_at')->label("Robot Last Activity")
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable(),
                 TextColumn::make('diff_seconds')
-                    ->label('Robot Diff Time Current')
+                    ->label('Robot Diff Time')
                     ->sortable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        // Fitur pencarian kustom jika user mengetik angka detik/menit tertentu
                         return $query->whereRaw("CAST((strftime('%s', 'now') - strftime('%s', robot_last_activity_at)) AS INTEGER) LIKE ?", ["%{$search}%"]);
                     })
                     ->getStateUsing(function ($record) {
-                        if (is_null($record->diff_seconds)) {
+                        if (is_null($record->robot_last_activity_at)) {
                             return '-';
                         }
-
-                        // Mengubah hitungan detik mentah database menjadi format manusiawi (Carbon)
-                        return Carbon::now()->subSeconds($record->diff_seconds)->diffForHumans([
-                            'syntax' => Carbon::DIFF_RELATIVE_TO_NOW,
-                            'short' => true, // Menghasilkan format ringkas seperti "3m ago", "1h ago"
+                        $lastActivity = Carbon::parse($record->robot_last_activity_at);
+                        return $lastActivity->diffForHumans([
+                            'syntax' => CarbonInterface::DIFF_RELATIVE_TO_NOW,
+                            'short' => true,
+                            'parts' => 2, // Menampilkan detail lebih presisi (misal: 1m 30s)
                         ]);
                     }),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
             ->recordActions([
-                ViewAction::make(),
-                // EditAction::make(),
+                // ViewAction::make(),
             ])
-            // ->toolbarActions([
-            //     BulkActionGroup::make([
-            //         DeleteBulkAction::make(),
-            //     ]),
-            // ])
             ->defaultSort('robot_last_activity_at', 'desc')
         ;
     }
