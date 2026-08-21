@@ -28,11 +28,19 @@ Route::get('/products/{filename}', function ($filename) {
 
     return response($file)->header('Content-Type', $type);
 })->name('custom.product_image');
+Route::get('/public/robot-error-screenshots/{filename}', function ($filename) {
+    $path = 'robot-error-screenshots/' . $filename;
 
-// Rute untuk menampilkan halaman laporan di browser
+    if (!Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+
+    $file = Storage::disk('public')->get($path);
+    $type = Storage::disk('public')->mimeType($path);
+
+    return response($file)->header('Content-Type', $type);
+})->name('robot.error_screenshot');
 Route::get('/report-viewer', function () {
     return view('viewer');
 });
-
-// Rute penangan data Ajax dari Stimulsoft (Wajib Route::any)
 Route::any('/handler', [HandlerController::class, 'process']);

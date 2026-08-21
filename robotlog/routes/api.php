@@ -2,9 +2,10 @@
 
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\InvoiceLogController;
-use App\Http\Controllers\Api\JobLogController;
+use App\Http\Controllers\Api\RobotJobLogController;
 use App\Http\Controllers\Api\MonitoringController;
 use App\Http\Controllers\Api\RobotController;
+use App\Http\Controllers\Api\RobotErrorScreenshotController;
 use App\Http\Controllers\Api\RobotIsAliveController;
 use App\Http\Controllers\Api\RobotJobCountController;
 use App\Http\Controllers\Api\RobotSysBrowserController;
@@ -20,4 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/robot-job-count', [RobotJobCountController::class, 'store']);
     Route::post('/robot-is-alive', [RobotIsAliveController::class, 'store']);
     Route::post('/robot-posting', [RobotPostingController::class, 'store']);
+    Route::post('/robot-job-logs', [RobotJobLogController::class, 'store']);
+    Route::post('/robot-error-screenshot', [RobotErrorScreenshotController::class, 'store']);
 });
+Route::get('/robot-sys-browser/executing-count', [RobotSysBrowserController::class, 'getExecutingCount']);

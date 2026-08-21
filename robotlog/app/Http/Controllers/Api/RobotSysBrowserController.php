@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\RobotSysBrowser;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -85,6 +86,45 @@ class RobotSysBrowserController extends Controller
             'success' => true,
             'message' => "Proses log selesai. Berhasil menambahkan {$insertedCount} data baru, memperbarui {$updatedCount} data lama, dan melewati {$skippedCount} data tanpa nomor invoice.",
             'data' => $savedLogs
+        ], 200);
+    }
+
+    public function getExecutingCount(Request $request): JsonResponse
+    {
+        // 1. Validasi input query parameter 'company'
+        $validator = Validator::make($request->query(), [
+            'company' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Parameter tidak valid.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $company = trim($request->query('company'));
+
+        // 2. Hitung jumlah batch_job_id berdasarkan kondisi status dan company
+        // Menggunakan Str::lower atau langsung menyamakan case jika database bersifat case-insensitive
+        $count = RobotSysBrowser::where('company', $company)
+            ->where(function ($query) {
+                // Menjaga kecocokan teks jika robot mengirimkan variasi huruf besar/kecil
+                $query->where('status', 'EXECUTING')
+                    ->orWhere('status', 'executing');
+            })
+            ->count('batch_job_id'); // Menghitung total data unik/baris berdasarkan batch_job_id
+
+        // 3. Kembalikan respons JSON
+        return response()->json([
+            'success' => true,
+            'message' => "Berhasil mengambil data untuk company: {$company}",
+            'data' => [
+                'company' => $company,
+                'status' => 'EXECUTING',
+                'executing_count' => $count
+            ]
         ], 200);
     }
 }

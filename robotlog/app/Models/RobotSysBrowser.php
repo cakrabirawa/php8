@@ -20,4 +20,10 @@ class RobotSysBrowser extends Model
         'start_date',
         'end_date',
     ];
+
+    protected $casts = [
+        'timestamp' => 'datetime',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+    ];
 }

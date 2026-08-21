@@ -70,6 +70,9 @@ class AdminPanelProvider extends PanelProvider
                 'success' => Color::Emerald,
                 'warning' => Color::Amber,
                 'danger' => Color::Rose,
+                'active' => Color::Emerald,
+                'inactive' => Color::Rose,
+                'latest' => Color::Sky,
             ])
             ->plugins([
                 StickyTableHeaderPlugin::make()

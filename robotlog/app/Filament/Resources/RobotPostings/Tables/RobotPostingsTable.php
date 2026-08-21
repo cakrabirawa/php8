@@ -39,6 +39,11 @@ class RobotPostingsTable
                     ->whereRaw('upper(TRIM(invoice_no)) = upper(TRIM(robot_postings.invoice_number))')
                     ->orderBy('id', 'desc')
                     ->limit(1),
+                'last_job_error_details_log' => DB::table('robot_job_logs')
+                    ->select('error_details_log')
+                    ->whereRaw('job_id = (SELECT batch_job_id FROM robot_sys_browser WHERE upper(TRIM(invoice_no)) = upper(TRIM(robot_postings.invoice_number)) ORDER BY id DESC LIMIT 1)')
+                    ->orderBy('timestamp_extracted', 'desc')
+                    ->limit(1),
             ]))
             ->modifyQueryUsing(fn($query) => $query->withCount([
                 'robotLogs as total_errors' => fn($q) => $q->where('status', 'ERROR')
@@ -46,6 +51,9 @@ class RobotPostingsTable
             ->columns([
                 TextColumn::make('invoice_number')
                     ->searchable()
+                    ->copyable()
+                    ->copyMessage(fn(string $state): string => "Teks '{$state}' berhasil disalin!")
+                    ->copyMessageDuration(1500)
                     ->action(
                         Action::make('viewErrors')
                             ->modalHeading(fn(RobotPosting $record) => "Daftar Error - Invoice: {$record->invoice_number}")
@@ -83,6 +91,9 @@ class RobotPostingsTable
                 // 3. Kolom Batch Job ID dari sysbrowser
                 TextColumn::make('last_sys_browser_batch_id')
                     ->label('Last Batch Job Id')
+                    ->copyable()
+                    ->copyMessage(fn(string $state): string => "Teks '{$state}' berhasil disalin!")
+                    ->copyMessageDuration(1500)
                     ->sortable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereIn('invoice_number', function ($sub) use ($search) {
@@ -97,13 +108,22 @@ class RobotPostingsTable
                     ->label('Timestamp')
                     ->dateTime('d/m/Y H:i:s')
                     ->sortable(),
+                TextColumn::make('last_job_error_details_log')
+                    ->label('Error Details Log')
+                    ->limit(100)
+                    ->wrap()
+                    ->tooltip(fn($state) => $state)
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('company')
                     ->searchable(),
-                TextColumn::make('invoice_account')
+                TextColumn::make('invoice_account')->label("Invoice Account")
                     ->searchable(),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('purchase_order')
+                TextColumn::make('final_status')->label("Final Status")
+                    ->searchable(),
+                TextColumn::make('final_status_checked_date')->label("Final Status Checked Date")
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i:s')

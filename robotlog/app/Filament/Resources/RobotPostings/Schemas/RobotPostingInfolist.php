@@ -17,8 +17,8 @@ class RobotPostingInfolist
                 TextEntry::make('invoice_number'),
                 TextEntry::make('company')
                     ->placeholder('-'),
-                TextEntry::make('invoice_account')
-                    ->placeholder('-'),
+                // TextEntry::make('invoice_account')
+                //     ->placeholder('-'),
                 TextEntry::make('name')
                     ->placeholder('-'),
                 TextEntry::make('purchase_order')
@@ -26,6 +26,11 @@ class RobotPostingInfolist
                 TextEntry::make('invoice_received_date')
                     ->date()
                     ->placeholder('-'),
+                TextEntry::make('last_job_error_details_log')
+                    ->label('Error Details Log')
+                    ->limit(200)
+                    ->wrap()
+                    ->tooltip(fn($state) => $state),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),

@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\JobLog;
+use App\Models\RobotJobLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class JobLogController extends Controller
+class RobotJobLogController extends Controller
 {
     public function store(Request $request)
     {
@@ -31,7 +31,7 @@ class JobLogController extends Controller
         }
 
         // 2. Insert data ke database
-        $jobLog = JobLog::create($request->all());
+        $jobLog = RobotJobLog::create($request->all());
 
         // 3. Kembalikan response sukses beserta data yang baru disimpan
         return response()->json([

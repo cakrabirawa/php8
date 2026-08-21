@@ -41,10 +41,17 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/') . '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
+        ],
+
+        'screenshots' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/robot-error-screenshots'),
+            'url' => rtrim(env('APP_URL', 'http://localhost:8000'), '/') . '/public/robot-error-screenshots',
+            'visibility' => 'public',
         ],
 
         's3' => [

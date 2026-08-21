@@ -5,14 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class JobLog extends Model
+class RobotJobLog extends Model
 {
     use HasFactory;
 
-    // Nama tabel di database
-    protected $table = 'job_logs';
+    protected $table = 'robot_job_logs';
 
-    // Kolom yang boleh diisi massal
     protected $fillable = [
         'start_date',
         'end_date',
@@ -21,5 +19,11 @@ class JobLog extends Model
         'timestamp_extracted',
         'dialog_title',
         'error_details_log',
+    ];
+
+    protected $casts = [
+        'start_date' => 'datetime:Y-m-d H:i:s',
+        'end_date' => 'datetime:Y-m-d H:i:s',
+        'timestamp_extracted' => 'datetime:Y-m-d H:i:s',
     ];
 }

@@ -64,16 +64,22 @@ class RobotSysBrowsersTable
                     ),
                 TextColumn::make('invoice_no')->label("Invoice Number")
                     ->sortable()
+                    ->copyable()
+                    ->copyMessage(fn(string $state): string => "Teks '{$state}' berhasil disalin!")
+                    ->copyMessageDuration(1500)
                     ->searchable(),
                 TextColumn::make('batch_job_id')->label("Batch Job Id")
                     ->sortable()
+                    ->copyable()
+                    ->copyMessage(fn(string $state): string => "Teks '{$state}' berhasil disalin!")
+                    ->copyMessageDuration(1500)
                     ->searchable(),
                 TextColumn::make('company')->label("Company")
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('timestamp')->label("Time Stamp")
                     ->sortable()
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable(),
                 TextColumn::make('caption')->label("Caption")
                     ->sortable()
@@ -83,11 +89,11 @@ class RobotSysBrowsersTable
                     ->searchable(),
                 TextColumn::make('start_date')->label("Start Date")
                     ->searchable()
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable(),
                 TextColumn::make('end_date')->label("End Date")
                     ->searchable()
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable(),
                 TextColumn::make('duration')
                     ->label('Duration')
@@ -108,11 +114,11 @@ class RobotSysBrowsersTable
                         ]);
                     }),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
