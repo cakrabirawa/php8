@@ -26,3 +26,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/robot-error-screenshot', [RobotErrorScreenshotController::class, 'store']);
 });
 Route::get('/robot-sys-browser/executing-count', [RobotSysBrowserController::class, 'getExecutingCount']);
+Route::get('/robot-sys-browser/error-batches', [RobotSysBrowserController::class, 'getErrorBatchJobs']);

@@ -19,10 +19,10 @@ class RobotJobLogsTable
                     ->label('Invoice No')
                     ->default('-')
                     ->toggleable(),
-                TextColumn::make('dialog_title')
-                    ->label('Dialog Title')
-                    ->searchable()
-                    ->sortable(),
+                // TextColumn::make('dialog_title')
+                //     ->label('Dialog Title')
+                //     ->searchable()
+                //     ->sortable(),
                 TextColumn::make('error_details_log')
                     ->label('Error Details Log')
                     ->searchable()

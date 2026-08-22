@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\RobotJobLog;
 use App\Models\RobotSysBrowser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,13 +15,16 @@ class RobotSysBrowserController extends Controller
 {
     public function store(Request $request)
     {
-        // 1. Validasi mendukung Array of Objects (*.)
-        $validator = Validator::make($request->all(), [
+        $payload = $request->all();
+        $items = array_is_list($payload) ? $payload : [$payload];
+
+        // 1. Validasi mendukung array maupun single object payload
+        $validator = Validator::make($items, [
             '*.TimeStamp' => 'nullable|date_format:Y-m-d H:i:s',
             '*.AutomaticTransaction' => 'nullable|string|in:ON,OFF',
-            '*.BatchJobId' => 'nullable|string',
+            '*.BatchJobId' => 'required|string',
             '*.Caption' => 'nullable|string',
-            '*.Company' => 'nullable|string',
+            '*.Company' => 'required|string',
             '*.ServerId' => 'nullable|string',
             '*.Status' => 'nullable|string',
             '*.StartDate' => 'nullable|date_format:Y-m-d H:i:s',
@@ -37,50 +41,61 @@ class RobotSysBrowserController extends Controller
 
         $insertedCount = 0;
         $updatedCount = 0;
-        $skippedCount = 0; // Tambahan statistik data yang dilewati
+        $skippedCount = 0;
         $savedLogs = [];
+        $clean = fn($value): ?string => is_null($value) ? null : trim((string) $value);
 
-        // 2. Gunakan Database Transaction agar proses massal aman
-        DB::transaction(function () use ($request, &$insertedCount, &$updatedCount, &$skippedCount, &$savedLogs) {
-            foreach ($request->all() as $item) {
-                $captionText = $item['Caption'];
-                $invoiceNo = trim(Str::after(Str::upper($captionText), 'PURCHASE INVOICE'));
-                $batchJobId = $item['BatchJobId'];
+        try {
+            // 2. Gunakan database transaction agar proses massal aman
+            DB::transaction(function () use ($items, &$insertedCount, &$updatedCount, &$skippedCount, &$savedLogs, $clean) {
+                // Kosongkan tabel sebelum proses isi ulang data batch terbaru.
+                RobotSysBrowser::query()->delete();
 
-                // KONDISI BARU: Jika invoiceNo kosong, lewati data ini dan lanjut ke data berikutnya
-                // if (empty($invoiceNo)) {
-                //     $skippedCount++;
-                //     continue;
-                // }
+                foreach ($items as $item) {
+                    $captionText = $clean($item['Caption'] ?? null);
+                    $batchJobId = $clean($item['BatchJobId'] ?? null);
 
-                // Cek apakah data sudah ada sebelumnya untuk menghitung statistik log
-                $existingData = RobotSysBrowser::where('batch_job_id', $batchJobId)->first();
+                    if (blank($batchJobId)) {
+                        $skippedCount++;
+                        continue;
+                    }
 
-                // === LOGIKA UPDATE OR CREATE ===
-                $log = RobotSysBrowser::updateOrCreate(
-                    ['batch_job_id' => $batchJobId], // Kunci unik pencarian
-                    [
-                        'timestamp' => trim($item['TimeStamp']),
-                        'automatic_transaction' => trim($item['AutomaticTransaction']),
-                        'caption' => trim($captionText),
-                        'invoice_no' => trim($invoiceNo),
-                        'company' => trim($item['Company']),
-                        'server_id' => trim($item['ServerId']),
-                        'status' => trim($item['Status']),
-                        'start_date' => trim($item['StartDate']),
-                        'end_date' => trim($item['EndDate']),
-                    ]
-                );
+                    $invoiceNo = null;
+                    if (filled($captionText)) {
+                        $invoiceNo = $clean(Str::after(Str::upper($captionText), 'PURCHASE INVOICE'));
+                    }
 
-                if ($existingData) {
-                    $updatedCount++;
-                } else {
-                    $insertedCount++;
+                    $log = RobotSysBrowser::updateOrCreate(
+                        ['batch_job_id' => $batchJobId],
+                        [
+                            'timestamp' => $clean($item['TimeStamp'] ?? null),
+                            'automatic_transaction' => $clean($item['AutomaticTransaction'] ?? null),
+                            'caption' => $captionText,
+                            'invoice_no' => $invoiceNo,
+                            'company' => $clean($item['Company'] ?? null),
+                            'server_id' => $clean($item['ServerId'] ?? null),
+                            'status' => $clean($item['Status'] ?? null),
+                            'start_date' => $clean($item['StartDate'] ?? null),
+                            'end_date' => $clean($item['EndDate'] ?? null),
+                        ]
+                    );
+
+                    if ($log->wasRecentlyCreated) {
+                        $insertedCount++;
+                    } else {
+                        $updatedCount++;
+                    }
+
+                    $savedLogs[] = $log;
                 }
-
-                $savedLogs[] = $log;
-            }
-        });
+            });
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menyimpan robot sys browser.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
 
         return response()->json([
             'success' => true,
@@ -125,6 +140,47 @@ class RobotSysBrowserController extends Controller
                 'status' => 'EXECUTING',
                 'executing_count' => $count
             ]
+        ], 200);
+    }
+
+    public function getErrorBatchJobs(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->query(), [
+            'company' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Parameter tidak valid.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $query = RobotSysBrowser::query()
+            ->select(['batch_job_id', 'company'])
+            ->whereNotIn('batch_job_id', RobotJobLog::query()->select('job_id')->whereNotNull('job_id'))
+            ->where(function ($q) {
+                $q->where('status', 'ERROR')
+                    ->orWhere('status', 'error');
+            });
+
+        if ($request->filled('company')) {
+            $company = trim((string) $request->query('company'));
+            $query->where('company', $company);
+        }
+
+        $records = $query
+            ->orderByDesc('id')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Berhasil mengambil data status ERROR.',
+            'data' => $records,
+            'meta' => [
+                'total' => $records->count(),
+            ],
         ], 200);
     }
 }

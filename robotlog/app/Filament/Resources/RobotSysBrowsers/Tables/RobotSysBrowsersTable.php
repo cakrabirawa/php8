@@ -139,7 +139,7 @@ class RobotSysBrowsersTable
                 // ViewAction::make(),
                 // EditAction::make(),
             ])
-            ->defaultSort('end_date', 'desc')
+            ->defaultSort('start_date', 'desc')
             ->toolbarActions([
                 // BulkActionGroup::make([
                 //     DeleteBulkAction::make(),
