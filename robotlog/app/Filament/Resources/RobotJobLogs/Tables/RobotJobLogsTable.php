@@ -12,9 +12,13 @@ class RobotJobLogsTable
         return $table
             ->columns([
                 TextColumn::make('job_id')
-                    ->label('Job ID')
+                    ->label('Batch Job Id')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('robotSysBrowser.invoice_no')
+                    ->label('Invoice No')
+                    ->default('-')
+                    ->toggleable(),
                 TextColumn::make('dialog_title')
                     ->label('Dialog Title')
                     ->searchable()
@@ -32,19 +36,19 @@ class RobotJobLogsTable
                     ->sortable(),
                 TextColumn::make('start_date')
                     ->label('Start Date')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable(),
                 TextColumn::make('end_date')
                     ->label('End Date')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable(),
                 TextColumn::make('timestamp_extracted')
                     ->label('Timestamp Extracted')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Created At')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

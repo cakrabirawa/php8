@@ -30,7 +30,7 @@ class RobotStatusTable extends TableWidget
 
             Tables\Columns\TextColumn::make('robot_last_activity_at')
                 ->label('Terakhir aktif')
-                ->dateTime('d/m/Y H:i:s')
+                ->dateTime('d/m/y H:i:s')
                 ->sortable(),
 
             Tables\Columns\TextColumn::make('status')

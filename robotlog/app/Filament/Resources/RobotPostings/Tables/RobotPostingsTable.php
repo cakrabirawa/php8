@@ -106,7 +106,7 @@ class RobotPostingsTable
                 // 4. Kolom Timestamp dari sysbrowser
                 TextColumn::make('last_sys_browser_timestamp')
                     ->label('Timestamp')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable(),
                 TextColumn::make('last_job_error_details_log')
                     ->label('Error Details Log')
@@ -126,11 +126,11 @@ class RobotPostingsTable
                 TextColumn::make('final_status_checked_date')->label("Final Status Checked Date")
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

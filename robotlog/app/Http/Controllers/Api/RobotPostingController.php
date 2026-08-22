@@ -43,15 +43,15 @@ class RobotPostingController extends Controller
             Log::info('Invoice API Payload:', $validated);
 
             // 3. PERBAIKAN: Mengamankan parsing tanggal Carbon agar tidak crash saat nilai null/kosong
-            $invoiceReceivedDate = !empty($validated['Invoice received date']) 
-                ? Carbon::createFromFormat('n/j/Y', $validated['Invoice received date']) 
+            $invoiceReceivedDate = !empty($validated['Invoice received date'])
+                ? Carbon::createFromFormat('n/j/Y', $validated['Invoice received date'])
                 : null;
 
-            $createdDateTime = !empty($validated['Created date and time']) 
-                ? Carbon::createFromFormat('n/j/Y g:i:s A', $validated['Created date and time']) 
+            $createdDateTime = !empty($validated['Created date and time'])
+                ? Carbon::createFromFormat('n/j/Y g:i:s A', $validated['Created date and time'])
                 : null;
 
-            $readyToPostDateTime = !empty($validated['(C) Ready to Post Created DateTime']) 
+            $readyToPostDateTime = !empty($validated['(C) Ready to Post Created DateTime'])
                 ? Carbon::createFromFormat('n/j/Y g:i:s A', $validated['(C) Ready to Post Created DateTime'])
                 : null;
 
@@ -63,7 +63,7 @@ class RobotPostingController extends Controller
             // Eksekusi pencarian atau pembuatan data baru di database
             $invoice = RobotPosting::firstOrCreate(
                 [
-                    'invoice_number' => $validated['Invoice'], 
+                    'invoice_number' => $validated['Invoice'],
                 ],
                 [
                     'index_baris'                       => $validated['index_baris'] ?? null,
@@ -97,10 +97,9 @@ class RobotPostingController extends Controller
                 'data' => [
                     'invoice_number' => $validated['Invoice'],
                     'index_baris' => $validated['index_baris'] ?? null,
-                    'inserted' => $isWasRecentlyCreated 
+                    'inserted' => $isWasRecentlyCreated
                 ]
             ], $isWasRecentlyCreated ? 201 : 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -108,5 +107,56 @@ class RobotPostingController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function updateFinalStatus(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'invoice_number' => 'required|string',
+            'company' => 'required|string',
+            'final_status' => 'nullable|string|max:255',
+        ]);
+
+        $company = $validated['company'];
+
+        if (blank($company)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payload company wajib diisi.',
+            ], 422);
+        }
+
+        $finalStatus = $validated['final_status'] ?? 'Checked';
+
+        $affectedRows = RobotPosting::query()
+            ->whereRaw('upper(TRIM(invoice_number)) = upper(TRIM(?))', [$validated['invoice_number']], 'and')
+            ->whereRaw('upper(TRIM(company)) = upper(TRIM(?))', [$company], 'and')
+            ->update([
+                'final_status' => $finalStatus,
+                'final_status_checked_date' => now(),
+            ]);
+
+        if ($affectedRows === 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data RobotPosting tidak ditemukan untuk invoice_number dan company tersebut.',
+                'data' => [
+                    'invoice_number' => $validated['invoice_number'],
+                    'company' => $company,
+                ],
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Final status berhasil diperbarui.',
+            'data' => [
+                'invoice_number' => $validated['invoice_number'],
+                'company' => $company,
+                'final_status' => $finalStatus,
+                'updated_rows' => $affectedRows,
+                'final_status_checked_date' => now()->toDateTimeString(),
+            ],
+        ]);
     }
 }

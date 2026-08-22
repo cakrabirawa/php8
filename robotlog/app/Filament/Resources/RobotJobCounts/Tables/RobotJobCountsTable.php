@@ -89,24 +89,24 @@ class RobotJobCountsTable
                     ->sortable(),
                 TextColumn::make('start_date')
                     ->searchable()
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable(),
                 TextColumn::make('end_date')
                     ->searchable()
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable(),
                 TextColumn::make('duration')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('timestamp')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

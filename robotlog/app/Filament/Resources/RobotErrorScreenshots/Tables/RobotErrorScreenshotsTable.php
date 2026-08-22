@@ -13,28 +13,38 @@ class RobotErrorScreenshotsTable
     {
         return $table
             ->columns([
-                ImageColumn::make('file_name')
-                    ->label('Screenshot Error')
-                    ->disk('screenshots')
-                    ->visibility('public')
-                    ->imageHeight(40)
-                    ->imageWidth(40)
-                    ->getStateUsing(function ($record) {
-                        if (! $record->file_name) {
-                            return null;
-                        }
+                // ImageColumn::make('file_name')
+                //     ->label('Screenshot Error')
+                //     ->disk('screenshots')
+                //     ->visibility('public')
+                //     ->imageHeight(40)
+                //     ->imageWidth(40)
+                //     ->getStateUsing(function ($record) {
+                //         if (! $record->file_name) {
+                //             return null;
+                //         }
 
-                        return Storage::disk('screenshots')->url($record->file_name);
-                    }),
+                //         return Storage::disk('screenshots')->url($record->file_name);
+                //     }),
 
                 TextColumn::make('nama_robot')
                     ->label('Nama Robot')
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('file_name')
+                    ->label('Nama File Screenshot')
+                    ->searchable()
+                    ->tooltip(function ($record): string {
+                        $fileName = wordwrap((string) $record->file_name, 28, "\n", true);
+
+                        return "Klik untuk melihat gambar Error:\n" . $fileName;
+                    })
+                    ->sortable(),
+
                 TextColumn::make('created_at')
                     ->label('Tanggal')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')

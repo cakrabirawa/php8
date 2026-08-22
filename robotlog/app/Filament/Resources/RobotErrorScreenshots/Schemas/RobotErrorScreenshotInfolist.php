@@ -35,7 +35,7 @@ class RobotErrorScreenshotInfolist
 
                 TextEntry::make('created_at')
                     ->label('Created At')
-                    ->dateTime('d/m/Y H:i:s'),
+                    ->dateTime('d/m/y H:i:s'),
             ]);
     }
 }

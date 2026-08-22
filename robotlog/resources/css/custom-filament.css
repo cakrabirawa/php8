@@ -19,11 +19,24 @@
     height: 0 !important;
 }
 
+/* Palet dark mode lembut ala WhatsApp */
+html.dark {
+    --wa-bg-main: #0b141a;
+    --wa-bg-surface: #111b21;
+    --wa-bg-elevated: #182229;
+    --wa-bg-input: #202c33;
+    --wa-border: #2a3942;
+    --wa-border-soft: rgba(255, 255, 255, 0.08);
+    --wa-text: #e9edef;
+    --wa-text-muted: #aebac1;
+    --wa-hover: #233138;
+}
+
 /* Mengunci warna background halaman utama agar identik dengan WhatsApp */
 .fi-layout .dark body,
 .fi-main.dark,
 html.dark {
-    background-color: #111b21 !important;
+    background-color: var(--wa-bg-main) !important;
 }
 
 /* Mengunci warna card, sidebar, dan header admin area */
@@ -31,9 +44,84 @@ html.dark {
 .dark .fi-topbar,
 .dark .fi-section,
 .dark .fi-ta-ctn {
-    background-color: #121b22 !important;
-    /* Latar panel sekunder WA */
-    border-color: #222e35 !important;
+    background-color: var(--wa-bg-surface) !important;
+    border-color: var(--wa-border) !important;
+}
+
+.dark body,
+.dark .fi-layout,
+.dark .fi-main,
+.dark .fi-main-ctn {
+    background-color: var(--wa-bg-main) !important;
+    color: var(--wa-text) !important;
+}
+
+/* Selaraskan latar layer dashboard berdasarkan struktur DOM Filament */
+.dark #fi-main-content,
+.dark .fi-page,
+.dark .fi-page-main,
+.dark .fi-page-content,
+.dark .fi-page-header-main-ctn {
+    background-color: var(--wa-bg-main) !important;
+}
+
+.dark .fi-section.fi-section-not-contained,
+.dark .fi-section.fi-section-not-contained>.fi-section-content-ctn,
+.dark .fi-section.fi-section-not-contained>.fi-section-content-ctn>.fi-section-content {
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+
+.dark .fi-section,
+.dark .fi-ta-ctn,
+.dark .fi-wi-stats-overview-stat,
+.dark .fi-dropdown-list,
+.dark .fi-popover-content,
+.dark .fi-modal-window {
+    background-color: var(--wa-bg-elevated) !important;
+    border-color: var(--wa-border) !important;
+}
+
+.dark .fi-section-header-heading,
+.dark .fi-ta-header-cell-label,
+.dark .fi-wi-stats-overview-stat-value {
+    color: var(--wa-text) !important;
+}
+
+.dark .fi-section-header-description,
+.dark .fi-wi-stats-overview-stat-label,
+.dark .fi-wi-stats-overview-stat-description,
+.dark .fi-ta-text-item-label,
+.dark .fi-input-wrp {
+    color: var(--wa-text-muted) !important;
+}
+
+.dark .fi-input-wrp,
+.dark .fi-select-input,
+.dark .fi-textarea,
+.dark .fi-dropdown-list-item:hover,
+.dark .fi-popover-content .fi-btn:hover {
+    background-color: var(--wa-bg-input) !important;
+}
+
+.dark .fi-ta-header-cell,
+.dark .fi-ta-header-ctn,
+.dark .fi-ta-content {
+    border-color: var(--wa-border-soft) !important;
+}
+
+.dark .fi-ta-main,
+.dark .fi-ta-content-ctn,
+.dark .fi-ta-table,
+.dark .fi-ta-row,
+.dark .fi-ta-header,
+.dark .fi-ta-header-toolbar,
+.dark .fi-pagination {
+    background-color: var(--wa-bg-elevated) !important;
+}
+
+.dark .fi-ta-row:hover {
+    background-color: var(--wa-hover) !important;
 }
 
 /* Targetkan elemen pembungkus di dalam cell header (th) */
@@ -90,10 +178,8 @@ html.dark {
 /* Mode Gelap: Ubah background menjadi abu-abu gelap khas panel profil Filament */
 .dark .fi-dropdown-list,
 .dark .fi-popover-content {
-    background-color: rgb(24, 24, 27) !important;
-    /* Menerapkan bg-zinc-900 bawaan Filament */
-    border: 1px solid rgb(39, 39, 42) !important;
-    /* Menerapkan border-zinc-800 bawaan Filament */
+    background-color: var(--wa-bg-elevated) !important;
+    border: 1px solid var(--wa-border) !important;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
 }
 
@@ -110,7 +196,7 @@ html.dark {
 
 /* Mode Gelap: Warna teks normal menjadi abu-abu terang */
 .dark .fi-dropdown-list-item {
-    color: rgb(228, 228, 231) !important;
+    color: var(--wa-text) !important;
 }
 
 /* Efek Hover: Samakan dengan feedback hover menu profil asli */
@@ -120,6 +206,62 @@ html.dark {
 }
 
 .dark .fi-dropdown-list-item:hover {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    /* bg-white/5 di mode gelap */
+    background-color: var(--wa-hover) !important;
+}
+
+/* Samakan background card statistik robot dengan card Welcome */
+.fi-wi-stats-overview-stat.robot-overview-same-bg {
+    background-color: rgb(255, 255, 255) !important;
+    border: 1px solid rgba(3, 7, 18, 0.05) !important;
+    box-shadow: none !important;
+}
+
+.dark .fi-wi-stats-overview-stat.robot-overview-same-bg {
+    background-color: var(--wa-bg-elevated) !important;
+    border: 1px solid var(--wa-border-soft) !important;
+    box-shadow: none !important;
+}
+
+/* Samakan warna celah (space) antar kartu stats robot dengan warna kartu */
+.robot-overview-grid-container .fi-section-content>div {
+    background-color: rgb(255, 255, 255) !important;
+    border: 1px solid rgba(3, 7, 18, 0.05) !important;
+    border-radius: 0.75rem !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+.dark .robot-overview-grid-container .fi-section-content>div {
+    background-color: var(--wa-bg-elevated) !important;
+    border-color: var(--wa-border-soft) !important;
+}
+
+/* Gap antar card berasal dari schema grid internal (.fi-sc-has-gap), jadi paksa nol */
+.robot-overview-grid-container .fi-section-content .fi-sc.fi-sc-has-gap {
+    gap: 0 !important;
+}
+
+.robot-overview-grid-container .fi-wi-stats-overview-stat.robot-overview-same-bg {
+    border-radius: 0 !important;
+}
+
+/* Seragamkan border semua card dashboard */
+:root {
+    --dashboard-card-border-light: rgba(3, 7, 18, 0.05);
+    --dashboard-card-border-dark: rgba(255, 255, 255, 0.1);
+}
+
+.fi-section:not(.fi-section-not-contained):not(.fi-aside),
+.fi-section.fi-aside>.fi-section-content-ctn,
+.fi-ta-ctn,
+.fi-wi-stats-overview-stat {
+    border: 1px solid var(--dashboard-card-border-light) !important;
+    box-shadow: none !important;
+}
+
+.dark .fi-section:not(.fi-section-not-contained):not(.fi-aside),
+.dark .fi-section.fi-aside>.fi-section-content-ctn,
+.dark .fi-ta-ctn,
+.dark .fi-wi-stats-overview-stat {
+    border-color: var(--wa-border-soft) !important;
 }

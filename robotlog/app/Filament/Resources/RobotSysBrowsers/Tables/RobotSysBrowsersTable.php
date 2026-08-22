@@ -79,7 +79,7 @@ class RobotSysBrowsersTable
                     ->searchable(),
                 TextColumn::make('timestamp')->label("Time Stamp")
                     ->sortable()
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable(),
                 TextColumn::make('caption')->label("Caption")
                     ->sortable()
@@ -89,11 +89,11 @@ class RobotSysBrowsersTable
                     ->searchable(),
                 TextColumn::make('start_date')->label("Start Date")
                     ->searchable()
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable(),
                 TextColumn::make('end_date')->label("End Date")
                     ->searchable()
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable(),
                 TextColumn::make('duration')
                     ->label('Duration')
@@ -114,11 +114,11 @@ class RobotSysBrowsersTable
                         ]);
                     }),
                 TextColumn::make('created_at')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

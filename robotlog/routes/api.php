@@ -21,6 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/robot-job-count', [RobotJobCountController::class, 'store']);
     Route::post('/robot-is-alive', [RobotIsAliveController::class, 'store']);
     Route::post('/robot-posting', [RobotPostingController::class, 'store']);
+    Route::patch('/robot-posting/final-status', [RobotPostingController::class, 'updateFinalStatus']);
     Route::post('/robot-job-logs', [RobotJobLogController::class, 'store']);
     Route::post('/robot-error-screenshot', [RobotErrorScreenshotController::class, 'store']);
 });

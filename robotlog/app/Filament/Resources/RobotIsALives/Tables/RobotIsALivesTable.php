@@ -28,7 +28,7 @@ class RobotIsALivesTable
                 TextColumn::make('robot_name')->label("Robot Name")
                     ->searchable(),
                 TextColumn::make('robot_last_activity_at')->label("Robot Last Activity")
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable(),
                 TextColumn::make('diff_seconds')
                     ->label('Robot Diff Time')
@@ -48,11 +48,11 @@ class RobotIsALivesTable
                         ]);
                     }),
                 TextColumn::make('created_at')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime('d/m/Y H:i:s')
+                    ->dateTime('d/m/y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
