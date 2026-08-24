@@ -16,7 +16,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
         "nwidart/laravel-modules": "*",
-        "stimulsoft/reports-php": "^2026.2",
+        "stimulsoft/reports-php": "^2026.3",
         "watheqalshowaiter/filament-sticky-table-header": "^1.5"
     },
     "require-dev": {

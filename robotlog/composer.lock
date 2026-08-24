@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "edb67077883f08a6e4a2a47c6933ba44",
+    "content-hash": "f6f783787f3a8f8e3ff4fb0b5b09d0b4",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -5994,16 +5994,16 @@
         },
         {
             "name": "stimulsoft/reports-php",
-            "version": "2026.3.1",
+            "version": "2026.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stimulsoft/Stimulsoft.Reports.PHP.git",
-                "reference": "795bc6d455e89b8c5f69ef10c79308a549822977"
+                "reference": "b4627486a0c7531dad58ceec5b9f7dc2c1a254ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stimulsoft/Stimulsoft.Reports.PHP/zipball/795bc6d455e89b8c5f69ef10c79308a549822977",
-                "reference": "795bc6d455e89b8c5f69ef10c79308a549822977",
+                "url": "https://api.github.com/repos/stimulsoft/Stimulsoft.Reports.PHP/zipball/b4627486a0c7531dad58ceec5b9f7dc2c1a254ec",
+                "reference": "b4627486a0c7531dad58ceec5b9f7dc2c1a254ec",
                 "shasum": ""
             },
             "require": {
@@ -6057,9 +6057,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stimulsoft/Stimulsoft.Reports.PHP/issues",
-                "source": "https://github.com/stimulsoft/Stimulsoft.Reports.PHP/tree/2026.3.1"
+                "source": "https://github.com/stimulsoft/Stimulsoft.Reports.PHP/tree/2026.3.2"
             },
-            "time": "2026-07-17T09:01:22+00:00"
+            "time": "2026-08-14T08:45:57+00:00"
         },
         {
             "name": "symfony/clock",
