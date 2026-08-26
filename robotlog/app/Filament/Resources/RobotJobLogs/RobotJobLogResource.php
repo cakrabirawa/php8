@@ -27,7 +27,7 @@ class RobotJobLogResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Robot Logs';
 
-    protected static ?string $navigationLabel = 'Batch Job Logs';
+    protected static ?string $navigationLabel = 'Batch Job Errors';
 
     public static function form(Schema $schema): Schema
     {
@@ -62,5 +62,10 @@ class RobotJobLogResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'danger';
     }
 }

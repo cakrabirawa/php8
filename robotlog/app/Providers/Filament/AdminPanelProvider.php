@@ -24,6 +24,7 @@ use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Navigation\NavigationItem;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Css;
+use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Facades\Blade;
@@ -80,15 +81,29 @@ class AdminPanelProvider extends PanelProvider
                 FilamentShieldPlugin::make()
                     ->navigationGroup('Admin'),
             ])
-            ->navigationItems([
-                NavigationItem::make('Logout')
-                    ->label('Keluar Sistem')
-                    ->url(fn(): string => "javascript:document.getElementById('logout-form').submit();")
-                    ->icon('heroicon-o-arrow-left-on-rectangle')
-                    ->sort(1000)
-                    ->group('Sistem')
-                    ->visible(fn(): bool => auth()->check()),
-            ])
+            // Menyisipkan Tombol Keluar Sistem secara manual agar bisa mengirim form POST
+            ->renderHook(
+                PanelsRenderHook::SIDEBAR_NAV_END,
+                fn(): string => Blade::render('
+                    @if(auth()->check())
+                        <div class="px-6 py-3">
+                            <form id="sidebar-logout-form-final" action="{{ route(\'filament.admin.auth.logout\') }}" method="POST" class="hidden">
+                                @csrf
+                            </form>
+
+                            <!-- Tombol Keluar Sistem Latar Merah Full Rata Tengah -->
+                            <center><button
+                                type="button"
+                                data-laravel-spa-link-skip="true"
+                                onclick="event.preventDefault(); document.getElementById(\'sidebar-logout-form-final\').submit();"
+                                class="flex w-full items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm outline-none transition duration-75 hover:bg-red-500 focus-visible:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400"
+                            >
+                                <span>Sign Out</span>
+                            </button></center>
+                        </div>
+                    @endif
+                ')
+            )
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
                 fn(): string => view('filament.components.custom-user-menu')->render(),
@@ -101,9 +116,14 @@ class AdminPanelProvider extends PanelProvider
                 </div>
             '),
             )
-            ->maxContentWidth('full')
-        ;
+            ->maxContentWidth('full');;
     }
 
-    public function boot(): void {}
+    public function boot(): void
+    {
+        // Memaksa seluruh tabel di Filament menggunakan loading placeholder secara global
+        Table::configureUsing(function (Table $table): void {
+            $table->deferLoading();
+        });
+    }
 }

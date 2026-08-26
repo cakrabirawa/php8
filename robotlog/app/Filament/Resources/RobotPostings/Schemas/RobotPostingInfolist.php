@@ -14,7 +14,8 @@ class RobotPostingInfolist
                 TextEntry::make('index_baris')
                     ->numeric()
                     ->placeholder('-'),
-                TextEntry::make('invoice_number'),
+                TextEntry::make('invoice_number')->color('success')
+                    ->placeholder('-'),
                 TextEntry::make('company')
                     ->placeholder('-'),
                 // TextEntry::make('invoice_account')
@@ -30,7 +31,8 @@ class RobotPostingInfolist
                     ->label('Error Details Log')
                     ->limit(200)
                     ->wrap()
-                    ->tooltip(fn($state) => $state),
+                    ->tooltip(fn($state) => $state)
+                    ->color('danger'),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),

@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\RobotIsALive;
 use Carbon\Carbon;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,6 +15,7 @@ class RobotStatusTable extends TableWidget
     protected static ?int $sort = 2;
 
     protected string $view = 'filament.widgets.robot-status-table';
+    protected int | string | array $columnSpan = 'full';
 
     protected function getTableQuery(): Builder
     {
@@ -23,17 +25,17 @@ class RobotStatusTable extends TableWidget
     protected function getTableColumns(): array
     {
         return [
-            Tables\Columns\TextColumn::make('robot_name')
+            TextColumn::make('robot_name')
                 ->label('Robot')
                 ->searchable()
                 ->sortable(),
 
-            Tables\Columns\TextColumn::make('robot_last_activity_at')
+            TextColumn::make('robot_last_activity_at')
                 ->label('Terakhir aktif')
                 ->dateTime('d/m/y H:i:s')
                 ->sortable(),
 
-            Tables\Columns\TextColumn::make('status')
+            TextColumn::make('status')
                 ->label('Status')
                 ->getStateUsing(function ($record) {
                     if (! $record->robot_last_activity_at) {
@@ -49,7 +51,7 @@ class RobotStatusTable extends TableWidget
                 ->color(fn($state) => $state === 'Aktif' ? 'active' : 'inactive')
                 ->icon(fn($state) => $state === 'Aktif' ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'),
 
-            Tables\Columns\TextColumn::make('delay')
+            TextColumn::make('delay')
                 ->label('Selisih')
                 ->getStateUsing(function ($record) {
                     if (! $record->robot_last_activity_at) {
