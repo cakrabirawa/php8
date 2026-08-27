@@ -219,9 +219,6 @@ class RobotSysBrowserController extends Controller
             'success' => true,
             'message' => 'Berhasil mengambil data status ENDED.',
             'data' => $records,
-            'meta' => [
-                'total' => $records,
-            ],
         ], 200);
     }
 }

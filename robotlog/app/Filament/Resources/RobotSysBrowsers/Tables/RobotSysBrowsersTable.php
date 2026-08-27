@@ -122,28 +122,28 @@ class RobotSysBrowsersTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->headerActions([
-                Action::make('refresh')
-                    ->label('Refresh')
-                    ->icon('heroicon-m-arrow-path')
-                    ->color('danger')
-                    ->action(function ($livewire) {
-                        $livewire->resetTable();
-                    }),
-            ])
-            ->filters([
-                // 1. Contoh Filter Select dengan Nilai Default
-                SelectFilter::make('status')
-                    ->options([
-                        'ERROR' => 'ERROR',
-                        'SUCCESS' => 'SUCCESS',
-                        'END' => 'END',
-                        'ENDED' => 'ENDED',
-                        'EXECUTING' => 'EXECUTING',
-                    ])
-                    ->default('ERROR'), // Kolom otomatis terfilter 'draft' saat halaman dibuka
+            // ->headerActions([
+            //     Action::make('refresh')
+            //         ->label('Refresh')
+            //         ->icon('heroicon-m-arrow-path')
+            //         ->color('danger')
+            //         ->action(function ($livewire) {
+            //             $livewire->resetTable();
+            //         }),
+            // ])
+            // ->filters([
+            //     // 1. Contoh Filter Select dengan Nilai Default
+            //     SelectFilter::make('status')
+            //         ->options([
+            //             'ERROR' => 'ERROR',
+            //             'SUCCESS' => 'SUCCESS',
+            //             'END' => 'END',
+            //             'ENDED' => 'ENDED',
+            //             'EXECUTING' => 'EXECUTING',
+            //         ])
+            //         ->default('ERROR'), // Kolom otomatis terfilter 'draft' saat halaman dibuka
 
-            ])
+            // ])
             ->recordActions([
                 // ViewAction::make(),
                 // EditAction::make(),
