@@ -118,6 +118,7 @@ class RobotPostingController extends Controller
         ]);
 
         $company = $validated['company'];
+        $invoice_number = $validated['invoice_number'];
 
         if (blank($company)) {
             return response()->json([
@@ -129,7 +130,7 @@ class RobotPostingController extends Controller
         $finalStatus = $validated['final_status'] ?? 'Checked';
 
         $affectedRows = RobotPosting::query()
-            ->whereRaw('upper(TRIM(invoice_number)) = upper(TRIM(?))', [$validated['invoice_number']], 'and')
+            ->whereRaw('upper(TRIM(invoice_number)) = upper(TRIM(?))', [$invoice_number], 'and')
             ->whereRaw('upper(TRIM(company)) = upper(TRIM(?))', [$company], 'and')
             ->update([
                 'final_status' => $finalStatus,
@@ -139,7 +140,7 @@ class RobotPostingController extends Controller
         if ($affectedRows === 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Data RobotPosting tidak ditemukan untuk invoice_number dan company tersebut.',
+                'message' => 'Data RobotPosting tidak ditemukan untuk invoice_number {' . $invoice_number . '} dan company {' . $company . '} tersebut.',
                 'data' => [
                     'invoice_number' => $validated['invoice_number'],
                     'company' => $company,
