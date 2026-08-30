@@ -158,7 +158,7 @@ class RobotSysBrowserController extends Controller
         }
 
         $query = RobotSysBrowser::query()
-            ->select(['batch_job_id', 'company'])
+            ->select(['batch_job_id', 'company', 'invoice_no'])
             ->whereNotIn('batch_job_id', RobotJobLog::query()->select('job_id')->whereNotNull('job_id'))
             ->where(function ($q) {
                 $q->where('status', 'ERROR')
