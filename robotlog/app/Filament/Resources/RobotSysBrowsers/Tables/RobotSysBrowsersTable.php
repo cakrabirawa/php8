@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\RobotSysBrowsers\Tables;
 
+use App\Models\RobotSysBrowser;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Filament\Actions\Action;
@@ -61,7 +62,8 @@ class RobotSysBrowsersTable
                             // Menghilangkan tombol "Cancel" bawaan dan hanya menyisakan tombol tutup
                             ->modalSubmitAction(false)
                             ->modalCancelActionLabel('Close')
-                    ),
+                    )
+                    ->searchable(),
                 TextColumn::make('invoice_no')->label("Invoice Number")
                     ->sortable()
                     ->copyable()
@@ -80,21 +82,26 @@ class RobotSysBrowsersTable
                 TextColumn::make('timestamp')->label("Time Stamp")
                     ->sortable()
                     ->dateTime('d/m/y H:i:s')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('caption')->label("Caption")
                     ->sortable()
+                    ->searchable()
                     ->searchable(),
                 TextColumn::make('server_id')->label("Server Id")
                     ->sortable()
+                    ->searchable()
                     ->searchable(),
                 TextColumn::make('start_date')->label("Start Date")
                     ->searchable()
                     ->dateTime('d/m/y H:i:s')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('end_date')->label("End Date")
                     ->searchable()
                     ->dateTime('d/m/y H:i:s')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('duration')
                     ->label('Duration')
                     ->getStateUsing(function ($record) {
@@ -112,14 +119,17 @@ class RobotSysBrowsersTable
                             'short' => true, // Menghasilkan teks ringkas seperti "5s", "2m", "1h"
                             'parts' => 2,    // Contoh jika detail: "1m 15s"
                         ]);
-                    }),
+                    })
+                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime('d/m/y H:i:s')
                     ->sortable()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime('d/m/y H:i:s')
                     ->sortable()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             // ->headerActions([
@@ -131,19 +141,27 @@ class RobotSysBrowsersTable
             //             $livewire->resetTable();
             //         }),
             // ])
-            // ->filters([
-            //     // 1. Contoh Filter Select dengan Nilai Default
-            //     SelectFilter::make('status')
-            //         ->options([
-            //             'ERROR' => 'ERROR',
-            //             'SUCCESS' => 'SUCCESS',
-            //             'END' => 'END',
-            //             'ENDED' => 'ENDED',
-            //             'EXECUTING' => 'EXECUTING',
-            //         ])
-            //         ->default('ERROR'), // Kolom otomatis terfilter 'draft' saat halaman dibuka
+            ->filters([
+                // 1. Contoh Filter Select dengan Nilai Default
+                SelectFilter::make('status')
+                    ->options([
+                        'ERROR' => 'ERROR',
+                        'SUCCESS' => 'SUCCESS',
+                        'END' => 'END',
+                        'ENDED' => 'ENDED',
+                        'EXECUTING' => 'EXECUTING',
+                    ])
+                    ->default(''), // Kolom otomatis terfilter 'draft' saat halaman dibuka
+                SelectFilter::make('company')
+                    ->options(
+                        RobotSysBrowser::query()
+                            ->whereNotNull('company')
+                            ->distinct()
+                            ->pluck('company', 'company') // Parameter: pluck(Label_Tampil, Nilai_Value_Database)
+                            ->toArray()
+                    )
 
-            // ])
+            ])
             ->recordActions([
                 // ViewAction::make(),
                 // EditAction::make(),

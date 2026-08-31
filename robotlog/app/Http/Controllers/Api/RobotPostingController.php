@@ -86,8 +86,11 @@ class RobotPostingController extends Controller
                     'c_is_split_invoice_return'         => $validated['(C) is split invoice return'] ?? null,
                     'created_date_and_time'             => $createdDateTime,
                     'c_ready_to_post_created_datetime'  => $readyToPostDateTime,
+                    'attempt_posting'                   => 1,
                 ]
             );
+
+            $invoice->increment('attempt_posting');
 
             $isWasRecentlyCreated = $invoice->wasRecentlyCreated;
 

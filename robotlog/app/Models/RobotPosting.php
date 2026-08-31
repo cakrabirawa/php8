@@ -36,6 +36,10 @@ class RobotPosting extends Model
         'c_ready_to_post_created_datetime',
         'final_status',
         'final_status_checked_date',
+        'attempt_posting',
+        'attempt_recovery',
+        'sent_email_to_support_status',
+        'sent_email_to_support_date',
     ];
 
     protected $casts = [

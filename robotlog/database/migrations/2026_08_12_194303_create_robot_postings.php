@@ -21,7 +21,7 @@ return new class extends Migration
             // invoice_number diberi INDEX karena menjadi kunci pencarian relasi (invoice_no di RobotLog)
             $table->string('invoice_number')->unique()->index();
 
-            $table->string('company')->nullable();
+            $table->string('company')->nullable()->index();
             $table->string('invoice_account')->nullable();
             $table->string('name')->nullable();
             $table->string('purchase_order')->nullable();
@@ -52,6 +52,13 @@ return new class extends Migration
             // Kolom status akhir hasil pengecekan
             $table->string('final_status', 50)->nullable();
             $table->timestamp('final_status_checked_date')->nullable();
+
+            // Kolom attempt
+            $table->integer('attempt_posting')->nullable();
+            $table->integer('attempt_recovery')->nullable();
+
+            $table->boolean('sent_email_to_support_status')->nullable();
+            $table->timestamp('sent_email_to_support_date')->nullable();
 
             // Timestamps bawaan Laravel (created_at & updated_at)
             $table->timestamps();

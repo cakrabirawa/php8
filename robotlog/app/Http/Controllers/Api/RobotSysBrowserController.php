@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\RobotJobLog;
+use App\Models\RobotPosting;
 use App\Models\RobotSysBrowser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -84,6 +85,15 @@ class RobotSysBrowserController extends Controller
                         $insertedCount++;
                     } else {
                         $updatedCount++;
+                    }
+
+                    // 3. LOGIKA UTAMA: Jika invoice_no ditemukan, cari di RobotPosting dan increment
+                    if (filled($invoiceNo)) {
+                        $robotPosting = RobotPosting::where('invoice_number', $invoiceNo)->first();
+
+                        if ($robotPosting) {
+                            $robotPosting->increment('attempt_posting');
+                        }
                     }
 
                     $savedLogs[] = $log;

@@ -121,6 +121,8 @@ class RobotPostingsTable
                     ->searchable(),
                 TextColumn::make('name')
                     ->searchable(),
+                TextColumn::make('attempt_posting')->label("Attempt Posting")
+                    ->searchable(),
                 TextColumn::make('final_status')->label("Final Status")
                     ->searchable(),
                 TextColumn::make('final_status_checked_date')->label("Final Status Checked Date")

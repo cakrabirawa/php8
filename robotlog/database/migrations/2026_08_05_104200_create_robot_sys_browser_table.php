@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->dateTime('timestamp');
             $table->boolean('automatic_transaction')->default(false); // Menggunakan boolean untuk status transaksi otomatis
-            $table->string('batch_job_id')->nullable();
+            $table->string('batch_job_id')->nullable()->index();
             $table->text('caption')->nullable(); // Menggunakan text karena caption biasanya berpotensi panjang
-            $table->string('invoice_no')->nullable();
-            $table->string('company')->nullable();
+            $table->string('invoice_no')->nullable()->index();
+            $table->string('company')->nullable()->index();
             $table->string('server_id')->nullable();
             $table->string('status')->nullable(); // Misal: 'Success', 'Failed', 'Pending'
             $table->dateTime('start_date')->nullable();
