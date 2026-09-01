@@ -87,8 +87,8 @@ class RobotSysBrowserController extends Controller
                         $updatedCount++;
                     }
 
-                    // 3. LOGIKA UTAMA: Jika invoice_no ditemukan, cari di RobotPosting dan increment
-                    if (filled($invoiceNo)) {
+                    // 3. LOGIKA UTAMA: Jika invoice_no ditemukan dan status terakhir belum ENDED, cari di RobotPosting dan increment
+                    if (filled($invoiceNo) && Str::upper((string) $log->status) !== 'ENDED') {
                         $robotPosting = RobotPosting::where('invoice_number', $invoiceNo)->first();
 
                         if ($robotPosting) {
