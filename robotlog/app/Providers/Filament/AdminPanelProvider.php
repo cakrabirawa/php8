@@ -83,14 +83,6 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationGroup('Admin'),
             ])
             ->renderHook(
-                PanelsRenderHook::TOPBAR_START, // Posisi penempatan icon
-                fn(): string => Blade::render('
-                <button x-data x-on:click="$store.sidebar.isOpen = !$store.sidebar.isOpen" class="p-2 text-gray-500">
-                    <x-heroicon-o-bars-3 class="w-6 h-6" />
-                </button>
-            '),
-            )
-            ->renderHook(
                 PanelsRenderHook::SIDEBAR_NAV_END,
                 fn(): string => Blade::render('
                     @if(auth()->check())
@@ -112,36 +104,19 @@ class AdminPanelProvider extends PanelProvider
                     @endif
                 ')
             )
-            // ->renderHook(
-            //     PanelsRenderHook::USER_MENU_BEFORE,
-            //     fn(): string => view('filament.components.custom-user-menu')->render(),
-            // )
-            // ->renderHook(
-            //     PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
-            //     fn(): string => Blade::render('
-            //     <div class="text-sm font-medium text-green-500 me-3">
-            //         Halo, Selamat Datang, {{ auth()->user()->name ?? "User" }}!
-            //     </div>
-            // '),
-            // )
+            ->renderHook(
+                PanelsRenderHook::USER_MENU_BEFORE,
+                fn(): string => view('filament.components.custom-user-menu')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
+                fn(): string => Blade::render('
+                <div class="text-sm font-medium text-green-500 me-3">
+                    Halo, Selamat Datang, {{ auth()->user()->name ?? "User" }}!
+                </div>
+            '),
+            )
             ->maxContentWidth('full')
-            ->bootUsing(function () {
-                FilamentView::registerRenderHook(
-                    PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
-                    fn(): string => Blade::render('
-                    <!-- x-on:click ini mendeteksi klik dan membalikkan status buka/tutup sidebar -->
-                    <button
-                        x-on:click="$store.sidebar.isOpen = !$store.sidebar.isOpen"
-                        class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg focus:outline-none"
-                    >
-                        <x-filament::icon
-                            icon="heroicon-o-bars-3"
-                            class="h-6 w-6 text-gray-500 dark:text-gray-400"
-                        />
-                    </button>
-                '),
-                );
-            })
         ;
     }
 

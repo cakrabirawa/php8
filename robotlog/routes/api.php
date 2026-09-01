@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\RobotJobCountController;
 use App\Http\Controllers\Api\RobotSysBrowserController;
 use App\Http\Controllers\Api\RobotPostingController;
 use App\Http\Controllers\Api\RobotRecoveryInvoiceController;
+use App\Http\Controllers\Api\RobotUtils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,3 +27,5 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/robot-sys-browser/executing-count', [RobotSysBrowserController::class, 'getExecutingCount']);
 Route::get('/robot-sys-browser/error-batches', [RobotSysBrowserController::class, 'getErrorBatchJobs']);
 Route::get('/robot-sys-browser/ended-batches', [RobotSysBrowserController::class, 'getEndedBatchJobs']);
+
+Route::get('/clean-all-table', [RobotUtils::class, 'clean_robot_table']);
