@@ -21,15 +21,12 @@ class RobotSysBrowserController extends Controller
 
         // 1. Validasi mendukung array maupun single object payload
         $validator = Validator::make($items, [
-            '*.TimeStamp' => 'nullable|date_format:Y-m-d H:i:s',
-            '*.AutomaticTransaction' => 'nullable|string|in:ON,OFF',
-            '*.BatchJobId' => 'required|string',
-            '*.Caption' => 'nullable|string',
-            '*.Company' => 'required|string',
-            '*.ServerId' => 'nullable|string',
-            '*.Status' => 'nullable|string',
-            '*.StartDate' => 'nullable|date_format:Y-m-d H:i:s',
-            '*.EndDate' => 'nullable|date_format:Y-m-d H:i:s',
+            '*.batchJobId' => 'required',
+            '*.caption' => 'nullable|string',
+            '*.company' => 'required|string',
+            '*.status' => 'nullable|string',
+            '*.startDateTime' => 'nullable|date',
+            '*.endDateTime' => 'nullable|date',
         ]);
 
         if ($validator->fails()) {
@@ -53,48 +50,48 @@ class RobotSysBrowserController extends Controller
                 RobotSysBrowser::query()->delete();
 
                 foreach ($items as $item) {
-                    $captionText = $clean($item['Caption'] ?? null);
-                    $batchJobId = $clean($item['BatchJobId'] ?? null);
+                    $captionText = $clean($item['caption'] ?? null);
 
-                    if (blank($batchJobId)) {
-                        $skippedCount++;
+                    if (blank($captionText) || !Str::startsWith(Str::upper($captionText), 'PURCHASE INVOICE')) {
                         continue;
                     }
+
+                    $batchJobId = $clean($item['batchJobId'] ?? null);
 
                     $invoiceNo = null;
                     if (filled($captionText)) {
                         $invoiceNo = $clean(Str::after(Str::upper($captionText), 'PURCHASE INVOICE'));
                     }
 
+                    $timestamp = date('Y-m-d H:i:s');
+
                     $log = RobotSysBrowser::updateOrCreate(
                         ['batch_job_id' => $batchJobId],
                         [
-                            'timestamp' => $clean($item['TimeStamp'] ?? null),
-                            'automatic_transaction' => $clean($item['AutomaticTransaction'] ?? null),
+                            'timestamp' => $timestamp,
                             'caption' => $captionText,
                             'invoice_no' => $invoiceNo,
-                            'company' => $clean($item['Company'] ?? null),
-                            'server_id' => $clean($item['ServerId'] ?? null),
-                            'status' => $clean($item['Status'] ?? null),
-                            'start_date' => $clean($item['StartDate'] ?? null),
-                            'end_date' => $clean($item['EndDate'] ?? null),
+                            'company' => $clean($item['company'] ?? null),
+                            'status' => Str::upper($clean($item['status'] ?? null)),
+                            'start_date' => $clean($item['startDateTime'] ?? null),
+                            'end_date' => $clean($item['endDateTime'] ?? null),
                         ]
                     );
 
-                    if ($log->wasRecentlyCreated) {
-                        $insertedCount++;
-                    } else {
-                        $updatedCount++;
-                    }
+                    // if ($log->wasRecentlyCreated) {
+                    //     $insertedCount++;
+                    // } else {
+                    //     $updatedCount++;
+                    // }
 
-                    // 3. LOGIKA UTAMA: Jika invoice_no ditemukan dan status terakhir belum ENDED, cari di RobotPosting dan increment
-                    if (filled($invoiceNo) && Str::upper((string) $log->status) !== 'ENDED') {
-                        $robotPosting = RobotPosting::where('invoice_number', $invoiceNo)->first();
+                    // // 3. LOGIKA UTAMA: Jika invoice_no ditemukan dan status terakhir belum ENDED, cari di RobotPosting dan increment
+                    // if (filled($invoiceNo) && Str::upper((string) $log->status) !== 'ENDED') {
+                    //     $robotPosting = RobotPosting::where('invoice_number', $invoiceNo)->first();
 
-                        if ($robotPosting) {
-                            $robotPosting->increment('attempt_posting');
-                        }
-                    }
+                    //     if ($robotPosting) {
+                    //         $robotPosting->increment('attempt_posting');
+                    //     }
+                    // }
 
                     $savedLogs[] = $log;
                 }

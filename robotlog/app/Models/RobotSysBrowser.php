@@ -10,12 +10,10 @@ class RobotSysBrowser extends Model
 
     protected $fillable = [
         'timestamp',
-        'automatic_transaction',
         'batch_job_id',
         'caption',
         'invoice_no',
         'company',
-        'server_id',
         'status',
         'start_date',
         'end_date',
