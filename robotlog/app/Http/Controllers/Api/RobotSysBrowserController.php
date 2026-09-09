@@ -51,11 +51,6 @@ class RobotSysBrowserController extends Controller
 
                 foreach ($items as $item) {
                     $captionText = $clean($item['caption'] ?? null);
-
-                    if (blank($captionText) || !Str::startsWith(Str::upper($captionText), 'PURCHASE INVOICE')) {
-                        continue;
-                    }
-
                     $batchJobId = $clean($item['batchJobId'] ?? null);
 
                     $invoiceNo = null;
