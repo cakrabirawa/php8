@@ -24,4 +24,9 @@ class RobotSysBrowser extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime',
     ];
+
+    public function robotJobLogs()
+    {
+        return $this->hasMany(RobotJobLog::class, 'batch_job_id', 'batch_job_id');
+    }
 }

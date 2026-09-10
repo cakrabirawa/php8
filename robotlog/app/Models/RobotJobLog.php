@@ -13,23 +13,22 @@ class RobotJobLog extends Model
     protected $table = 'robot_job_logs';
 
     protected $fillable = [
-        'start_date',
-        'end_date',
-        'duration',
-        'job_id',
-        'timestamp_extracted',
-        'dialog_title',
-        'error_details_log',
+        'batch_job_id',
+        'company',
+        'status',
+        'caption',
+        'start_date_time',
+        'end_date_time',
+        'info',
     ];
 
     protected $casts = [
-        'start_date' => 'datetime:Y-m-d H:i:s',
-        'end_date' => 'datetime:Y-m-d H:i:s',
-        'timestamp_extracted' => 'datetime:Y-m-d H:i:s',
+        'start_date_time' => 'datetime:Y-m-d H:i:s',
+        'end_date_time' => 'datetime:Y-m-d H:i:s',
     ];
 
     public function robotSysBrowser(): BelongsTo
     {
-        return $this->belongsTo(RobotSysBrowser::class, 'job_id', 'batch_job_id');
+        return $this->belongsTo(RobotSysBrowser::class, 'batch_job_id', 'batch_job_id');
     }
 }

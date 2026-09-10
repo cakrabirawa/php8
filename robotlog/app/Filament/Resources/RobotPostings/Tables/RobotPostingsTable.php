@@ -40,8 +40,8 @@ class RobotPostingsTable
                     ->orderBy('id', 'desc')
                     ->limit(1),
                 'last_job_error_details_log' => DB::table('robot_job_logs')
-                    ->select('error_details_log')
-                    ->whereRaw('job_id = (SELECT batch_job_id FROM robot_sys_browser WHERE upper(TRIM(invoice_no)) = upper(TRIM(robot_postings.invoice_number)) ORDER BY id DESC LIMIT 1)')
+                    ->select('info')
+                    ->whereRaw('batch_job_id = (SELECT batch_job_id FROM robot_sys_browser WHERE upper(TRIM(invoice_no)) = upper(TRIM(robot_postings.invoice_number)) ORDER BY id DESC LIMIT 1)')
                     ->orderBy('timestamp_extracted', 'desc')
                     ->limit(1),
             ]))
@@ -49,7 +49,7 @@ class RobotPostingsTable
                 'robotLogs as total_errors' => fn($q) => $q->where('status', 'ERROR')
             ]))
             ->columns([
-                TextColumn::make('invoice_number')
+                TextColumn::make('invoice_number')->label("Invoice No")
                     ->searchable()
                     ->copyable()
                     ->copyMessage(fn(string $state): string => "Teks '{$state}' berhasil disalin!")
@@ -66,7 +66,7 @@ class RobotPostingsTable
                             ]))
                     ),
                 TextColumn::make('last_sys_browser_status')
-                    ->label('Last Status')
+                    ->label('Last Batch Status')
                     ->badge()
                     ->color(fn(string $state): string => match (strtoupper(trim($state))) {
                         'ERROR' => 'danger',
@@ -105,7 +105,7 @@ class RobotPostingsTable
 
                 // 4. Kolom Timestamp dari sysbrowser
                 TextColumn::make('last_sys_browser_timestamp')
-                    ->label('Timestamp')
+                    ->label('Time Stamp')
                     ->dateTime('d/m/y H:i:s')
                     ->sortable(),
                 TextColumn::make('last_job_error_details_log')

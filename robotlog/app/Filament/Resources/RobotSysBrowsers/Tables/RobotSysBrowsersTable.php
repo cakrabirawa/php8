@@ -6,14 +6,11 @@ use App\Models\RobotSysBrowser;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 
 class RobotSysBrowsersTable
@@ -36,11 +33,8 @@ class RobotSysBrowsersTable
                     })->action(
                         Action::make('viewLatestLog')
                             ->label(fn($record) => "Detail Log Robot - Invoice Number: {$record->invoice_number}")
-                            // Mengatur agar isi modal diambil dari data RobotLog terkait
                             ->mountUsing(fn($form, $record) => $form->fill($record->latestRobotLog?->toArray() ?? []))
-                            // Mengubah popup menjadi mode "view saja" (menghilangkan tombol submit/save)
                             ->disabledSchema()
-                            // Menentukan isi/layout di dalam popup modal
                             ->schema([
                                 Grid::make()
                                     ->columns(2)
@@ -59,12 +53,11 @@ class RobotSysBrowsersTable
                                             ->label('Transaksi Otomatis'),
                                     ])
                             ])
-                            // Menghilangkan tombol "Cancel" bawaan dan hanya menyisakan tombol tutup
                             ->modalSubmitAction(false)
                             ->modalCancelActionLabel('Close')
                     )
                     ->searchable(),
-                TextColumn::make('invoice_no')->label("Invoice Number")
+                TextColumn::make('invoice_no')->label("Invoice No")
                     ->sortable()
                     ->copyable()
                     ->copyMessage(fn(string $state): string => "Teks '{$state}' berhasil disalin!")
@@ -88,10 +81,6 @@ class RobotSysBrowsersTable
                     ->sortable()
                     ->searchable()
                     ->searchable(),
-                TextColumn::make('server_id')->label("Server Id")
-                    ->sortable()
-                    ->searchable()
-                    ->searchable(),
                 TextColumn::make('start_date')->label("Start Date")
                     ->searchable()
                     ->dateTime('d/m/y H:i:s')
@@ -105,19 +94,15 @@ class RobotSysBrowsersTable
                 TextColumn::make('duration')
                     ->label('Duration')
                     ->getStateUsing(function ($record) {
-                        // Validasi jika salah satu tanggal kosong agar tidak error
                         if (!$record->start_date || !$record->end_date) {
                             return '-';
                         }
-
                         $start = Carbon::parse($record->start_date);
                         $end = Carbon::parse($record->end_date);
-
-                        // Menghitung selisih absolut (tanpa kata "ago" atau "from now")
                         return $start->diffForHumans($end, [
                             'syntax' => CarbonInterface::DIFF_ABSOLUTE,
-                            'short' => true, // Menghasilkan teks ringkas seperti "5s", "2m", "1h"
-                            'parts' => 2,    // Contoh jika detail: "1m 15s"
+                            'short' => true,
+                            'parts' => 2,
                         ]);
                     })
                     ->searchable(),
@@ -132,17 +117,7 @@ class RobotSysBrowsersTable
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            // ->headerActions([
-            //     Action::make('refresh')
-            //         ->label('Refresh')
-            //         ->icon('heroicon-m-arrow-path')
-            //         ->color('danger')
-            //         ->action(function ($livewire) {
-            //             $livewire->resetTable();
-            //         }),
-            // ])
             ->filters([
-                // 1. Contoh Filter Select dengan Nilai Default
                 SelectFilter::make('status')
                     ->options([
                         'ERROR' => 'ERROR',
@@ -151,28 +126,31 @@ class RobotSysBrowsersTable
                         'ENDED' => 'ENDED',
                         'EXECUTING' => 'EXECUTING',
                     ])
-                    ->default(''), // Kolom otomatis terfilter 'draft' saat halaman dibuka
+                    ->default('EXECUTING'),
                 SelectFilter::make('company')
                     ->options(
                         RobotSysBrowser::query()
-                            ->whereNotNull('company')
+                            ->whereNotNull('company', 'and')
                             ->distinct()
-                            ->pluck('company', 'company') // Parameter: pluck(Label_Tampil, Nilai_Value_Database)
+                            ->pluck('company', 'company')
                             ->toArray()
                     )
 
             ])
-            ->recordActions([
-                // ViewAction::make(),
-                // EditAction::make(),
-            ])
             ->defaultSort('start_date', 'desc')
-            ->toolbarActions([
-                // BulkActionGroup::make([
-                //     DeleteBulkAction::make(),
-                // ]),
-            ])
             ->striped()
+            ->groups([
+                Group::make('status')
+                    ->label('Status')
+                    ->collapsible(),
+                Group::make('invoice_no')
+                    ->label('Invoice No')
+                    ->collapsible(),
+                Group::make('company')
+                    ->label('Company')
+                    ->collapsible(),
+            ])
+            ->defaultGroup('status')
         ;
     }
 }

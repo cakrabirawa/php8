@@ -8,6 +8,7 @@ use App\Models\RobotPosting;
 use App\Models\RobotSysBrowser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,6 @@ class RobotSysBrowserController extends Controller
         $payload = $request->all();
         $items = array_is_list($payload) ? $payload : [$payload];
 
-        // 1. Validasi mendukung array maupun single object payload
         $validator = Validator::make($items, [
             '*.batchJobId' => 'required',
             '*.caption' => 'nullable|string',
@@ -43,22 +43,41 @@ class RobotSysBrowserController extends Controller
         $savedLogs = [];
         $clean = fn($value): ?string => is_null($value) ? null : trim((string) $value);
 
+        $convertToWib = function ($value) use ($clean) {
+            $cleaned = $clean($value);
+            if (blank($cleaned)) return null;
+            try {
+                // Mengubah input tanggal menjadi timezone Asia/Jakarta (UTC+7)
+                return Carbon::parse($cleaned)->setTimezone('Asia/Jakarta')->toDateTimeString();
+            } catch (\Throwable $e) {
+                return null;
+            }
+        };
+
         try {
             // 2. Gunakan database transaction agar proses massal aman
-            DB::transaction(function () use ($items, &$insertedCount, &$updatedCount, &$skippedCount, &$savedLogs, $clean) {
+            DB::transaction(function () use ($items, &$insertedCount, &$updatedCount, &$skippedCount, &$savedLogs, $clean, $convertToWib) {
                 // Kosongkan tabel sebelum proses isi ulang data batch terbaru.
-                RobotSysBrowser::query()->delete();
+                // RobotSysBrowser::query()->delete();
 
                 foreach ($items as $item) {
                     $captionText = $clean($item['caption'] ?? null);
                     $batchJobId = $clean($item['batchJobId'] ?? null);
+                    $currentStatus = Str::upper($clean($item['status'] ?? null));
 
                     $invoiceNo = null;
                     if (filled($captionText)) {
-                        $invoiceNo = $clean(Str::after(Str::upper($captionText), 'PURCHASE INVOICE'));
+                        $invoiceNo = $clean(Str::after(Str::upper($captionText), 'PURCHASE INVOICE ROBOT'));
                     }
 
                     $timestamp = date('Y-m-d H:i:s');
+
+                    // Menggunakan waktu sekarang versi Asia/Jakarta untuk log timestamp
+                    $timestamp = Carbon::now('Asia/Jakarta')->toDateTimeString();
+
+                    // Format start dan end datetime ke timezone Asia/Jakarta
+                    $startDate = $convertToWib($item['startDateTime'] ?? null);
+                    $endDate = $convertToWib($item['endDateTime'] ?? null);
 
                     $log = RobotSysBrowser::updateOrCreate(
                         ['batch_job_id' => $batchJobId],
@@ -67,26 +86,29 @@ class RobotSysBrowserController extends Controller
                             'caption' => $captionText,
                             'invoice_no' => $invoiceNo,
                             'company' => $clean($item['company'] ?? null),
-                            'status' => Str::upper($clean($item['status'] ?? null)),
-                            'start_date' => $clean($item['startDateTime'] ?? null),
-                            'end_date' => $clean($item['endDateTime'] ?? null),
+                            'status' => $currentStatus,
+                            'start_date' => $startDate,
+                            'end_date' => $endDate,
                         ]
                     );
 
-                    // if ($log->wasRecentlyCreated) {
-                    //     $insertedCount++;
-                    // } else {
-                    //     $updatedCount++;
-                    // }
+                    $existingPosting = RobotPosting::query()
+                        ->where(['batch_job_id' => $batchJobId])
+                        ->first();
 
-                    // // 3. LOGIKA UTAMA: Jika invoice_no ditemukan dan status terakhir belum ENDED, cari di RobotPosting dan increment
-                    // if (filled($invoiceNo) && Str::upper((string) $log->status) !== 'ENDED') {
-                    //     $robotPosting = RobotPosting::where('invoice_number', $invoiceNo)->first();
+                    // Jika data sudah ada di RobotPosting DAN status yang dikirim saat ini adalah ERROR
+                    if ($existingPosting && $currentStatus === 'ERROR') {
+                        // Hit API 365 untuk Recovery
+                        $isRecoveryTriggered = true;
+                        $robotPosting = RobotPosting::query()->where('invoice_number', $invoiceNo)->first();
 
-                    //     if ($robotPosting) {
-                    //         $robotPosting->increment('attempt_posting');
-                    //     }
-                    // }
+                        if ($robotPosting) {
+                            $robotPosting->update([
+                                'attempt_posting' => ((int) $robotPosting->attempt_posting) + 1,
+                            ]);
+                        }
+                    }
+
 
                     $savedLogs[] = $log;
                 }
@@ -161,11 +183,8 @@ class RobotSysBrowserController extends Controller
 
         $query = RobotSysBrowser::query()
             ->select(['batch_job_id', 'company', 'invoice_no'])
-            ->whereNotIn('batch_job_id', RobotJobLog::query()->select('job_id')->whereNotNull('job_id'))
-            ->where(function ($q) {
-                $q->where('status', 'ERROR')
-                    ->orWhere('status', 'error');
-            });
+            ->whereDoesntHave('robotJobLogs')
+            ->whereIn('status', ['ERROR', 'error']);
 
         if ($request->filled('company')) {
             $company = trim((string) $request->query('company'));
