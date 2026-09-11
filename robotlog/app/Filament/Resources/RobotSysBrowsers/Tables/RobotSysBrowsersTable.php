@@ -23,7 +23,7 @@ class RobotSysBrowsersTable
                     ->searchable()
                     ->sortable()
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'ERROR' => 'danger',
                         'SUCCESS' => 'success',
                         'END' => 'success',
@@ -32,8 +32,8 @@ class RobotSysBrowsersTable
                         default => 'gray',
                     })->action(
                         Action::make('viewLatestLog')
-                            ->label(fn($record) => "Detail Log Robot - Invoice Number: {$record->invoice_number}")
-                            ->mountUsing(fn($form, $record) => $form->fill($record->latestRobotLog?->toArray() ?? []))
+                            ->label(fn ($record) => "Detail Log Robot - Invoice Number: {$record->invoice_number}")
+                            ->mountUsing(fn ($form, $record) => $form->fill($record->latestRobotLog?->toArray() ?? []))
                             ->disabledSchema()
                             ->schema([
                                 Grid::make()
@@ -51,13 +51,13 @@ class RobotSysBrowsersTable
                                             ->label('Server Id'),
                                         TextInput::make('automatic_transaction')
                                             ->label('Transaksi Otomatis'),
-                                    ])
+                                    ]),
                             ])
                             ->modalSubmitAction(false)
                             ->modalCancelActionLabel('Close')
                     )
                     ->searchable(),
-                TextColumn::make('invoice_no')->label("Invoice No")
+                TextColumn::make('invoice_no')->label('Invoice No')
                     // ->color(fn(string $state, $record): string => match ($record->status) {
                     //     'ERROR' => 'danger',
                     //     'SUCCESS' => 'success',
@@ -69,33 +69,33 @@ class RobotSysBrowsersTable
                     // ->badge()
                     ->sortable()
                     ->copyable()
-                    ->copyMessage(fn(string $state): string => "Teks '{$state}' berhasil disalin!")
+                    ->copyMessage(fn (string $state): string => "Teks '{$state}' berhasil disalin!")
                     ->copyMessageDuration(1500)
                     ->searchable(),
-                TextColumn::make('batch_job_id')->label("Batch Job Id")
+                TextColumn::make('batch_job_id')->label('Batch Job Id')
                     ->sortable()
                     ->copyable()
-                    ->copyMessage(fn(string $state): string => "Teks '{$state}' berhasil disalin!")
+                    ->copyMessage(fn (string $state): string => "Teks '{$state}' berhasil disalin!")
                     ->copyMessageDuration(1500)
                     ->searchable(),
-                TextColumn::make('company')->label("Company")
+                TextColumn::make('company')->label('Company')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('timestamp')->label("Time Stamp")
+                TextColumn::make('timestamp')->label('Time Stamp')
                     ->sortable()
                     ->dateTime('d/m/y H:i:s')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('caption')->label("Caption")
+                TextColumn::make('caption')->label('Caption')
                     ->sortable()
                     ->searchable()
                     ->searchable(),
-                TextColumn::make('start_date')->label("Start Date")
+                TextColumn::make('start_date')->label('Start Date')
                     ->searchable()
                     ->dateTime('d/m/y H:i:s')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('end_date')->label("End Date")
+                TextColumn::make('end_date')->label('End Date')
                     ->searchable()
                     ->dateTime('d/m/y H:i:s')
                     ->sortable()
@@ -103,11 +103,12 @@ class RobotSysBrowsersTable
                 TextColumn::make('duration')
                     ->label('Duration')
                     ->getStateUsing(function ($record) {
-                        if (!$record->start_date || !$record->end_date) {
+                        if (! $record->start_date || ! $record->end_date) {
                             return '-';
                         }
                         $start = Carbon::parse($record->start_date);
                         $end = Carbon::parse($record->end_date);
+
                         return $start->diffForHumans($end, [
                             'syntax' => CarbonInterface::DIFF_ABSOLUTE,
                             'short' => true,
@@ -115,6 +116,13 @@ class RobotSysBrowsersTable
                         ]);
                     })
                     ->searchable(),
+                TextColumn::make('send_notif_status')->label('Send Notif Status')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('send_notif_status_timestamp')->label('Send Notif Status Time Stamp')
+                    ->searchable()
+                    ->sortable()
+                    ->dateTime('d/m/y H:i:s'),
                 TextColumn::make('created_at')
                     ->dateTime('d/m/y H:i:s')
                     ->sortable()
@@ -143,7 +151,7 @@ class RobotSysBrowsersTable
                             ->distinct()
                             ->pluck('company', 'company')
                             ->toArray()
-                    )
+                    ),
 
             ])
             ->defaultSort('start_date', 'desc')
@@ -159,7 +167,6 @@ class RobotSysBrowsersTable
                     ->label('Company')
                     ->collapsible(),
             ])
-            ->defaultGroup('status')
-        ;
+            ->defaultGroup('status');
     }
 }

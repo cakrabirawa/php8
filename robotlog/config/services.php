@@ -41,4 +41,16 @@ return [
         'to' => env('API_EMAIL_TO'),
     ],
 
+    'api_wa' => [
+        'url' => env('API_WA_URL', 'https://merpati-wa.gramedia.id/api/v1/wa/sendx'),
+        'to' => env('API_WA_TO'),
+    ],
+    'd365' => [
+        'client_id' => env('D365_CLIENT_ID'),
+        'client_secret' => env('D365_CLIENT_SECRET'),
+        'resource_url' => env('D365_RESOURCE_URL'),
+        'grant_type' => env('D365_GRANT_TYPE'),
+        'token_url' => env('D365_TOKEN_URL'),
+        'update_failed_to_post_url' => env('D365_UPDATE_FAILED_TO_POST_URL'),
+    ],
 ];

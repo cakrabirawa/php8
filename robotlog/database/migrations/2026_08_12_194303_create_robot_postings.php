@@ -54,8 +54,8 @@ return new class extends Migration
             $table->timestamp('final_status_checked_date')->nullable();
 
             // Kolom attempt
-            $table->integer('attempt_posting')->nullable();
-            $table->integer('attempt_recovery')->nullable();
+            $table->integer('attempt_posting')->nullable()->default(0);
+            $table->integer('attempt_recovery')->nullable()->default(0);
 
             $table->boolean('sent_email_to_support_status')->nullable();
             $table->timestamp('sent_email_to_support_date')->nullable();

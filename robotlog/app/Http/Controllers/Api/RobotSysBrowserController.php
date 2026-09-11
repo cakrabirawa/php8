@@ -6,15 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\RobotJobLog;
 use App\Models\RobotPosting;
 use App\Models\RobotSysBrowser;
+use App\Traits\Dynamics365Service;
 use App\Traits\EmailNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class RobotSysBrowserController extends Controller
 {
@@ -36,7 +36,7 @@ class RobotSysBrowserController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal pada beberapa data.',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -44,11 +44,15 @@ class RobotSysBrowserController extends Controller
         $updatedCount = 0;
         $skippedCount = 0;
         $savedLogs = [];
-        $clean = fn($value): ?string => is_null($value) ? null : trim((string) $value);
+        $clean = fn ($value): ?string => is_null($value) ? null : trim((string) $value);
+
+        $emailService = new EmailNotificationService;
 
         $convertToWib = function ($value) use ($clean) {
             $cleaned = $clean($value);
-            if (blank($cleaned)) return null;
+            if (blank($cleaned)) {
+                return null;
+            }
             try {
                 return Carbon::parse($cleaned)->setTimezone('Asia/Jakarta')->toDateTimeString();
             } catch (\Throwable $e) {
@@ -57,7 +61,7 @@ class RobotSysBrowserController extends Controller
         };
 
         try {
-            DB::transaction(function () use ($items, &$insertedCount, &$updatedCount, &$skippedCount, &$savedLogs, $clean, $convertToWib) {
+            DB::transaction(function () use ($items, &$insertedCount, &$updatedCount, &$skippedCount, &$savedLogs, $clean, $convertToWib, $emailService) {
                 // RobotSysBrowser::query()->delete();
                 foreach ($items as $item) {
                     $captionText = $clean($item['caption'] ?? null);
@@ -67,7 +71,6 @@ class RobotSysBrowserController extends Controller
                     if (filled($captionText)) {
                         $invoiceNo = $clean(Str::after(Str::upper($captionText), 'PURCHASE INVOICE ROBOT'));
                     }
-                    $timestamp = date('Y-m-d H:i:s');
                     $timestamp = Carbon::now('Asia/Jakarta')->toDateTimeString();
                     $startDate = $convertToWib($item['startDateTime'] ?? null);
                     $endDate = $convertToWib($item['endDateTime'] ?? null);
@@ -83,31 +86,32 @@ class RobotSysBrowserController extends Controller
                             'end_date' => $endDate,
                         ]
                     );
-                    $existingPosting = RobotPosting::query()
-                        ->where(['invoice_number' => $invoiceNo])
-                        ->first();
+                    if ($log->wasRecentlyCreated) {
+                        Log::info('Data ini baru saja di-CREATE (Insert baru).');
+                    } else {
+                        Log::info('Data ini baru saja di-UPDATE.');
+                    }
                     $hasSentEmail = RobotSysBrowser::query()
-                        ->where(['invoice_no' => $invoiceNo, 'batch_job_id' => $batchJobId])
+                        ->where(['batch_job_id' => $batchJobId])
                         ->whereNotNull('send_notif_status')
                         ->first();
-                    if ($existingPosting && !$hasSentEmail && $currentStatus === 'ERROR') {
-                        $isRecoveryTriggered = true;
-                        $emailService = new EmailNotificationService();
-                        $emailService->sendEmail(
-                            $invoiceNo,
-                            'Recovery Invoice ' . $invoiceNo,
-                            'Terjadi kegagal dalam pemrosesan Robot Posting dengan Invoice No <b>' . $invoiceNo . '</b> Proses recovery akan segera dilakukan !'
+                    if (! $hasSentEmail && $currentStatus === 'ERROR') {
+                        $b = RobotPosting::query()->where('invoice_number', $invoiceNo)->increment('attempt_recovery');
+                        Log::info('Increment Recovery: '.$invoiceNo.' => '.$b);
+                        $b = $emailService->sendEmail(
+                            'Recovery Invoice '.$invoiceNo.' ('.$batchJobId.')',
+                            'Terjadi kegagalan dalam pemrosesan Robot Posting dengan Invoice No <b>'.$invoiceNo.'</b> di Batch Job Id <b>'.$batchJobId.'</b>. <br />Proses recovery akan segera dilakukan !<br /><br />Sent from '.env('APP_NAME').' @ '.Carbon::now('Asia/Jakarta')->toDateTimeString(),
                         );
-                        Log::info('Data yang dicari:', [
-                            'invoice_no' => $invoiceNo,
-                            'batch_job_id' => $batchJobId
-                        ]);
-                        RobotSysBrowser::query()
-                            ->where(['invoice_no' => $invoiceNo, 'batch_job_id' => $batchJobId])->update([
-                                'send_notif_status' => 'SENT',
-                                'send_notif_status_timestamp' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
-                            ]);
-                        Log::info("1 Email notifikasi recovery telah dikirim untuk invoice: {$invoiceNo}");
+                        if ($b) {
+                            $b = RobotSysBrowser::query()
+                                ->where(['invoice_no' => $invoiceNo, 'batch_job_id' => $batchJobId])->update([
+                                    'send_notif_status' => 'SENT',
+                                    'send_notif_status_timestamp' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                                ]);
+                            Log::info($b);
+                            Log::info("Email notifikasi recovery telah dikirim untuk invoice: {$invoiceNo}");
+                            // Log::info('D365 Token: '.(new Dynamics365Service)->getAccessToken());
+                        }
                     }
                     $savedLogs[] = $log;
                 }
@@ -123,7 +127,7 @@ class RobotSysBrowserController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Proses log selesai. Berhasil menambahkan {$insertedCount} data baru, memperbarui {$updatedCount} data lama, dan melewati {$skippedCount} data tanpa nomor invoice.",
-            'data' => $savedLogs
+            'data' => $savedLogs,
         ], 200);
     }
 
@@ -137,7 +141,7 @@ class RobotSysBrowserController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Parameter tidak valid.',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
         $company = trim($request->query('company'));
@@ -145,14 +149,15 @@ class RobotSysBrowserController extends Controller
             ->where('company', $company)
             ->whereIn('status', ['EXECUTING', 'executing'])
             ->count();
+
         return response()->json([
             'success' => true,
             'message' => "Berhasil mengambil data untuk company: {$company}",
             'data' => [
                 'company' => $company,
                 'status' => 'EXECUTING',
-                'executing_count' => $count
-            ]
+                'executing_count' => $count,
+            ],
         ], 200);
     }
 
