@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\RobotJobLog;
 use App\Models\RobotPosting;
 use App\Models\RobotSysBrowser;
+use App\Traits\EmailNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class RobotSysBrowserController extends Controller
 {
@@ -47,7 +50,6 @@ class RobotSysBrowserController extends Controller
             $cleaned = $clean($value);
             if (blank($cleaned)) return null;
             try {
-                // Mengubah input tanggal menjadi timezone Asia/Jakarta (UTC+7)
                 return Carbon::parse($cleaned)->setTimezone('Asia/Jakarta')->toDateTimeString();
             } catch (\Throwable $e) {
                 return null;
@@ -55,30 +57,20 @@ class RobotSysBrowserController extends Controller
         };
 
         try {
-            // 2. Gunakan database transaction agar proses massal aman
             DB::transaction(function () use ($items, &$insertedCount, &$updatedCount, &$skippedCount, &$savedLogs, $clean, $convertToWib) {
-                // Kosongkan tabel sebelum proses isi ulang data batch terbaru.
                 // RobotSysBrowser::query()->delete();
-
                 foreach ($items as $item) {
                     $captionText = $clean($item['caption'] ?? null);
                     $batchJobId = $clean($item['batchJobId'] ?? null);
                     $currentStatus = Str::upper($clean($item['status'] ?? null));
-
                     $invoiceNo = null;
                     if (filled($captionText)) {
                         $invoiceNo = $clean(Str::after(Str::upper($captionText), 'PURCHASE INVOICE ROBOT'));
                     }
-
                     $timestamp = date('Y-m-d H:i:s');
-
-                    // Menggunakan waktu sekarang versi Asia/Jakarta untuk log timestamp
                     $timestamp = Carbon::now('Asia/Jakarta')->toDateTimeString();
-
-                    // Format start dan end datetime ke timezone Asia/Jakarta
                     $startDate = $convertToWib($item['startDateTime'] ?? null);
                     $endDate = $convertToWib($item['endDateTime'] ?? null);
-
                     $log = RobotSysBrowser::updateOrCreate(
                         ['batch_job_id' => $batchJobId],
                         [
@@ -91,25 +83,32 @@ class RobotSysBrowserController extends Controller
                             'end_date' => $endDate,
                         ]
                     );
-
                     $existingPosting = RobotPosting::query()
-                        ->where(['batch_job_id' => $batchJobId])
+                        ->where(['invoice_number' => $invoiceNo])
                         ->first();
-
-                    // Jika data sudah ada di RobotPosting DAN status yang dikirim saat ini adalah ERROR
-                    if ($existingPosting && $currentStatus === 'ERROR') {
-                        // Hit API 365 untuk Recovery
+                    $hasSentEmail = RobotSysBrowser::query()
+                        ->where(['invoice_no' => $invoiceNo, 'batch_job_id' => $batchJobId])
+                        ->whereNotNull('send_notif_status')
+                        ->first();
+                    if ($existingPosting && !$hasSentEmail && $currentStatus === 'ERROR') {
                         $isRecoveryTriggered = true;
-                        $robotPosting = RobotPosting::query()->where('invoice_number', $invoiceNo)->first();
-
-                        if ($robotPosting) {
-                            $robotPosting->update([
-                                'attempt_posting' => ((int) $robotPosting->attempt_posting) + 1,
+                        $emailService = new EmailNotificationService();
+                        $emailService->sendEmail(
+                            $invoiceNo,
+                            'Recovery Invoice ' . $invoiceNo,
+                            'Terjadi kegagal dalam pemrosesan Robot Posting dengan Invoice No <b>' . $invoiceNo . '</b> Proses recovery akan segera dilakukan !'
+                        );
+                        Log::info('Data yang dicari:', [
+                            'invoice_no' => $invoiceNo,
+                            'batch_job_id' => $batchJobId
+                        ]);
+                        RobotSysBrowser::query()
+                            ->where(['invoice_no' => $invoiceNo, 'batch_job_id' => $batchJobId])->update([
+                                'send_notif_status' => 'SENT',
+                                'send_notif_status_timestamp' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                             ]);
-                        }
+                        Log::info("1 Email notifikasi recovery telah dikirim untuk invoice: {$invoiceNo}");
                     }
-
-
                     $savedLogs[] = $log;
                 }
             });
@@ -130,7 +129,6 @@ class RobotSysBrowserController extends Controller
 
     public function getExecutingCount(Request $request): JsonResponse
     {
-        // 1. Validasi input query parameter 'company'
         $validator = Validator::make($request->query(), [
             'company' => 'required|string',
         ]);
@@ -142,20 +140,11 @@ class RobotSysBrowserController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-
         $company = trim($request->query('company'));
-
-        // 2. Hitung jumlah batch_job_id berdasarkan kondisi status dan company
-        // Menggunakan Str::lower atau langsung menyamakan case jika database bersifat case-insensitive
-        $count = RobotSysBrowser::where('company', $company)
-            ->where(function ($query) {
-                // Menjaga kecocokan teks jika robot mengirimkan variasi huruf besar/kecil
-                $query->where('status', 'EXECUTING')
-                    ->orWhere('status', 'executing');
-            })
-            ->count('batch_job_id'); // Menghitung total data unik/baris berdasarkan batch_job_id
-
-        // 3. Kembalikan respons JSON
+        $count = RobotSysBrowser::query()
+            ->where('company', $company)
+            ->whereIn('status', ['EXECUTING', 'executing'])
+            ->count();
         return response()->json([
             'success' => true,
             'message' => "Berhasil mengambil data untuk company: {$company}",

@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'api_email' => [
+        'url' => env('API_EMAIL_URL', 'https://merpati-gml.gramedia.id/api/v1/send-email'),
+        'token' => env('API_EMAIL_TOKEN'),
+        'to' => env('API_EMAIL_TO'),
+    ],
+
 ];

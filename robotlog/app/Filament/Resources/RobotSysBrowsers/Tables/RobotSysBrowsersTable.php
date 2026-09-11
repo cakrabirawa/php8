@@ -58,6 +58,15 @@ class RobotSysBrowsersTable
                     )
                     ->searchable(),
                 TextColumn::make('invoice_no')->label("Invoice No")
+                    // ->color(fn(string $state, $record): string => match ($record->status) {
+                    //     'ERROR' => 'danger',
+                    //     'SUCCESS' => 'success',
+                    //     'END' => 'success',
+                    //     'ENDED' => 'success',
+                    //     'EXECUTING' => 'warning',
+                    //     default => 'gray',
+                    // })
+                    // ->badge()
                     ->sortable()
                     ->copyable()
                     ->copyMessage(fn(string $state): string => "Teks '{$state}' berhasil disalin!")

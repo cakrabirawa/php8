@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('status')->nullable(); // Misal: 'Success', 'Failed', 'Pending'
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();
+            $table->string('send_notif_status')->nullable();
+            $table->dateTime('send_notif_status_timestamp')->nullable();
             $table->timestamps(); // Menyediakan kolom created_at dan updated_at bawaan Laravel
         });
     }
