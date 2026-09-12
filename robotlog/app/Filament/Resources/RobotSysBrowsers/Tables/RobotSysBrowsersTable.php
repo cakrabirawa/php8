@@ -23,6 +23,7 @@ class RobotSysBrowsersTable
                     ->searchable()
                     ->sortable()
                     ->badge()
+                    ->stickyable()
                     ->color(fn (string $state): string => match ($state) {
                         'ERROR' => 'danger',
                         'SUCCESS' => 'success',
@@ -71,14 +72,17 @@ class RobotSysBrowsersTable
                     ->copyable()
                     ->copyMessage(fn (string $state): string => "Teks '{$state}' berhasil disalin!")
                     ->copyMessageDuration(1500)
+                    ->stickyable()
                     ->searchable(),
                 TextColumn::make('batch_job_id')->label('Batch Job Id')
                     ->sortable()
+                    ->stickyable()
                     ->copyable()
                     ->copyMessage(fn (string $state): string => "Teks '{$state}' berhasil disalin!")
                     ->copyMessageDuration(1500)
                     ->searchable(),
                 TextColumn::make('company')->label('Company')
+                    ->stickyable()
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('timestamp')->label('Time Stamp')
@@ -167,6 +171,7 @@ class RobotSysBrowsersTable
                     ->label('Company')
                     ->collapsible(),
             ])
-            ->defaultGroup('status');
+            ->defaultGroup('status')
+            ->stickyableColumns();
     }
 }

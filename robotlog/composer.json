@@ -17,7 +17,8 @@
         "laravel/tinker": "^3.0",
         "nwidart/laravel-modules": "*",
         "stimulsoft/reports-php": "^2026.3",
-        "watheqalshowaiter/filament-sticky-table-header": "^1.5"
+        "watheqalshowaiter/filament-sticky-table-header": "^1.5",
+        "zeeshantariq/filament-sticky-columns": "^1.2"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.7",

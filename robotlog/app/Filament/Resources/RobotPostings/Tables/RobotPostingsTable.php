@@ -43,6 +43,7 @@ class RobotPostingsTable
             ->columns([
                 TextColumn::make('invoice_number')->label('Invoice No')
                     ->searchable()
+                    ->sortable()
                     ->copyable()
                     ->copyMessage(fn (string $state): string => "Teks '{$state}' berhasil disalin!")
                     ->copyMessageDuration(1500)
@@ -57,6 +58,7 @@ class RobotPostingsTable
                             ]))
                     ),
                 TextColumn::make('last_sys_browser_status')
+                    ->stickyable()
                     ->label('Last Batch Status')
                     ->badge()
                     ->color(fn (string $state): string => match (strtoupper(trim($state))) {
@@ -110,7 +112,8 @@ class RobotPostingsTable
                                 ->join('robot_sys_browser as b', 'l.batch_job_id', '=', 'b.batch_job_id')
                                 ->where('l.info', 'like', "%{$search}%");
                         });
-                    }),
+                    })
+                    ->stickyable(),
                 TextColumn::make('company')
                     ->searchable(),
                 TextColumn::make('invoice_account')->label('Invoice Account')
@@ -137,6 +140,7 @@ class RobotPostingsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->striped();
+            ->striped()
+            ->stickyableColumns();
     }
 }

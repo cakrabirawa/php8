@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -95,22 +96,84 @@ class RobotSysBrowserController extends Controller
                         ->where(['batch_job_id' => $batchJobId])
                         ->whereNotNull('send_notif_status')
                         ->first();
-                    if (! $hasSentEmail && $currentStatus === 'ERROR') {
-                        $b = RobotPosting::query()->where('invoice_number', $invoiceNo)->increment('attempt_recovery');
-                        Log::info('Increment Recovery: '.$invoiceNo.' => '.$b);
-                        $b = $emailService->sendEmail(
-                            'Recovery Invoice '.$invoiceNo.' ('.$batchJobId.')',
-                            'Terjadi kegagalan dalam pemrosesan Robot Posting dengan Invoice No <b>'.$invoiceNo.'</b> di Batch Job Id <b>'.$batchJobId.'</b>. <br />Proses recovery akan segera dilakukan !<br /><br />Sent from '.env('APP_NAME').' @ '.Carbon::now('Asia/Jakarta')->toDateTimeString(),
-                        );
-                        if ($b) {
-                            $b = RobotSysBrowser::query()
-                                ->where(['invoice_no' => $invoiceNo, 'batch_job_id' => $batchJobId])->update([
-                                    'send_notif_status' => 'SENT',
-                                    'send_notif_status_timestamp' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
-                                ]);
-                            Log::info($b);
-                            Log::info("Email notifikasi recovery telah dikirim untuk invoice: {$invoiceNo}");
-                            // Log::info('D365 Token: '.(new Dynamics365Service)->getAccessToken());
+                    if (! $hasSentEmail) {
+                        if ($currentStatus === 'ERROR') {
+                            $b = RobotPosting::query()->where('invoice_number', $invoiceNo)->increment('attempt_recovery');
+                            Log::info('Increment Recovery: '.$invoiceNo.' => '.$b);
+                            $iIncrement = RobotPosting::select('attempt_recovery')->where('invoice_number', $invoiceNo)->first();
+                            $sMsg = 'Terjadi kegagalan dalam pemrosesan Robot Posting dengan Invoice No <b>'.$invoiceNo.'</b> di Batch Job Id <b>'.$batchJobId.'</b>. <br />';
+                            if ($iIncrement && $iIncrement->attempt_recovery <= 3) {
+                                $sMsg .= 'Proses recovery ke <b>#'.$iIncrement->attempt_recovery.'</b> akan segera dilakukan !';
+                                // Update final_status = RECOVERY dan final_status_checked_date = timestamp saat ini
+                                RobotPosting::query()
+                                    ->where(['invoice_number' => $invoiceNo])
+                                    ->update([
+                                        'final_status' => '#'.$iIncrement->attempt_recovery.' RECOVERY',
+                                        'final_status_checked_date' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                                    ]);
+                            } else {
+                                $sMsg .= 'Proses recovery telah mencapai batas maksimal dan tidak dapat dilakukan lagi. Status Invoice akan dibuat menjadi <b>Failed to Post</b>. Mohon lakukan pengecekan manual.';
+                                $sMsg .= '<br /><br />Berikut Error Logs terkait:<br />';
+                                $sError = RobotJobLog::select('info')
+                                    ->where(['batch_job_id' => $batchJobId, 'invoice_no' => $invoiceNo])
+                                    ->pluck('info')
+                                    ->implode("\n");
+                                $sMsg .= nl2br($sError);
+                            }
+                            $sMsg .= '<br /><br />Sent from '.env('APP_NAME').' @ '.Carbon::now('Asia/Jakarta')->toDateTimeString();
+                            $b = $emailService->sendEmail(
+                                '#'.$iIncrement->attempt_recovery.' Recovery Invoice '.$invoiceNo.' ('.$batchJobId.')',
+                                $sMsg,
+                            );
+                            if ($b) {
+                                $b = RobotSysBrowser::query()
+                                    ->where(['invoice_no' => $invoiceNo, 'batch_job_id' => $batchJobId])->update([
+                                        'send_notif_status' => 'SENT',
+                                        'send_notif_status_timestamp' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                                    ]);
+                                Log::info($b);
+                                Log::info("Email notifikasi recovery telah dikirim untuk invoice: {$invoiceNo}");
+                            }
+                            if ($iIncrement->attempt_recovery > 3) {
+                                Log::warning("Invoice {$invoiceNo} Update menjadi Failed to Post");
+                                // Update final_status = FAILED TO POST dan final_status_checked_date = timestamp saat ini
+                                RobotPosting::query()
+                                    ->where(['invoice_number' => $invoiceNo])
+                                    ->update([
+                                        'final_status' => 'FAILED TO POST',
+                                        'final_status_checked_date' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                                    ]);
+
+                                $token = (new Dynamics365Service)->getAccessToken();
+                                if ($token) {
+                                    $d365Url = env('D365_UPDATE_FAILED_TO_POST_URL');
+                                    $response = Http::withoutVerifying()->withToken($token)->post($d365Url, [
+                                        'data' => [
+                                            'company' => $clean($item['company'] ?? null),
+                                            'invoiceNumber' => $invoiceNo,
+                                            'invoiceApprovalStatus' => 7,
+                                        ],
+                                    ]);
+                                    Log::info('D365 Update Failed to Post Response: '.$response->body());
+                                } else {
+                                    Log::error("Gagal mendapatkan token D365 untuk invoice {$invoiceNo}");
+                                }
+                            }
+                        } else {
+                            if ($currentStatus === 'ENDED') {
+                                RobotPosting::query()
+                                    ->where(['invoice_number' => $invoiceNo])
+                                    ->update([
+                                        'final_status' => 'POSTING SUCCESS',
+                                        'final_status_checked_date' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                                    ]);
+                                $sMsg = 'Posting berhasil dan sudah melalui pengecekan ketersedian data pada Vendor Open Invoice List untuk invoice '.$invoiceNo.' pada job ('.$batchJobId.')<br />Untuk memastikan hal tersebut silahkan cek pada aplikasi Dynamics 365.';
+                                $sMsg .= '<br /><br />Sent from '.env('APP_NAME').' @ '.Carbon::now('Asia/Jakarta')->toDateTimeString();
+                                $b = $emailService->sendEmail(
+                                    'Posting Invoice '.$invoiceNo.' ('.$batchJobId.')',
+                                    $sMsg,
+                                );
+                            }
                         }
                     }
                     $savedLogs[] = $log;
