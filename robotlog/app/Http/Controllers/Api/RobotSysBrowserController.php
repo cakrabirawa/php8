@@ -146,7 +146,7 @@ class RobotSysBrowserController extends Controller
 
                                 $token = (new Dynamics365Service)->getAccessToken();
                                 if ($token) {
-                                    $d365Url = env('D365_UPDATE_FAILED_TO_POST_URL');
+                                    $d365Url = config('services.d365.update_failed_to_post_url');
                                     $response = Http::withoutVerifying()->withToken($token)->post($d365Url, [
                                         'data' => [
                                             'company' => $clean($item['company'] ?? null),
