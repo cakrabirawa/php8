@@ -120,7 +120,7 @@ class RobotSysBrowserController extends Controller
                                     ->implode("\n");
                                 $sMsg .= nl2br($sError);
                             }
-                            $sMsg .= '<br /><br />Sent from '.env('APP_NAME').' @ '.Carbon::now('Asia/Jakarta')->toDateTimeString();
+                            $sMsg .= '<br /><br />Sent from '.env('APP_NAME').' @ '.Carbon::now('Asia/Jakarta')->toDateTimeString().'<br />Development Engine (c) Edwar Rinaldo';
                             $b = $emailService->sendEmail(
                                 '#'.$iIncrement->attempt_recovery.' Recovery Invoice '.$invoiceNo.' ('.$batchJobId.')',
                                 $sMsg,
@@ -169,7 +169,7 @@ class RobotSysBrowserController extends Controller
                                         'final_status_checked_date' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                                     ]);
                                 $sMsg = 'Posting berhasil dan sudah melalui pengecekan ketersedian data pada Vendor Open Invoice List untuk invoice '.$invoiceNo.' pada job ('.$batchJobId.')<br />Untuk memastikan hal tersebut silahkan cek pada aplikasi Dynamics 365.';
-                                $sMsg .= '<br /><br />Sent from '.env('APP_NAME').' @ '.Carbon::now('Asia/Jakarta')->toDateTimeString();
+                                $sMsg .= '<br /><br />Sent from '.env('APP_NAME').' @ '.Carbon::now('Asia/Jakarta')->toDateTimeString().'<br />Development Engine (c) Edwar Rinaldo';
                                 $b = $emailService->sendEmail(
                                     'Posting Invoice '.$invoiceNo.' ('.$batchJobId.')',
                                     $sMsg,
