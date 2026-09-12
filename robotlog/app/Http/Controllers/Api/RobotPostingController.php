@@ -91,9 +91,9 @@ class RobotPostingController extends Controller
             );
 
             $isWasRecentlyCreated = $invoice->wasRecentlyCreated;
-            if ($isWasRecentlyCreated) {
-                $invoice->increment('attempt_posting');
-            }
+            // if ($isWasRecentlyCreated) {
+            $invoice->increment('attempt_posting');
+            // }
 
             return response()->json([
                 'success' => true,
