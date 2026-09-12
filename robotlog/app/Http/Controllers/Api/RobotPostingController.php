@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\RobotPosting; // 1. PERBAIKAN: Import model yang benar di sini
-use Carbon\Carbon;
+use App\Models\RobotPosting;
+use Carbon\Carbon; // 1. PERBAIKAN: Import model yang benar di sini
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class RobotPostingController extends Controller
@@ -43,15 +43,15 @@ class RobotPostingController extends Controller
             Log::info('Invoice API Payload:', $validated);
 
             // 3. PERBAIKAN: Mengamankan parsing tanggal Carbon agar tidak crash saat nilai null/kosong
-            $invoiceReceivedDate = !empty($validated['Invoice received date'])
+            $invoiceReceivedDate = ! empty($validated['Invoice received date'])
                 ? Carbon::createFromFormat('n/j/Y', $validated['Invoice received date'])
                 : null;
 
-            $createdDateTime = !empty($validated['Created date and time'])
+            $createdDateTime = ! empty($validated['Created date and time'])
                 ? Carbon::createFromFormat('n/j/Y g:i:s A', $validated['Created date and time'])
                 : null;
 
-            $readyToPostDateTime = !empty($validated['(C) Ready to Post Created DateTime'])
+            $readyToPostDateTime = ! empty($validated['(C) Ready to Post Created DateTime'])
                 ? Carbon::createFromFormat('n/j/Y g:i:s A', $validated['(C) Ready to Post Created DateTime'])
                 : null;
 
@@ -66,33 +66,34 @@ class RobotPostingController extends Controller
                     'invoice_number' => $validated['Invoice'],
                 ],
                 [
-                    'index_baris'                       => $validated['index_baris'] ?? null,
-                    'company'                           => $validated['Company'] ?? null,
-                    'invoice_account'                   => $validated['Invoice account'] ?? null,
-                    'name'                              => $validated['Name'] ?? null,
-                    'purchase_order'                    => $validated['Purchase order'] ?? null,
-                    'invoice_received_date'             => $invoiceReceivedDate,
-                    'imported_invoice_amount'           => $validated['Imported invoice amount'] ?? null,
-                    'last_match_status'                 => $validated['Last match status'] ?? null,
-                    'variance_approved'                 => $validated['Variance approved'] ?? null,
-                    'product_receipt'                   => $validated['Product receipt'] ?? null,
-                    'c_status'                          => $validated['(C) Status'] ?? null,
-                    'c_ca_csa_number'                   => $validated['(C) CA/CSA number'] ?? null,
-                    'c_pool'                            => $validated['(C) Pool'] ?? null,
-                    'c_intercompany_sales_invoice'      => $validated['(C) Intercompany sales invoice'] ?? null,
-                    'c_tax_invoice_number'              => $validated['(C) Tax invoice number'] ?? null,
-                    'c_is_total_updated'                => $validated['(C) is total updated'] ?? null,
-                    'c_is_split_invoice'                => $validated['(C) is split invoice'] ?? null,
-                    'c_is_split_invoice_return'         => $validated['(C) is split invoice return'] ?? null,
-                    'created_date_and_time'             => $createdDateTime,
-                    'c_ready_to_post_created_datetime'  => $readyToPostDateTime,
-                    'attempt_posting'                   => 1,
+                    'index_baris' => $validated['index_baris'] ?? null,
+                    'company' => $validated['Company'] ?? null,
+                    'invoice_account' => $validated['Invoice account'] ?? null,
+                    'name' => $validated['Name'] ?? null,
+                    'purchase_order' => $validated['Purchase order'] ?? null,
+                    'invoice_received_date' => $invoiceReceivedDate,
+                    'imported_invoice_amount' => $validated['Imported invoice amount'] ?? null,
+                    'last_match_status' => $validated['Last match status'] ?? null,
+                    'variance_approved' => $validated['Variance approved'] ?? null,
+                    'product_receipt' => $validated['Product receipt'] ?? null,
+                    'c_status' => $validated['(C) Status'] ?? null,
+                    'c_ca_csa_number' => $validated['(C) CA/CSA number'] ?? null,
+                    'c_pool' => $validated['(C) Pool'] ?? null,
+                    'c_intercompany_sales_invoice' => $validated['(C) Intercompany sales invoice'] ?? null,
+                    'c_tax_invoice_number' => $validated['(C) Tax invoice number'] ?? null,
+                    'c_is_total_updated' => $validated['(C) is total updated'] ?? null,
+                    'c_is_split_invoice' => $validated['(C) is split invoice'] ?? null,
+                    'c_is_split_invoice_return' => $validated['(C) is split invoice return'] ?? null,
+                    'created_date_and_time' => $createdDateTime,
+                    'c_ready_to_post_created_datetime' => $readyToPostDateTime,
+                    // 'attempt_posting'                   => 1,
                 ]
             );
 
-            $invoice->increment('attempt_posting');
-
             $isWasRecentlyCreated = $invoice->wasRecentlyCreated;
+            if ($isWasRecentlyCreated) {
+                $invoice->increment('attempt_posting');
+            }
 
             return response()->json([
                 'success' => true,
@@ -100,14 +101,14 @@ class RobotPostingController extends Controller
                 'data' => [
                     'invoice_number' => $validated['Invoice'],
                     'index_baris' => $validated['index_baris'] ?? null,
-                    'inserted' => $isWasRecentlyCreated
-                ]
+                    'inserted' => $isWasRecentlyCreated,
+                ],
             ], $isWasRecentlyCreated ? 201 : 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat memproses data.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -143,7 +144,7 @@ class RobotPostingController extends Controller
         if ($affectedRows === 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Data RobotPosting tidak ditemukan untuk invoice_number {' . $invoice_number . '} dan company {' . $company . '} tersebut.',
+                'message' => 'Data RobotPosting tidak ditemukan untuk invoice_number {'.$invoice_number.'} dan company {'.$company.'} tersebut.',
                 'data' => [
                     'invoice_number' => $validated['invoice_number'],
                     'company' => $company,
