@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\CustomLogin;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -9,7 +11,12 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\Support\Assets\AlpineComponent;
+use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
 use Filament\Support\Colors\Color;
+use Filament\Tables\Table;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -17,18 +24,8 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Filament\Support\Assets\Js;
-use App\Filament\Pages\Auth\CustomLogin;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
-use Filament\Navigation\NavigationItem;
-use Filament\Support\Assets\AlpineComponent;
-use Filament\Support\Assets\Css;
-use Filament\Support\Facades\FilamentView;
-use Filament\Tables\Table;
-use Filament\View\PanelsRenderHook;
-use Illuminate\Support\HtmlString;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 use WatheqAlshowaiter\FilamentStickyTableHeader\StickyTableHeaderPlugin;
 
 class AdminPanelProvider extends PanelProvider
@@ -42,9 +39,9 @@ class AdminPanelProvider extends PanelProvider
             ->login(CustomLogin::class)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
-            ->pages([Dashboard::class,])
+            ->pages([Dashboard::class])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([AccountWidget::class, FilamentInfoWidget::class,])
+            ->widgets([AccountWidget::class, FilamentInfoWidget::class])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -64,6 +61,30 @@ class AdminPanelProvider extends PanelProvider
                 // AlpineComponent::make('stimulsoft-scripts', resource_path('js/stimulsoft-loader.js')),
                 Css::make('custom-styles', resource_path('css/custom-filament.css')),
             ])
+            ->renderHook(
+                PanelsRenderHook::HEAD_START,
+                fn (): string => <<<'HTML'
+                    <script>
+                        (() => {
+                            const theme = localStorage.getItem('d365-theme') ?? localStorage.getItem('theme');
+
+                            if (theme === 'dark' || theme === 'light') {
+                                localStorage.setItem('d365-theme', theme);
+                                localStorage.setItem('theme', theme);
+                                document.documentElement.classList.toggle('dark', theme === 'dark');
+                            }
+
+                            new MutationObserver(() => {
+                                const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+                                if (localStorage.getItem('d365-theme') !== currentTheme) {
+                                    localStorage.setItem('d365-theme', currentTheme);
+                                    localStorage.setItem('theme', currentTheme);
+                                }
+                            }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+                        })();
+                    </script>
+                HTML,
+            )
             ->font('Poppins')
             ->spa()
             ->colors([
@@ -84,7 +105,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->renderHook(
                 PanelsRenderHook::SIDEBAR_NAV_END,
-                fn(): string => Blade::render('
+                fn (): string => Blade::render('
                     @if(auth()->check())
                         <div class="px-6 py-3">
                             <form id="sidebar-logout-form-final" action="{{ route(\'filament.admin.auth.logout\') }}" method="POST" class="hidden">
@@ -106,18 +127,17 @@ class AdminPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
-                fn(): string => view('filament.components.custom-user-menu')->render(),
+                fn (): string => view('filament.components.custom-user-menu')->render(),
             )
-            ->renderHook(
-                PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
-                fn(): string => Blade::render('
-                <div class="text-sm font-medium text-green-500 me-3">
-                    Halo, Selamat Datang, {{ auth()->user()->name ?? "User" }}!
-                </div>
-            '),
-            )
-            ->maxContentWidth('full')
-        ;
+            // ->renderHook(
+            //     PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
+            //     fn(): string => Blade::render('
+            //     <div class="text-sm font-medium text-green-500 me-3">
+            //         Halo, Selamat Datang, {{ auth()->user()->name ?? "User" }}!
+            //     </div>
+            // '),
+            // )
+            ->maxContentWidth('full');
     }
 
     public function boot(): void

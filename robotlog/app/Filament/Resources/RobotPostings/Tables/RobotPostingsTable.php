@@ -140,6 +140,7 @@ class RobotPostingsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('status', 'desc')
             ->striped()
             ->stickyableColumns();
     }

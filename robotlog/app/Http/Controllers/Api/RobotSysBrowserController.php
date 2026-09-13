@@ -97,11 +97,12 @@ class RobotSysBrowserController extends Controller
                         ->whereNotNull('send_notif_status')
                         ->first();
                     if (! $hasSentEmail) {
+                        $dearUser = 'Dear User,<br /><br />'
                         if ($currentStatus === 'ERROR') {
                             $b = RobotPosting::query()->where('invoice_number', $invoiceNo)->increment('attempt_recovery');
                             Log::info('Increment Recovery: '.$invoiceNo.' => '.$b);
                             $iIncrement = RobotPosting::select('attempt_recovery')->where('invoice_number', $invoiceNo)->first();
-                            $sMsg = 'Terjadi kegagalan dalam pemrosesan Robot Posting dengan Invoice No <b>'.$invoiceNo.'</b> di Batch Job Id <b>'.$batchJobId.'</b>. <br />';
+                            $sMsg = $dearUser.'Terjadi kegagalan dalam pemrosesan Robot Posting dengan Invoice No <b>'.$invoiceNo.'</b> di Batch Job Id <b>'.$batchJobId.'</b>. <br />';
                             if ($iIncrement && $iIncrement->attempt_recovery <= 3) {
                                 $sMsg .= 'Proses recovery ke <b>#'.$iIncrement->attempt_recovery.'</b> akan segera dilakukan !';
                                 // Update final_status = RECOVERY dan final_status_checked_date = timestamp saat ini
@@ -112,7 +113,7 @@ class RobotSysBrowserController extends Controller
                                         'final_status_checked_date' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                                     ]);
                             } else {
-                                $sMsg .= 'Proses recovery telah mencapai batas maksimal dan tidak dapat dilakukan lagi. Status Invoice akan dibuat menjadi <b>Failed to Post</b>. Mohon lakukan pengecekan manual.';
+                                $sMsg .= $dearUser.'Proses recovery telah mencapai batas maksimal dan tidak dapat dilakukan lagi. Status Invoice akan dibuat menjadi <b>Failed to Post</b>. Mohon lakukan pengecekan manual.';
                                 $sMsg .= '<br /><br />Berikut Error Logs terkait:<br />';
                                 $sError = RobotJobLog::select('info')
                                     ->where(['batch_job_id' => $batchJobId, 'invoice_no' => $invoiceNo])
@@ -120,7 +121,7 @@ class RobotSysBrowserController extends Controller
                                     ->implode("\n");
                                 $sMsg .= nl2br($sError);
                             }
-                            $sMsg .= '<br /><br />Sent from '.env('APP_NAME').' @ '.Carbon::now('Asia/Jakarta')->toDateTimeString().'<br />Development Engine (c) Edwar Rinaldo';
+                            $sMsg .= '<br /><br />Sent from '.env('APP_NAME').' @ '.Carbon::now('Asia/Jakarta')->toDateTimeString().'<br />Robot Posting Invoice Automation Application (C) System IT Departement 2026';
                             $b = $emailService->sendEmail(
                                 '#'.$iIncrement->attempt_recovery.' Recovery Invoice '.$invoiceNo.' ('.$batchJobId.')',
                                 $sMsg,
@@ -162,18 +163,46 @@ class RobotSysBrowserController extends Controller
                             }
                         } else {
                             if ($currentStatus === 'ENDED') {
-                                RobotPosting::query()
-                                    ->where(['invoice_number' => $invoiceNo])
-                                    ->update([
-                                        'final_status' => 'POSTING SUCCESS',
-                                        'final_status_checked_date' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                                $token = (new Dynamics365Service)->getAccessToken();
+                                Log::info('Token: '.$token);
+                                if ($token) {
+                                    $d365Url = config('services.d365.check_vendor_open_invoice_url');
+                                    $response = Http::withoutVerifying()->withToken($token)->post($d365Url, [
+                                        'data' => [
+                                            'company' => $clean($item['company'] ?? null),
+                                            'invoiceNumber' => $invoiceNo,
+                                        ],
                                     ]);
-                                $sMsg = 'Posting berhasil dan sudah melalui pengecekan ketersedian data pada Vendor Open Invoice List untuk invoice '.$invoiceNo.' pada job ('.$batchJobId.')<br />Untuk memastikan hal tersebut silahkan cek pada aplikasi Dynamics 365.';
-                                $sMsg .= '<br /><br />Sent from '.env('APP_NAME').' @ '.Carbon::now('Asia/Jakarta')->toDateTimeString().'<br />Development Engine (c) Edwar Rinaldo';
-                                $b = $emailService->sendEmail(
-                                    'Posting Invoice '.$invoiceNo.' ('.$batchJobId.')',
-                                    $sMsg,
-                                );
+                                    Log::info('D365 Check Vendor Open Invoice Response: '.$response->body());
+                                    $status = $response->json('Status');
+                                    if ($status === 'Success') {
+                                        Log::info("Vendor Open Invoice check successful for invoice {$invoiceNo}");
+                                        RobotPosting::query()
+                                            ->where(['invoice_number' => $invoiceNo])
+                                            ->update([
+                                                'final_status' => 'POSTING SUCCESS',
+                                                'final_status_checked_date' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                                            ]);
+                                        $sMsg = $dearUser.'Posting berhasil dan sudah melalui pengecekan ketersedian data pada Vendor Open Invoice List untuk Invoice No <b>'.$invoiceNo.'</b> pada Batch Job Id (<b>'.$batchJobId.'</b>)<br />Untuk memastikan hal tersebut silahkan cek pada aplikasi Dynamics 365.';
+                                        $sMsg .= '<br /><br />Sent from '.env('APP_NAME').' @ '.Carbon::now('Asia/Jakarta')->toDateTimeString().'<br />Robot Posting Invoice Automation Application (C) System IT Departement 2026';
+                                        $b = $emailService->sendEmail(
+                                            'Posting Invoice '.$invoiceNo.' ('.$batchJobId.')',
+                                            $sMsg,
+                                        );
+                                    } else {
+                                        // Kirim Email Proses Posting sudah Ended tapi tidak ada di Vendor Open Invoice List untuk invoice {$invoiceNo}
+                                        $sMsg = $dearUser.'Proses posting untuk Invoice No <b>'.$invoiceNo.'</b> pada Batch Job Id (<b>'.$batchJobId.'</b>) sudah berakhir, namun invoice tersebut tidak ditemukan pada Vendor Open Invoice List. Silahkan cek lebih lanjut pada aplikasi Dynamics 365.';
+                                        $sMsg .= '<br /><br />Sent from '.env('APP_NAME').' @ '.Carbon::now('Asia/Jakarta')->toDateTimeString().'<br />Robot Posting Invoice Automation Application (C) System IT Departement 2026';
+                                        $b = $emailService->sendEmail(
+                                            'Vendor Open Invoice Check Failed for Invoice '.$invoiceNo.' ('.$batchJobId.')',
+                                            $sMsg,
+                                        );
+                                        Log::error("Vendor Open Invoice check failed for invoice {$invoiceNo}");
+                                    }
+                                } else {
+                                    Log::error("Gagal mendapatkan token D365 untuk invoice {$invoiceNo}");
+                                }
+
                             }
                         }
                     }

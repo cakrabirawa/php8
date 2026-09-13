@@ -52,5 +52,6 @@ return [
         'grant_type' => env('D365_GRANT_TYPE'),
         'token_url' => env('D365_TOKEN_URL'),
         'update_failed_to_post_url' => env('D365_UPDATE_FAILED_TO_POST_URL'),
+        'check_vendor_open_invoice_url' => env('D365_CHECK_VENDOR_OPEN_INVOICE_URL'),
     ],
 ];

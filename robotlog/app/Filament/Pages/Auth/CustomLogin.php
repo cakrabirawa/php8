@@ -5,6 +5,8 @@ namespace App\Filament\Pages\Auth;
 use Filament\Auth\Pages\Login as FilamentBaseLogin;
 use Filament\Schemas\Schema; // <-- Gunakan Schema terbaru, bukan Form
 use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\View;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Support\Facades\Session;
 
@@ -40,7 +42,12 @@ class CustomLogin extends FilamentBaseLogin
             ->components([
                 $this->getEmailFormComponent(),
                 $this->getPasswordFormComponent(),
-                $this->getRememberFormComponent(),
+                Group::make([
+                    $this->getRememberFormComponent(),
+                    View::make('filament.auth.theme-toggle'),
+                ])
+                    ->columns(2)
+                    ->columnSpanFull(),
 
                 TextInput::make('security_answer')
                     ->label('Validasi Keamanan Sistem')
