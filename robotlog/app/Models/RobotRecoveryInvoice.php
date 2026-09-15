@@ -25,6 +25,8 @@ class RobotRecoveryInvoice extends Model
     protected $fillable = [
         'invoice_no',
         'recovery_attempt',
+        'company',
+        'status',
     ];
 
     /**

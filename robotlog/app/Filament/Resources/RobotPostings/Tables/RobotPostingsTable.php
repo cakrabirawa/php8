@@ -120,10 +120,10 @@ class RobotPostingsTable
                     ->searchable(),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('attempt_posting')->label('Attempt Posting')
+                TextColumn::make('posting_attempt')->label('Attempt Posting')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('attempt_recovery')->label('Attempt Recovery')
+                TextColumn::make('recovery_attempt')->label('Attempt Recovery')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('final_status')->label('Final Status')
