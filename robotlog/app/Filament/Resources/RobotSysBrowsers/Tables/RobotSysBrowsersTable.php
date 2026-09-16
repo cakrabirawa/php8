@@ -24,7 +24,7 @@ class RobotSysBrowsersTable
                     ->sortable()
                     ->badge()
                     ->stickyable()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'ERROR' => 'danger',
                         'SUCCESS' => 'success',
                         'END' => 'success',
@@ -33,8 +33,8 @@ class RobotSysBrowsersTable
                         default => 'gray',
                     })->action(
                         Action::make('viewLatestLog')
-                            ->label(fn ($record) => "Detail Log Robot - Invoice Number: {$record->invoice_number}")
-                            ->mountUsing(fn ($form, $record) => $form->fill($record->latestRobotLog?->toArray() ?? []))
+                            ->label(fn($record) => "Detail Log Robot - Invoice Number: {$record->invoice_number}")
+                            ->mountUsing(fn($form, $record) => $form->fill($record->latestRobotLog?->toArray() ?? []))
                             ->disabledSchema()
                             ->schema([
                                 Grid::make()
@@ -70,7 +70,7 @@ class RobotSysBrowsersTable
                     // ->badge()
                     ->sortable()
                     ->copyable()
-                    ->copyMessage(fn (string $state): string => "Teks '{$state}' berhasil disalin!")
+                    ->copyMessage(fn(string $state): string => "Teks '{$state}' berhasil disalin!")
                     ->copyMessageDuration(1500)
                     ->stickyable()
                     ->searchable(),
@@ -78,7 +78,7 @@ class RobotSysBrowsersTable
                     ->sortable()
                     ->stickyable()
                     ->copyable()
-                    ->copyMessage(fn (string $state): string => "Teks '{$state}' berhasil disalin!")
+                    ->copyMessage(fn(string $state): string => "Teks '{$state}' berhasil disalin!")
                     ->copyMessageDuration(1500)
                     ->searchable(),
                 TextColumn::make('company')->label('Company')
@@ -147,7 +147,7 @@ class RobotSysBrowsersTable
                         'ENDED' => 'ENDED',
                         'EXECUTING' => 'EXECUTING',
                     ])
-                    ->default('EXECUTING'),
+                    ->default(''),
                 SelectFilter::make('company')
                     ->options(
                         RobotSysBrowser::query()
