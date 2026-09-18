@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Filament\Resources\RobotPostings\Schemas;
+
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Schema;
+
+class RobotPostingInfolist
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                TextEntry::make('index_baris')
+                    ->numeric()
+                    ->placeholder('-'),
+                TextEntry::make('invoice_no')->color('success')
+                    ->placeholder('-'),
+                TextEntry::make('company')
+                    ->placeholder('-'),
+                TextEntry::make('name')
+                    ->placeholder('-'),
+                TextEntry::make('purchase_order')
+                    ->placeholder('-'),
+                TextEntry::make('last_job_error_details_log')
+                    ->label('Error Details Log')
+                    ->limit(200)
+                    ->wrap()
+                    ->tooltip(fn ($state) => $state)
+                    ->color('danger'),
+                TextEntry::make('created_at')
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('updated_at')
+                    ->dateTime()
+                    ->placeholder('-'),
+            ]);
+    }
+}

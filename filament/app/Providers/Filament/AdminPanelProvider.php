@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use Awcodes\LightSwitch\LightSwitchPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -20,21 +19,11 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Support\Assets\Js;
-use Filament\View\PanelsRenderHook;
 use App\Filament\Pages\Auth\CustomLogin;
-use Illuminate\Support\Facades\Auth;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
-use Filament\Resources\Pages\CreateRecord;
-use Filament\Resources\Pages\EditRecord;
-use BezhanSalleh\FilamentShield\Resources\RoleResource;
-use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource as RolesRoleResource;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\TextInput;
 use Filament\Navigation\NavigationItem;
-use Filament\Schemas\Components\Form;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Section;
+use Filament\Support\Assets\Css;
+use Filament\View\PanelsRenderHook;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -43,9 +32,36 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path('')
             ->login(CustomLogin::class)
-            ->colors(['primary' => Color::Amber,])
+            ->colors([
+                'primary' => [
+                    50 => '#e8faef',
+                    100 => '#c7f3d6',
+                    200 => '#93e7b2',
+                    300 => '#55d387',
+                    400 => '#25d366',
+                    500 => '#128c7e',
+                    600 => '#075e54',
+                    700 => '#05443c',
+                    800 => '#04302b',
+                    900 => '#032521',
+                    950 => '#011513',
+                ],
+                'gray' => [
+                    50 => '#f0f2f5',
+                    100 => '#e9edef',
+                    200 => '#dfe5e7',
+                    300 => '#8696a0',
+                    400 => '#667781',
+                    500 => '#3b4a54',
+                    600 => '#2a3942',
+                    700 => '#202c33',
+                    800 => '#182229',
+                    900 => '#111b21',
+                    950 => '#0b141a',
+                ]
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([Dashboard::class,])
@@ -65,36 +81,63 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            // ->assets([
-            //     Js::make('alpine-mask', 'https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js'),
-            // ])
+            ->assets([
+                Js::make('stimulsoft-engine', asset('stimulsoft/stimulsoft.reports.engine.pack.js')),
+                Js::make('stimulsoft-viewer', asset('stimulsoft/stimulsoft.viewer.pack.js')),
+                Js::make('stimulsoft-export', asset('stimulsoft/stimulsoft.reports.export.pack.js')),
+                Css::make('custom-styles', resource_path('css/custom-filament.css')),
+
+            ])
             ->font('Poppins')
             ->spa()
             ->colors([
-                'primary' => Color::Fuchsia,
+                'primary' => Color::Emerald,
                 'secondary' => Color::Indigo,
                 'success' => Color::Emerald,
                 'warning' => Color::Amber,
                 'danger' => Color::Rose,
             ])
             ->plugins([
-                // LightSwitchPlugin::make(),
-                FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make()
+                    ->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3,
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ])
+                    ->navigationGroup('Admin'),
             ])
             ->navigationItems([
                 NavigationItem::make('Logout')
-                    ->label('Keluar Sistem') // Teks yang muncul di sidebar
-                    ->url(fn(): string => "javascript:document.getElementById('logout-form').submit();") // Rute logout otomatis Filament
-                    ->icon('heroicon-o-arrow-left-on-rectangle') // Ikon pintu keluar
+                    ->label('Keluar Sistem')
+                    ->url(fn(): string => "javascript:document.getElementById('logout-form').submit();")
+                    ->icon('heroicon-o-arrow-left-on-rectangle')
                     ->sort(1000)
-                    // 2. Berikan nama grup khusus agar posisinya terpisah di paling bawah sidebar
                     ->group('Sistem')
-                    ->visible(fn(): bool => auth()->check()), // Hanya muncul jika user sudah login
+                    ->visible(fn(): bool => auth()->check()),
             ])
             ->renderHook(
-                'panels::body.end',
-                fn() => view('filament.components.logout-form')
+                PanelsRenderHook::USER_MENU_BEFORE,
+                fn(): string => view('filament.components.custom-user-menu')->render(),
             )
+            // ->renderHook(
+            //     PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
+            //     fn(): string => Blade::render('
+            //     <div class="text-sm font-medium text-gray-500 me-3">
+            //         Halo, Selamat Datang!
+            //     </div>
+            // '),
+            // )
+            ->maxContentWidth('full')
         ;
     }
 

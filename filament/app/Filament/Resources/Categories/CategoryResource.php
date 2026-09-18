@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Categories;
 
+use App\Filament\Resources\BaseResource;
 use App\Filament\Resources\Categories\Pages\CreateCategory;
 use App\Filament\Resources\Categories\Pages\EditCategory;
 use App\Filament\Resources\Categories\Pages\ListCategories;
@@ -24,6 +25,7 @@ class CategoryResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBackspace;
 
     protected static ?string $recordTitleAttribute = 'Category';
+    protected static ?string $modelLabel = 'Category';
 
     protected static string|UnitEnum|null $navigationGroup = 'Master Data';
 

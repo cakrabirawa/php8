@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Filament\Resources\Categories\Tables\CategoriesTable;
 use App\Models\Category;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -10,6 +11,14 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Filament\Support\RawJs;
+use CodeWithDennis\FilamentSelectTree\SelectTree;
+use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\ModalTableSelect;
+use Filament\Forms\Components\Radio;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Support\HtmlString;
 
 class ProductForm
 {
@@ -28,11 +37,55 @@ class ProductForm
     JS))
                     ->stripCharacters('.')
                     ->required(),
-                Select::make('category_id')
+                // Select::make('category_id')
+                //     ->label('Kategori')
+                //     ->relationship('category', 'name') // 'category' adalah nama fungsi relasi di Model, 'name' adalah kolom yang mau ditampilkan
+                //     ->searchable() // Membuat pilihan bisa dicari teksnya
+                //     ->preload() // Memuat data di awal agar cepat saat diklik
+                //     ->required(),
+                SelectTree::make('category_id')
                     ->label('Kategori')
-                    ->relationship('category', 'name') // 'category' adalah nama fungsi relasi di Model, 'name' adalah kolom yang mau ditampilkan
-                    ->searchable() // Membuat pilihan bisa dicari teksnya
-                    ->preload() // Memuat data di awal agar cepat saat diklik
+                    ->relationship('category', 'name', 'parent_id') // Sesuaikan nama relasi di model Anda
+                    ->placeholder('Pilih kategori atau sub-kategori...')
+                    ->enableBranchNode()
+                    ->withCount() // Opsional: Menampilkan jumlah item di dalam kategori tersebut
+                    ->searchable(), // Opsional: Mempermudah pencarian
+                Select::make('category_id')
+                    ->relationship('category', 'name')
+                    ->label('Kategori')
+                    ->searchable()
+                    ->preload()
+                    // 💡 Tambahkan tombol aksi pencarian di sebelah dropdown
+                    ->suffixAction(
+                        Action::make('lookupKategori')
+                            ->icon('heroicon-m-magnifying-glass')
+                            ->tooltip('Cari Kategori via Tabel')
+                            ->modalHeading('Pilih Kategori Produk')
+                            ->modalWidth('4xl') // Membuat ukuran modal pop-up lebar
+                            // Masukkan tabel pencarian ke dalam modal
+                            ->schema([
+                                Grid::make(1)->schema([
+                                    // Menggunakan komponen repeater atau radio tabel kustom
+                                    Radio::make('selected_id')
+                                        ->label('Pilih salah satu kategori di bawah ini:')
+                                        ->options(Category::all()->pluck('name', 'id'))
+                                        ->descriptions(Category::all()->mapWithKeys(function ($item) {
+                                            return [$item->id => $item->parent ? "Induk: {$item->parent->name}" : 'Kategori Utama'];
+                                        })->toArray())
+                                        ->required(),
+                                ])
+                            ])
+                            // Ketika admin memilih di modal dan klik tombol "Pilih"
+                            ->action(function (array $data, Set $set) {
+                                $set('category_id', $data['selected_id']);
+                            })
+                    ),
+                ModalTableSelect::make('category_id')
+                    ->relationship('category', 'name')
+                    ->label('Kategori')
+                    ->tableConfiguration(CategoriesTable::class),
+                DatePicker::make('released_date')
+                    ->label('Tanggal Rilis')
                     ->required(),
                 RichEditor::make('description')
                     ->columnSpanFull()
@@ -44,8 +97,9 @@ class ProductForm
                     ->disk('public') // 🛠️ WAJIB: Kunci mutlak ke disk public
                     ->directory('products')
                     ->visibility('public')
-                    // Matikan sementara imageEditor() dan circleCropper() jika ada untuk testing
                     ->maxSize(1024) // Maksimal 1 MB
+                    ->imageEditor()
+                    ->circleCropper()
                     ->columnSpanFull(),
             ]);
     }

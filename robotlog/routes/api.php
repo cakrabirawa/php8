@@ -1,0 +1,32 @@
+<?php
+
+use App\Http\Controllers\Api\RobotErrorScreenshotController;
+use App\Http\Controllers\Api\RobotIsAliveController;
+use App\Http\Controllers\Api\RobotJobLogController;
+use App\Http\Controllers\Api\RobotPostingController;
+use App\Http\Controllers\Api\RobotRecoveryInvoiceController;
+use App\Http\Controllers\Api\RobotSysBrowserController;
+use App\Http\Controllers\Api\RobotUtils;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/robot-sys-browser', [RobotSysBrowserController::class, 'store']);
+    Route::post('/robot-is-alive', [RobotIsAliveController::class, 'store']);
+    Route::post('/robot-posting', [RobotPostingController::class, 'store']);
+    Route::post('/robot-error-screenshot', [RobotErrorScreenshotController::class, 'store']);
+    Route::post('/robot-recovery/recovery-invoices', [RobotRecoveryInvoiceController::class, 'store']);
+
+    Route::patch('/robot-recovery/recovery-invoices', [RobotRecoveryInvoiceController::class, 'updateRecoveryStatus']);
+    Route::patch('/robot-posting/final-status', [RobotPostingController::class, 'updateFinalStatus']);
+});
+Route::get('/robot-sys-browser/executing-count', [RobotSysBrowserController::class, 'getExecutingCount']);
+Route::get('/robot-recovery/need-recovery', [RobotRecoveryInvoiceController::class, 'getNeedRecovery']);
+Route::get('/robot-sys-browser/error-batches', [RobotSysBrowserController::class, 'getErrorBatchJobs']);
+Route::get('/robot-sys-browser/ended-batches', [RobotSysBrowserController::class, 'getEndedBatchJobs']);
+Route::get('/robot-recovery/ready-to-recovery-batches', [RobotRecoveryInvoiceController::class, 'getReadyToRecoveryBatches']);
+
+Route::get('/clean-all-table', [RobotUtils::class, 'cleanRobotTable']);

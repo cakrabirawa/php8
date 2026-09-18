@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
+use App\Filament\Exports\CustomCsvExport;
+use App\Models\Category;
+use App\Models\Product;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ReplicateAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Support\Colors\Color;
@@ -15,6 +17,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class ProductsTable
 {
@@ -24,12 +27,13 @@ class ProductsTable
             ->columns([
                 ImageColumn::make('product_image')
                     ->label('Foto Produk')
-                    ->disk('public'), // 🛠️ WAJIB: Kunci mutlak ke disk public
+                    ->disk('public'),
                 TextColumn::make('product_name')
                     ->searchable(),
                 TextColumn::make('description')
                     ->searchable()
-                    ->html()
+                    // ->html()
+                    ->formatStateUsing(fn(string $state): string => strip_tags($state))
                     ->limit(50)
                     ->wrap(),
                 TextColumn::make('price')
@@ -39,19 +43,49 @@ class ProductsTable
                     ->label('Kategori')
                     ->default('-') // Jika kosong, tampilkan tanda strip
                     ->color('gray'),
+                TextColumn::make('category.name')
+                    ->label('Kategori')
+                    ->searchable()
+                    ->formatStateUsing(function ($state, Product $record) {
+                        if (! $record->category) {
+                            return '-';
+                        }
+                        $paths = [];
+                        $currentCategory = $record->category;
+                        while ($currentCategory) {
+                            $paths[] = $currentCategory->name;
+                            $currentCategory = $currentCategory->parent;
+                        }
+                        $orderedPaths = array_reverse($paths);
+                        return implode(' ➔ ', $orderedPaths);
+                    })
+                    ->html()
+                    ->wrap(),
+                TextColumn::make('released_date')
+                    ->date('d-m-Y'),
+                TextColumn::make('creator.name')
+                    ->label('Dibuat Oleh')
+                    ->placeholder('Sistem / Anonim')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updater.name')
+                    ->label('Diubah Terakhir Oleh')
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->humanFormat(),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->humanFormat(),
             ])
             ->filters([
                 //
             ])
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
@@ -61,7 +95,7 @@ class ProductsTable
                         ->color(Color::Amber)
                         ->requiresConfirmation()
                         ->modalHeading('Duplikasi Data')
-                        ->modalDescription('Apakah Anda yakin ingin menggandakan data ini? File duplikat akan dibuat dengan nama baru.')
+                        ->modalDescription('Apakah Anda yakin ingin menggandakan data ini ? File duplikat akan dibuat dengan nama baru.')
                         ->modalSubmitActionLabel('Ya, Gandakan')
                         ->modalCancelActionLabel('Batal')
                         ->action(function (Model $record): void {
@@ -80,11 +114,13 @@ class ProductsTable
                     ->label('')
                     ->iconButton()
                     ->tooltip('Opsi Data')
-                    ->button()
                     ->color('gray'),
             ])
             ->defaultSort('created_at', 'desc')
             ->striped()
-        ;
+            ->toolbarActions([
+                CustomCsvExport::makeCSV(),
+                DeleteBulkAction::make(),
+            ]);
     }
 }

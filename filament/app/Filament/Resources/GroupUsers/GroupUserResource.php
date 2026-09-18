@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\GroupUsers;
 
+use App\Filament\Resources\BaseResource;
 use App\Filament\Resources\GroupUsers\Pages\CreateGroupUser;
 use App\Filament\Resources\GroupUsers\Pages\EditGroupUser;
 use App\Filament\Resources\GroupUsers\Pages\ListGroupUsers;
@@ -24,6 +25,7 @@ class GroupUserResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCheckBadge;
 
     protected static ?string $recordTitleAttribute = 'Group User';
+    protected static ?string $modelLabel = 'Group User';
 
     protected static string|UnitEnum|null $navigationGroup = 'Admin';
 
