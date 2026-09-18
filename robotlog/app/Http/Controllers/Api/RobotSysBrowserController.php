@@ -354,4 +354,42 @@ class RobotSysBrowserController extends Controller
             'data' => $records,
         ], 200);
     }
+
+    public function getErrorBatchJobs(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->query(), [
+            'company' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Parameter tidak valid.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $query = RobotSysBrowser::query()
+            ->select(['batch_job_id', 'company', 'invoice_no'])
+            ->whereDoesntHave('robotJobLogs')
+            ->whereIn('status', ['ERROR', 'error']);
+
+        if ($request->filled('company')) {
+            $company = trim((string) $request->query('company'));
+            $query->where('company', $company);
+        }
+
+        $records = $query
+            ->orderByDesc('id')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Berhasil mengambil data status ERROR.',
+            'data' => $records,
+            'meta' => [
+                'total' => $records->count(),
+            ],
+        ], 200);
+    }
 }

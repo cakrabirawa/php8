@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::get('/robot-sys-browser/executing-count', [RobotSysBrowserController::class, 'getExecutingCount']);
 Route::get('/robot-recovery/need-recovery', [RobotRecoveryInvoiceController::class, 'getNeedRecovery']);
+Route::get('/robot-sys-browser/error-batches', [RobotSysBrowserController::class, 'getErrorBatchJobs']);
 Route::get('/robot-sys-browser/ended-batches', [RobotSysBrowserController::class, 'getEndedBatchJobs']);
 Route::get('/robot-recovery/ready-to-recovery-batches', [RobotRecoveryInvoiceController::class, 'getReadyToRecoveryBatches']);
 
