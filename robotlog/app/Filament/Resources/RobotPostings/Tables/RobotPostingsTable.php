@@ -18,22 +18,22 @@ class RobotPostingsTable
                 '*',
                 'last_sys_browser_status' => DB::table('robot_sys_browser')
                     ->select('status')
-                    ->whereRaw('upper(TRIM(invoice_no)) = upper(TRIM(robot_postings.invoice_number))')
+                    ->whereRaw('upper(TRIM(invoice_no)) = upper(TRIM(robot_postings.invoice_no))')
                     ->orderBy('id', 'desc')
                     ->limit(1),
                 'last_sys_browser_batch_id' => DB::table('robot_sys_browser')
                     ->select('batch_job_id')
-                    ->whereRaw('upper(TRIM(invoice_no)) = upper(TRIM(robot_postings.invoice_number))')
+                    ->whereRaw('upper(TRIM(invoice_no)) = upper(TRIM(robot_postings.invoice_no))')
                     ->orderBy('id', 'desc')
                     ->limit(1),
                 'last_sys_browser_timestamp' => DB::table('robot_sys_browser')
                     ->select('timestamp')
-                    ->whereRaw('upper(TRIM(invoice_no)) = upper(TRIM(robot_postings.invoice_number))')
+                    ->whereRaw('upper(TRIM(invoice_no)) = upper(TRIM(robot_postings.invoice_no))')
                     ->orderBy('id', 'desc')
                     ->limit(1),
                 'last_job_error_details_log' => DB::table('robot_job_logs')
                     ->select('info')
-                    ->whereRaw('upper(TRIM(invoice_no)) = upper(TRIM(robot_postings.invoice_number))')
+                    ->whereRaw('upper(TRIM(invoice_no)) = upper(TRIM(robot_postings.invoice_no))')
                     ->orderBy('robot_job_logs.id', 'desc')
                     ->limit(1),
             ]))
@@ -41,7 +41,7 @@ class RobotPostingsTable
                 'robotLogs as total_errors' => fn ($q) => $q->where('status', 'ERROR'),
             ]))
             ->columns([
-                TextColumn::make('invoice_number')->label('Invoice No')
+                TextColumn::make('invoice_no')->label('Invoice No')
                     ->searchable()
                     ->sortable()
                     ->copyable()
@@ -49,7 +49,7 @@ class RobotPostingsTable
                     ->copyMessageDuration(1500)
                     ->action(
                         Action::make('viewErrors')
-                            ->modalHeading(fn (RobotPosting $record) => "Daftar Error - Invoice: {$record->invoice_number}")
+                            ->modalHeading(fn (RobotPosting $record) => "Daftar Error - Invoice: {$record->invoice_no}")
                             ->modalWidth('5xl')
                             ->modalSubmitAction(false)
                             ->modalCancelActionLabel('Tutup')
@@ -70,7 +70,7 @@ class RobotPostingsTable
                     ->alignCenter()
                     ->sortable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->whereIn('invoice_number', function ($sub) use ($search) {
+                        return $query->whereIn('invoice_no', function ($sub) use ($search) {
                             $sub->select('invoice_no')
                                 ->from('robot_sys_browser')
                                 ->where('status', 'like', "%{$search}%");
@@ -88,7 +88,7 @@ class RobotPostingsTable
                     ->copyMessageDuration(1500)
                     ->sortable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->whereIn('invoice_number', function ($sub) use ($search) {
+                        return $query->whereIn('invoice_no', function ($sub) use ($search) {
                             $sub->select('invoice_no')
                                 ->from('robot_sys_browser')
                                 ->where('batch_job_id', 'like', "%{$search}%");
@@ -106,7 +106,7 @@ class RobotPostingsTable
                     ->sortable()
                     // Karena ini kolom virtual hasil subquery, pencarian harus diarahkan ke tabel aslinya lewat join manual
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->whereIn('invoice_number', function ($sub) use ($search) {
+                        return $query->whereIn('invoice_no', function ($sub) use ($search) {
                             $sub->select('b.invoice_no')
                                 ->from('robot_job_logs as l')
                                 ->join('robot_sys_browser as b', 'l.batch_job_id', '=', 'b.batch_job_id')

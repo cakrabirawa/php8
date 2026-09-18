@@ -14,24 +14,19 @@ class RobotPostingInfolist
                 TextEntry::make('index_baris')
                     ->numeric()
                     ->placeholder('-'),
-                TextEntry::make('invoice_number')->color('success')
+                TextEntry::make('invoice_no')->color('success')
                     ->placeholder('-'),
                 TextEntry::make('company')
                     ->placeholder('-'),
-                // TextEntry::make('invoice_account')
-                //     ->placeholder('-'),
                 TextEntry::make('name')
                     ->placeholder('-'),
                 TextEntry::make('purchase_order')
-                    ->placeholder('-'),
-                TextEntry::make('invoice_received_date')
-                    ->date()
                     ->placeholder('-'),
                 TextEntry::make('last_job_error_details_log')
                     ->label('Error Details Log')
                     ->limit(200)
                     ->wrap()
-                    ->tooltip(fn($state) => $state)
+                    ->tooltip(fn ($state) => $state)
                     ->color('danger'),
                 TextEntry::make('created_at')
                     ->dateTime()

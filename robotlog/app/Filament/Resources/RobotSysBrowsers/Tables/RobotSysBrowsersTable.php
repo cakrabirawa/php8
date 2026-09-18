@@ -33,7 +33,7 @@ class RobotSysBrowsersTable
                         default => 'gray',
                     })->action(
                         Action::make('viewLatestLog')
-                            ->label(fn($record) => "Detail Log Robot - Invoice Number: {$record->invoice_number}")
+                            ->label(fn($record) => "Detail Log Robot - Invoice Number: {$record->invoice_no}")
                             ->mountUsing(fn($form, $record) => $form->fill($record->latestRobotLog?->toArray() ?? []))
                             ->disabledSchema()
                             ->schema([
@@ -74,6 +74,16 @@ class RobotSysBrowsersTable
                     ->copyMessageDuration(1500)
                     ->stickyable()
                     ->searchable(),
+                TextColumn::make('type')->label('Batch Type')
+                    ->searchable()
+                    ->sortable()
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'POSTING' => 'warning',
+                        'RECOVERING' => 'danger',
+                        default => 'gray',
+                    })
+                    ->stickyable(),
                 TextColumn::make('batch_job_id')->label('Batch Job Id')
                     ->sortable()
                     ->stickyable()
@@ -162,10 +172,13 @@ class RobotSysBrowsersTable
             ->striped()
             ->groups([
                 Group::make('status')
-                    ->label('Status')
+                    ->label('Batch Status')
                     ->collapsible(),
                 Group::make('invoice_no')
                     ->label('Invoice No')
+                    ->collapsible(),
+                Group::make('type')
+                    ->label('Batch Type')
                     ->collapsible(),
                 Group::make('company')
                     ->label('Company')

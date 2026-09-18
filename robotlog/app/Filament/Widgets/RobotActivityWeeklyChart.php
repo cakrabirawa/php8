@@ -72,4 +72,18 @@ class RobotActivityWeeklyChart extends ChartWidget
   {
     return 'line';
   }
+
+  protected function getOptions(): array
+  {
+    return [
+      'scales' => [
+        'y' => [
+          'min' => 1,
+          'ticks' => [
+            'stepSize' => 1,
+          ],
+        ],
+      ],
+    ];
+  }
 }

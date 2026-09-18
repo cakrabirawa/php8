@@ -16,26 +16,10 @@ class RobotPostingController extends Controller
         // 2. PERBAIKAN: Lakukan validasi skema array payload API agar method validated() bisa bekerja
         $validated = $request->validate([
             'Invoice' => 'required|string',
-            'index_baris' => 'nullable',
             'Company' => 'nullable',
             'Invoice account' => 'nullable',
             'Name' => 'nullable',
             'Purchase order' => 'nullable',
-            'Invoice received date' => 'nullable',
-            'Imported invoice amount' => 'nullable',
-            'Last match status' => 'nullable',
-            'Variance approved' => 'nullable',
-            'Product receipt' => 'nullable',
-            '(C) Status' => 'nullable',
-            '(C) CA/CSA number' => 'nullable',
-            '(C) Pool' => 'nullable',
-            '(C) Intercompany sales invoice' => 'nullable',
-            '(C) Tax invoice number' => 'nullable',
-            '(C) is total updated' => 'nullable',
-            '(C) is split invoice' => 'nullable',
-            '(C) is split invoice return' => 'nullable',
-            'Created date and time' => 'nullable',
-            '(C) Ready to Post Created DateTime' => 'nullable',
         ]);
 
         try {
@@ -63,29 +47,13 @@ class RobotPostingController extends Controller
             // Eksekusi pencarian atau pembuatan data baru di database
             $invoice = RobotPosting::firstOrCreate(
                 [
-                    'invoice_number' => $validated['Invoice'],
+                    'invoice_no' => $validated['Invoice'],
                 ],
                 [
-                    'index_baris' => $validated['index_baris'] ?? null,
                     'company' => $validated['Company'] ?? null,
                     'invoice_account' => $validated['Invoice account'] ?? null,
                     'name' => $validated['Name'] ?? null,
                     'purchase_order' => $validated['Purchase order'] ?? null,
-                    'invoice_received_date' => $invoiceReceivedDate,
-                    'imported_invoice_amount' => $validated['Imported invoice amount'] ?? null,
-                    'last_match_status' => $validated['Last match status'] ?? null,
-                    'variance_approved' => $validated['Variance approved'] ?? null,
-                    'product_receipt' => $validated['Product receipt'] ?? null,
-                    'c_status' => $validated['(C) Status'] ?? null,
-                    'c_ca_csa_number' => $validated['(C) CA/CSA number'] ?? null,
-                    'c_pool' => $validated['(C) Pool'] ?? null,
-                    'c_intercompany_sales_invoice' => $validated['(C) Intercompany sales invoice'] ?? null,
-                    'c_tax_invoice_number' => $validated['(C) Tax invoice number'] ?? null,
-                    'c_is_total_updated' => $validated['(C) is total updated'] ?? null,
-                    'c_is_split_invoice' => $validated['(C) is split invoice'] ?? null,
-                    'c_is_split_invoice_return' => $validated['(C) is split invoice return'] ?? null,
-                    'created_date_and_time' => $createdDateTime,
-                    'c_ready_to_post_created_datetime' => $readyToPostDateTime,
                     'posting_attempt' => 0,
                 ]
             );
@@ -98,7 +66,7 @@ class RobotPostingController extends Controller
                 'success' => true,
                 'message' => $isWasRecentlyCreated ? 'Data invoice berhasil diproses.' : 'Data invoice sudah ada, tidak di-insert kembali.',
                 'data' => [
-                    'invoice_number' => $validated['Invoice'],
+                    'invoice_no' => $validated['Invoice'],
                     'index_baris' => $validated['index_baris'] ?? null,
                     'inserted' => $isWasRecentlyCreated,
                 ],
@@ -115,13 +83,13 @@ class RobotPostingController extends Controller
     public function updateFinalStatus(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'invoice_number' => 'required|string',
+            'invoice_no' => 'required|string',
             'company' => 'required|string',
             'final_status' => 'nullable|string|max:255',
         ]);
 
         $company = $validated['company'];
-        $invoice_number = $validated['invoice_number'];
+        $invoice_no = $validated['invoice_no'];
 
         if (blank($company)) {
             return response()->json([
@@ -133,7 +101,7 @@ class RobotPostingController extends Controller
         $finalStatus = $validated['final_status'] ?? 'Checked';
 
         $affectedRows = RobotPosting::query()
-            ->whereRaw('upper(TRIM(invoice_number)) = upper(TRIM(?))', [$invoice_number], 'and')
+            ->whereRaw('upper(TRIM(invoice_no)) = upper(TRIM(?))', [$invoice_no], 'and')
             ->whereRaw('upper(TRIM(company)) = upper(TRIM(?))', [$company], 'and')
             ->update([
                 'final_status' => $finalStatus,
@@ -143,9 +111,9 @@ class RobotPostingController extends Controller
         if ($affectedRows === 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Data RobotPosting tidak ditemukan untuk invoice_number {'.$invoice_number.'} dan company {'.$company.'} tersebut.',
+                'message' => 'Data RobotPosting tidak ditemukan untuk invoice_no {'.$invoice_no.'} dan company {'.$company.'} tersebut.',
                 'data' => [
-                    'invoice_number' => $validated['invoice_number'],
+                    'invoice_no' => $validated['invoice_no'],
                     'company' => $company,
                 ],
             ], 404);
@@ -155,7 +123,7 @@ class RobotPostingController extends Controller
             'success' => true,
             'message' => 'Final status berhasil diperbarui.',
             'data' => [
-                'invoice_number' => $validated['invoice_number'],
+                'invoice_no' => $validated['invoice_no'],
                 'company' => $company,
                 'final_status' => $finalStatus,
                 'updated_rows' => $affectedRows,
